@@ -1,0 +1,61 @@
+<div class="container">
+  <header class="header">
+    <h1>LupaCNPJ</h1>
+    <p class="subtitle">
+      Envie um CSV com as colunas <code>cnpj</code> e/ou <code>razao_social</code> e acompanhe os resultados em tempo real.
+    </p>
+  </header>
+
+  <main class="card">
+    <section class="upload-section">
+      <label class="upload-label" for="csv-input">
+        <span class="upload-icon">📄</span>
+        <span>Clique para selecionar o CSV de entrada</span>
+        <span class="upload-hint">Colunas: <strong>cnpj</strong> e/ou <strong>razao_social</strong> (pelo menos uma por linha)</span>
+      </label>
+      <input
+        id="csv-input"
+        type="file"
+        accept=".csv"
+        (change)="onArquivoSelecionado($event)"
+        [disabled]="enviando()"
+      />
+    </section>
+
+    @if (arquivoSelecionado()) {
+      <div class="file-info">
+        <span class="file-name">{{ arquivoSelecionado()!.name }}</span>
+        <span class="file-size">{{ (arquivoSelecionado()!.size / 1024) | number:'1.0-1' }} KB</span>
+      </div>
+    }
+
+    <div class="actions">
+      <button
+        class="btn btn-primary"
+        (click)="processar()"
+        [disabled]="!arquivoSelecionado() || enviando()"
+      >
+        @if (enviando()) {
+          <span class="spinner"></span>
+          Enviando...
+        } @else {
+          Enriquecer CNPJs
+        }
+      </button>
+    </div>
+
+    @if (mensagem()) {
+      <div class="alert alert-info">{{ mensagem() }}</div>
+    }
+  </main>
+
+  <footer class="info">
+    <h2>Como funciona</h2>
+    <ol>
+      <li>Prepare um CSV com <code>cnpj</code> e/ou <code>razao_social</code></li>
+      <li>Faça o upload e clique em <strong>Enriquecer CNPJs</strong></li>
+      <li>Você será levado à página de acompanhamento com os dados aparecendo em tempo real</li>
+      <li>Ao finalizar, baixe a planilha completa em CSV</li>
+    </ol>
+  </footer>
+</div>

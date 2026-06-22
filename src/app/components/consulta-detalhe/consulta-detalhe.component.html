@@ -1,0 +1,113 @@
+<div class="container">
+  <header class="header">
+    <a routerLink="/" class="back-link">← Nova consulta</a>
+    <h1>Acompanhamento da consulta</h1>
+    @if (job()) {
+      <p class="subtitle">
+        Arquivo: <strong>{{ job()!.arquivo }}</strong>
+        · ID: <code>{{ jobId().slice(0, 8) }}...</code>
+      </p>
+    }
+  </header>
+
+  @if (job()) {
+    <section class="card progress-card">
+      @if (job()!.status === 'NA_FILA' && job()!.posicaoFila > 0) {
+        <p class="queue-info">
+          Na fila — posição <strong>{{ job()!.posicaoFila }}</strong>.
+          Sua consulta será processada em seguida.
+        </p>
+      }
+
+      <div class="progress-header">
+        <span class="status-badge" [class.done]="concluido()" [class.error]="job()!.status === 'ERRO'">
+          {{ job()!.status === 'NA_FILA' ? 'Na fila' : job()!.status === 'PROCESSANDO' ? 'Processando' : job()!.status === 'CONCLUIDO' ? 'Concluído' : 'Erro' }}
+        </span>
+        <span>{{ job()!.percentual }}% · {{ job()!.processados }} / {{ job()!.total }}</span>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="job()!.percentual"></div>
+      </div>
+
+      <div class="progress-stats">
+        <span class="stat-success">{{ job()!.sucesso }} sucesso(s)</span>
+        <span class="stat-error">{{ job()!.erros }} erro(s)</span>
+      </div>
+
+      <p class="mensagem">{{ job()!.mensagem }}</p>
+
+      @if (concluido()) {
+        <button class="btn btn-primary" (click)="baixarCsv()">
+          Baixar planilha CSV
+        </button>
+      }
+    </section>
+
+    <section class="card results-card">
+      <div class="results-header">
+        <h2>Resultados ({{ resultados().length }})</h2>
+        @if (emAndamento()) {
+          <span class="live-indicator"><span class="pulse"></span> Atualizando ao vivo</span>
+        }
+      </div>
+
+      @if (resultados().length === 0 && emAndamento()) {
+        <p class="empty-state">Aguardando os primeiros resultados...</p>
+      }
+
+      @if (resultados().length > 0) {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>CNPJ</th>
+                <th>Razão social</th>
+                <th>Cidade/UF</th>
+                <th>Situação</th>
+                <th>Telefone</th>
+                <th>E-mail</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of resultados(); track $index) {
+                <tr [class.row-error]="item.statusConsulta === 'ERRO'">
+                  <td>{{ $index + 1 }}</td>
+                  <td class="mono">{{ item.cnpj || '—' }}</td>
+                  <td>
+                    <div class="cell-main">{{ item.razaoSocial || item.razaoSocialInformada || '—' }}</div>
+                    @if (item.nomeFantasia) {
+                      <div class="cell-sub">{{ item.nomeFantasia }}</div>
+                    }
+                  </td>
+                  <td>{{ item.cidade }}{{ item.uf ? ' / ' + item.uf : '' }}</td>
+                  <td>{{ item.situacaoCadastral || '—' }}</td>
+                  <td>{{ item.telefone1 || '—' }}</td>
+                  <td class="email">{{ item.email || '—' }}</td>
+                  <td>
+                    <span class="badge" [class.badge-success]="item.statusConsulta === 'SUCESSO'" [class.badge-error]="item.statusConsulta === 'ERRO'">
+                      {{ item.statusConsulta }}
+                    </span>
+                    @if (item.erro) {
+                      <div class="cell-error">{{ item.erro }}</div>
+                    }
+                    @if (item.observacao) {
+                      <div class="cell-sub">{{ item.observacao }}</div>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+
+  @if (erro()) {
+    <div class="alert alert-error">{{ erro() }}</div>
+    <button class="btn btn-secondary" (click)="novaConsulta()">Voltar ao início</button>
+  }
+</div>
