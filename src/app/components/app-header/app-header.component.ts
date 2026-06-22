@@ -11,14 +11,27 @@ import { AppBrandComponent } from '../app-brand/app-brand.component';
     <header class="app-header">
       <app-brand />
       <nav class="nav">
-        <a routerLink="/app" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-          Importar
-        </a>
-        <a routerLink="/historico" routerLinkActive="active">Histórico</a>
-        @if (authService.currentUser(); as user) {
-          <span class="user-name">{{ user.nome }}</span>
+        @if (authService.isAuthenticated()) {
+          <a routerLink="/app" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            Importar
+          </a>
+          <a routerLink="/historico" routerLinkActive="active">Histórico</a>
+          <a routerLink="/planos" routerLinkActive="active">Planos</a>
+          @if (authService.currentUser(); as user) {
+            <span class="plan-badge" [class.plan-badge--master]="authService.isMaster()">
+              {{ user.planNome || 'Free' }}
+            </span>
+            <span class="user-name">{{ user.nome }}</span>
+          }
+          @if (!authService.isMaster() && authService.currentUser()?.plan !== 'PRO_PLUS') {
+            <a routerLink="/planos" class="btn-upgrade">Upgrade</a>
+          }
+          <button type="button" class="btn-logout" (click)="sair()">Sair</button>
+        } @else {
+          <a routerLink="/planos" routerLinkActive="active">Planos</a>
+          <a routerLink="/login" class="nav-link-muted">Entrar</a>
+          <a routerLink="/cadastro" class="btn-upgrade">Cadastrar</a>
         }
-        <button type="button" class="btn-logout" (click)="sair()">Sair</button>
       </nav>
     </header>
   `,
@@ -53,6 +66,30 @@ import { AppBrandComponent } from '../app-brand/app-brand.component';
     .nav a.active {
       color: #38bdf8;
       background: rgba(56, 189, 248, 0.1);
+    }
+
+    .nav-link-muted {
+      color: #94a3b8 !important;
+    }
+
+    .plan-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #7dd3fc;
+    }
+
+    .plan-badge--master {
+      background: rgba(167, 139, 250, 0.2);
+      color: #c4b5fd;
+    }
+
+    .btn-upgrade {
+      background: linear-gradient(135deg, #0ea5e9, #6366f1) !important;
+      color: #fff !important;
+      font-size: 0.8rem !important;
     }
 
     .user-name {

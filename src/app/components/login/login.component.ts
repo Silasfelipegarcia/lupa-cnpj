@@ -1,7 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CnpjImportService } from '../../services/cnpj-import.service';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
@@ -13,7 +13,7 @@ import { AppBrandComponent } from '../app-brand/app-brand.component';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
   email = '';
   password = '';
@@ -23,8 +23,15 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private cnpjImportService: CnpjImportService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
+
+  ngOnInit(): void {
+    if (this.route.snapshot.queryParamMap.get('sessaoExpirada') === '1') {
+      this.erro.set('Sua sessão expirou. Faça login novamente para continuar.');
+    }
+  }
 
   entrar(): void {
     if (this.enviando()) {
@@ -44,6 +51,12 @@ export class LoginComponent {
   }
 
   private redirecionarAposLogin(): void {
+    const redirect = this.route.snapshot.queryParamMap.get('redirect');
+    if (redirect && redirect.startsWith('/')) {
+      this.router.navigateByUrl(redirect);
+      return;
+    }
+
     this.cnpjImportService.obterJobAtivo().subscribe({
       next: (job) => {
         if (job) {

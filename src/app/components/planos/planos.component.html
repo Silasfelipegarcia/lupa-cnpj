@@ -1,0 +1,83 @@
+<div class="container">
+  <app-header />
+
+  <header class="header">
+    <h1>Planos</h1>
+    <p class="subtitle">
+      Escolha o plano ideal para o volume de consultas CNPJ do seu dia a dia.
+      @if (authService.isMaster()) {
+        Sua conta <strong>Master</strong> tem acesso ilimitado.
+      } @else {
+        @if (authService.currentUser(); as user) {
+          Plano atual: <strong>{{ user.planNome }}</strong>
+        }
+      }
+    </p>
+  </header>
+
+  @if (carregando()) {
+    <p class="loading">Carregando planos...</p>
+  } @else {
+    <div class="plans-grid">
+      @for (item of catalogo(); track item.plan) {
+        <article class="plan-card" [class.plan-card--current]="isPlanoAtual(item.plan)">
+          <div class="plan-card__header">
+            <h2>{{ item.nome }}</h2>
+            <span class="plan-price">{{ item.priceLabel }}</span>
+          </div>
+
+          <ul class="plan-features">
+            <li>Até <strong>{{ item.maxRowsPerFile | number }}</strong> empresas por planilha</li>
+            <li>
+              <strong>{{ item.batchSearchesPerDay }}</strong>
+              busca(s) em lote por dia
+            </li>
+            <li>
+              CNPJ avulso:
+              <strong>{{ item.directCnpjPerDay }}</strong> por dia
+            </li>
+          </ul>
+
+          <div class="plan-actions">
+            @if (authService.isMaster()) {
+              <span class="plan-badge plan-badge--master">Incluso no Master</span>
+            } @else if (isPlanoAtual(item.plan)) {
+              <span class="plan-badge">Seu plano atual</span>
+            } @else if (item.plan === 'FREE') {
+              <span class="plan-badge plan-badge--muted">Plano inicial</span>
+            } @else if (podeAssinar(item)) {
+              <button
+                type="button"
+                class="btn btn-primary"
+                [disabled]="!!processando()"
+                (click)="assinar(item.plan)"
+              >
+                @if (processando() === item.plan) {
+                  Abrindo checkout...
+                } @else {
+                  Assinar com cartão
+                }
+              </button>
+            } @else {
+              <span class="plan-badge plan-badge--muted">—</span>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  @if (mensagem()) {
+    <div class="alert alert-info">{{ mensagem() }}</div>
+  }
+  @if (erro()) {
+    <div class="alert alert-error">{{ erro() }}</div>
+  }
+
+  <p class="footer-note">
+    Pagamento seguro via Mercado Pago. Após a confirmação, seu plano é atualizado automaticamente.
+    @if (!authService.isAuthenticated()) {
+      <a routerLink="/login">Entre</a> para assinar um plano pago.
+    }
+  </p>
+</div>

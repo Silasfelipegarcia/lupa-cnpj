@@ -1,22 +1,47 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { CnpjImportService } from '../../services/cnpj-import.service';
-import { ImportJobResponse } from '../../models/import-job.model';
+import { BrowserNotificationService } from '../../services/browser-notification.service';
+import { ImportJobMonitorService } from '../../services/import-job-monitor.service';
+import { AuthService } from '../../services/auth.service';
+import { ImportJobResponse, CnpjResultadoItem } from '../../models/import-job.model';
 import { environment } from '../../../environments/environment';
 import { AppHeaderComponent } from '../app-header/app-header.component';
 
 @Component({
   selector: 'app-cnpj-import',
   standalone: true,
-  imports: [CommonModule, AppHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterLink, AppHeaderComponent],
   templateUrl: './cnpj-import.component.html',
   styleUrl: './cnpj-import.component.scss'
 })
 export class CnpjImportComponent implements OnInit {
 
   readonly maxFileSizeMb = environment.limits.maxFileSizeMb;
-  readonly maxRowsPerFile = environment.limits.maxRowsPerFile;
+
+  readonly maxRowsPerFile = computed(() => {
+    const usage = this.authService.currentUser()?.usage;
+    return usage?.maxRowsPerFile ?? 10;
+  });
+
+  readonly usageResumo = computed(() => {
+    const usage = this.authService.currentUser()?.usage;
+    if (!usage || usage.master) {
+      return null;
+    }
+    const batchLimite = usage.maxBatchSearchesPerDay;
+    const directLimite = usage.maxDirectCnpjPerDay;
+    return {
+      batch: batchLimite == null
+        ? `${usage.batchSearchesToday} buscas em lote hoje (ilimitado)`
+        : `${usage.batchSearchesToday} de ${batchLimite} buscas em lote hoje`,
+      direct: directLimite == null
+        ? `${usage.directCnpjToday} CNPJs avulsos hoje (ilimitado)`
+        : `${usage.directCnpjToday} de ${directLimite} CNPJs avulsos hoje`
+    };
+  });
 
   pesquisaRazaoSocialHabilitada = signal(false);
   carregandoConfig = signal(true);
@@ -27,15 +52,28 @@ export class CnpjImportComponent implements OnInit {
   mensagem = signal<string>('');
   enviando = signal(false);
 
+  cnpjAvulso = '';
+  consultandoAvulso = signal(false);
+  resultadoAvulso = signal<CnpjResultadoItem | null>(null);
+  erroAvulso = signal('');
+
   constructor(
     private cnpjImportService: CnpjImportService,
-    private router: Router
+    private router: Router,
+    private notificationService: BrowserNotificationService,
+    private jobMonitor: ImportJobMonitorService,
+    readonly authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.authService.refreshMe().subscribe({ error: () => {} });
+
     this.cnpjImportService.obterJobAtivo().subscribe({
       next: (job) => {
         this.jobAtivo.set(job);
+        if (job && (job.status === 'NA_FILA' || job.status === 'PROCESSANDO')) {
+          this.jobMonitor.monitorar(job.jobId);
+        }
         this.carregarConfiguracao();
       },
       error: () => this.carregarConfiguracao()
@@ -64,6 +102,7 @@ export class CnpjImportComponent implements OnInit {
         this.arquivoSelecionado.set(null);
         this.cancelando.set(false);
         this.mensagem.set('Consulta cancelada. Selecione a planilha correta e envie novamente.');
+        this.authService.refreshMe().subscribe({ error: () => {} });
       },
       error: (erro: string) => {
         this.cancelando.set(false);
@@ -130,8 +169,62 @@ export class CnpjImportComponent implements OnInit {
     this.enviando.set(true);
     this.mensagem.set('Enviando arquivo...');
 
+    void this.iniciarProcessamento(arquivo);
+  }
+
+  onCnpjAvulsoInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const digits = input.value.replace(/\D/g, '').slice(0, 14);
+    if (digits.length <= 2) {
+      this.cnpjAvulso = digits;
+    } else if (digits.length <= 5) {
+      this.cnpjAvulso = `${digits.slice(0, 2)}.${digits.slice(2)}`;
+    } else if (digits.length <= 8) {
+      this.cnpjAvulso = `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+    } else if (digits.length <= 12) {
+      this.cnpjAvulso = `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
+    } else {
+      this.cnpjAvulso = `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
+    }
+    input.value = this.cnpjAvulso;
+  }
+
+  consultarCnpjAvulso(): void {
+    if (this.consultandoAvulso()) {
+      return;
+    }
+
+    const digits = this.cnpjAvulso.replace(/\D/g, '');
+    if (digits.length !== 14) {
+      this.erroAvulso.set('Informe um CNPJ válido com 14 dígitos.');
+      return;
+    }
+
+    this.consultandoAvulso.set(true);
+    this.erroAvulso.set('');
+    this.resultadoAvulso.set(null);
+
+    this.cnpjImportService.consultarCnpjDireto(digits).subscribe({
+      next: (result) => {
+        this.resultadoAvulso.set(result);
+        this.consultandoAvulso.set(false);
+        this.authService.refreshMe().subscribe({ error: () => {} });
+      },
+      error: (msg: string) => {
+        this.erroAvulso.set(msg);
+        this.consultandoAvulso.set(false);
+      }
+    });
+  }
+
+  private async iniciarProcessamento(arquivo: File): Promise<void> {
+    if (this.notificationService.devePedirPermissao()) {
+      await this.notificationService.solicitarPermissao();
+    }
+
     this.cnpjImportService.iniciarImportacao(arquivo).subscribe({
       next: (job) => {
+        this.authService.refreshMe().subscribe({ error: () => {} });
         this.router.navigate(['/consulta', job.jobId]);
       },
       error: (erro: string) => {

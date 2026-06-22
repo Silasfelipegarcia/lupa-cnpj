@@ -21,6 +21,19 @@
     }
   </header>
 
+  @if (emAndamento() && notificationService.devePedirPermissao()) {
+    <section class="notify-banner card">
+      <p>Ative as notificações do navegador para ser avisado quando a consulta terminar — mesmo em outra aba.</p>
+      <button type="button" class="btn-notify" (click)="ativarNotificacoes()" [disabled]="pedindoNotificacao()">
+        @if (pedindoNotificacao()) {
+          Aguardando permissão...
+        } @else {
+          Ativar notificações
+        }
+      </button>
+    </section>
+  }
+
   @if (job()) {
     <section class="card progress-card">
       @if (job()!.status === 'NA_FILA' && job()!.posicaoFila > 0) {

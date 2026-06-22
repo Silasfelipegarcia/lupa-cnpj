@@ -5,6 +5,8 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { HistoricoComponent } from './components/historico/historico.component';
 import { LandingComponent } from './components/landing/landing.component';
+import { PlanosComponent } from './components/planos/planos.component';
+import { PlanosResultadoComponent } from './components/planos/planos-resultado.component';
 import { authGuard } from './guards/auth.guard';
 import { guestGuard } from './guards/guest.guard';
 
@@ -16,5 +18,8 @@ export const routes: Routes = [
   { path: 'consulta/:jobId', component: ConsultaDetalheComponent, canActivate: [authGuard] },
   { path: 'historico', component: HistoricoComponent, canActivate: [authGuard] },
   { path: 'historico/:jobId', component: ConsultaDetalheComponent, canActivate: [authGuard] },
+  { path: 'planos', component: PlanosComponent },
+  { path: 'planos/sucesso', component: PlanosResultadoComponent },
+  { path: 'planos/pendente', component: PlanosResultadoComponent },
   { path: '**', redirectTo: '' }
 ];

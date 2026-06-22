@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CnpjImportService } from '../../services/cnpj-import.service';
+import { ImportJobMonitorService } from '../../services/import-job-monitor.service';
 import { ImportJobSummary } from '../../models/import-job.model';
 import { AppHeaderComponent } from '../app-header/app-header.component';
 
@@ -21,7 +22,8 @@ export class HistoricoComponent implements OnInit {
 
   constructor(
     private cnpjImportService: CnpjImportService,
-    private router: Router
+    private router: Router,
+    private jobMonitor: ImportJobMonitorService
   ) {}
 
   ngOnInit(): void {
@@ -34,6 +36,10 @@ export class HistoricoComponent implements OnInit {
       next: (items) => {
         this.consultas.set(items);
         this.carregando.set(false);
+        const ativo = items.find((item) => this.emAndamento(item.status));
+        if (ativo) {
+          this.jobMonitor.monitorar(ativo.jobId);
+        }
       },
       error: (msg: string) => {
         this.erro.set(msg);

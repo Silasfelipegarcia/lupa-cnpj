@@ -1,18 +1,27 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { GuestCnpjPreviewService } from '../../services/guest-cnpj-preview.service';
+import { CnpjPreviewQuota, CnpjPreviewResult } from '../../models/cnpj-preview.model';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [RouterLink, AppBrandComponent],
+  imports: [RouterLink, AppBrandComponent, FormsModule],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss'
 })
-export class LandingComponent {
+export class LandingComponent implements OnInit {
   readonly authService = inject(AuthService);
   readonly ano = new Date().getFullYear();
+
+  cnpjInput = '';
+  consultando = signal(false);
+  erroPreview = signal('');
+  resultado = signal<CnpjPreviewResult | null>(null);
+  quota = signal<CnpjPreviewQuota | null>(null);
 
   readonly features = [
     {
@@ -39,7 +48,7 @@ export class LandingComponent {
 
   readonly steps = [
     { num: '1', title: 'Crie sua conta', text: 'Cadastro rápido com nome, e-mail e CPF.' },
-    { num: '2', title: 'Envie a planilha', text: 'Colunas cnpj e/ou razao_social — até 900 linhas por arquivo.' },
+    { num: '2', title: 'Envie a planilha', text: 'Colunas cnpj e/ou razao_social — de 10 a 900 linhas conforme o plano.' },
     { num: '3', title: 'Acompanhe e baixe', text: 'Veja o progresso ao vivo e baixe o CSV enriquecido.' }
   ];
 
@@ -47,4 +56,75 @@ export class LandingComponent {
     'CNPJ', 'Razão social', 'Nome fantasia', 'Situação cadastral',
     'Telefones', 'E-mail', 'Endereço completo', 'CNAE principal'
   ];
+
+  constructor(private guestPreviewService: GuestCnpjPreviewService) {}
+
+  ngOnInit(): void {
+    if (!this.authService.isAuthenticated()) {
+      this.carregarQuota();
+    }
+  }
+
+  onCnpjInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const digits = input.value.replace(/\D/g, '').slice(0, 14);
+    if (digits.length <= 2) {
+      this.cnpjInput = digits;
+    } else if (digits.length <= 5) {
+      this.cnpjInput = `${digits.slice(0, 2)}.${digits.slice(2)}`;
+    } else if (digits.length <= 8) {
+      this.cnpjInput = `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+    } else if (digits.length <= 12) {
+      this.cnpjInput = `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
+    } else {
+      this.cnpjInput = `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
+    }
+    input.value = this.cnpjInput;
+  }
+
+  consultarCnpj(): void {
+    if (this.consultando() || this.authService.isAuthenticated()) {
+      return;
+    }
+
+    const digits = this.cnpjInput.replace(/\D/g, '');
+    if (digits.length !== 14) {
+      this.erroPreview.set('Informe um CNPJ válido com 14 dígitos.');
+      return;
+    }
+
+    if (this.quota()?.limiteAtingido) {
+      this.erroPreview.set('Você usou sua consulta gratuita. Crie uma conta para continuar.');
+      return;
+    }
+
+    this.consultando.set(true);
+    this.erroPreview.set('');
+    this.resultado.set(null);
+
+    this.guestPreviewService.consultar(digits).subscribe({
+      next: (result) => {
+        this.resultado.set(result);
+        this.quota.set({
+          consultasUsadas: result.consultasUsadas,
+          consultasLimite: result.consultasLimite,
+          consultasRestantes: result.consultasRestantes,
+          limiteAtingido: result.consultasRestantes <= 0
+        });
+        this.consultando.set(false);
+      },
+      error: (msg: string) => {
+        this.erroPreview.set(msg);
+        this.consultando.set(false);
+        this.carregarQuota();
+      }
+    });
+  }
+
+  private carregarQuota(): void {
+    this.guestPreviewService.obterQuota().subscribe({
+      next: (quota) => this.quota.set(quota),
+      error: () => {}
+    });
+  }
 }

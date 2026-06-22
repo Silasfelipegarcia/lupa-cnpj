@@ -1,8 +1,24 @@
+export type UserRole = 'USER' | 'ADMIN';
+export type SubscriptionPlan = 'FREE' | 'PREMIUM' | 'PRO_PLUS';
+
+export interface PlanUsage {
+  maxRowsPerFile: number;
+  maxBatchSearchesPerDay: number | null;
+  maxDirectCnpjPerDay: number | null;
+  batchSearchesToday: number;
+  directCnpjToday: number;
+  master: boolean;
+}
+
 export interface User {
   id: string;
   nome: string;
   email: string;
   cpf: string;
+  role?: UserRole;
+  plan?: SubscriptionPlan;
+  planNome?: string;
+  usage?: PlanUsage;
 }
 
 export interface AuthResponse {
@@ -20,4 +36,25 @@ export interface RegisterRequest {
   email: string;
   cpf: string;
   password: string;
+}
+
+export interface PlanCatalogItem {
+  plan: SubscriptionPlan;
+  nome: string;
+  maxRowsPerFile: number;
+  batchSearchesPerDay: string;
+  directCnpjPerDay: string;
+  priceCents: number;
+  priceLabel: string;
+}
+
+export interface CheckoutRequest {
+  plan: SubscriptionPlan;
+}
+
+export interface CheckoutResponse {
+  orderId: string;
+  preferenceId: string;
+  initPoint: string;
+  sandboxInitPoint?: string;
 }

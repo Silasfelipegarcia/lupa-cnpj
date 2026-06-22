@@ -3,7 +3,9 @@
     <app-brand link="/" ariaLabel="LupaCNPJ — página inicial" />
     <nav class="topbar-nav">
       <a href="#como-funciona" class="nav-link">Como funciona</a>
+      <a href="#experimente" class="nav-link">Experimente</a>
       <a href="#recursos" class="nav-link">Recursos</a>
+      <a routerLink="/planos" class="nav-link">Planos</a>
       @if (authService.isAuthenticated()) {
         <a routerLink="/app" class="btn btn-primary">Acessar painel</a>
       } @else {
@@ -30,7 +32,7 @@
           <a routerLink="/login" class="btn btn-outline btn-lg">Já tenho conta</a>
         }
       </div>
-      <p class="hero-note">CSV ou Excel · até 900 linhas · download em CSV</p>
+      <p class="hero-note">CSV ou Excel · planos de 10 a 900 linhas · download em CSV</p>
     </div>
     <div class="hero-visual" aria-hidden="true">
       <div class="mock-card">
@@ -51,6 +53,90 @@
       </div>
     </div>
   </section>
+
+  @if (!authService.isAuthenticated()) {
+    <section id="experimente" class="section section-preview">
+      <h2>Experimente agora — sem cadastro</h2>
+      <p class="section-lead">
+        Consulte <strong>1 CNPJ por vez</strong> e veja a razão social na hora.
+        @if (quota(); as q) {
+          <span class="quota-badge">{{ q.consultasRestantes }} de {{ q.consultasLimite }} consultas gratuitas restantes</span>
+        }
+      </p>
+
+      <div class="preview-card">
+        <form class="preview-form" (ngSubmit)="consultarCnpj()">
+          <label class="preview-field">
+            <span>CNPJ</span>
+            <input
+              type="text"
+              name="cnpj"
+              [value]="cnpjInput"
+              (input)="onCnpjInput($event)"
+              placeholder="00.000.000/0000-00"
+              inputmode="numeric"
+              autocomplete="off"
+              [disabled]="consultando() || quota()?.limiteAtingido"
+            />
+          </label>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="consultando() || quota()?.limiteAtingido"
+          >
+            @if (consultando()) {
+              Consultando...
+            } @else if (quota()?.limiteAtingido) {
+              Limite atingido
+            } @else {
+              Consultar grátis
+            }
+          </button>
+        </form>
+
+        @if (erroPreview()) {
+          <div class="preview-alert preview-alert-error">{{ erroPreview() }}</div>
+        }
+
+        @if (quota()?.limiteAtingido) {
+          <div class="preview-alert preview-alert-limit">
+            Você usou sua consulta gratuita neste dispositivo.
+            <a routerLink="/cadastro" class="preview-cta-link">Crie sua conta</a> para consultar planilhas inteiras com todos os dados.
+          </div>
+        }
+
+        @if (resultado(); as r) {
+          <div class="preview-result">
+            <div class="preview-result-header">
+              <span class="preview-label">Prévia gratuita</span>
+              <span class="preview-cnpj">{{ r.cnpj }}</span>
+            </div>
+
+            <div class="preview-row preview-row-visible">
+              <span class="preview-field-label">Razão social</span>
+              <span class="preview-field-value">{{ r.razaoSocial }}</span>
+            </div>
+
+            @for (campo of r.camposComLogin; track campo) {
+              <div class="preview-row preview-row-locked">
+                <span class="preview-field-label">{{ campo }}</span>
+                <span class="preview-field-blur">••••••••••••</span>
+                <span class="preview-lock" aria-hidden="true">🔒</span>
+              </div>
+            }
+
+            <div class="preview-upsell">
+              <p>
+                <strong>Com conta gratuita</strong> você desbloqueia telefone, e-mail, endereço, CNAE e exporta
+                centenas de CNPJs de uma vez em planilha.
+              </p>
+              <a routerLink="/cadastro" class="btn btn-primary">Criar conta e ver tudo</a>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
 
   <section id="recursos" class="section">
     <h2>Tudo que você precisa para prospectar e validar cadastros</h2>

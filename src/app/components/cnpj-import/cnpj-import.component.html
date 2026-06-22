@@ -5,6 +5,16 @@
     <p class="subtitle">
       Envie um CSV ou Excel com a coluna <code>cnpj</code> para enriquecer os dados das empresas.
     </p>
+    @if (usageResumo(); as uso) {
+      <p class="usage-banner">
+        <span>{{ uso.batch }}</span>
+        <span>·</span>
+        <span>{{ uso.direct }}</span>
+        <a routerLink="/planos" class="usage-link">Ver planos</a>
+      </p>
+    } @else if (authService.isMaster()) {
+      <p class="usage-banner usage-banner--master">Conta Master — limites ilimitados</p>
+    }
   </header>
 
   @if (jobAtivo(); as ativo) {
@@ -28,6 +38,43 @@
       </div>
     </section>
   }
+
+  <main class="card card--direct" [class.card--bloqueado]="jobAtivo()">
+    <h2 class="section-title">Consulta avulsa por CNPJ</h2>
+    <p class="section-hint">Busque um CNPJ diretamente, sem planilha. Conta no limite diário do seu plano.</p>
+
+    <form class="direct-form" (ngSubmit)="consultarCnpjAvulso()">
+      <input
+        type="text"
+        name="cnpjAvulso"
+        [value]="cnpjAvulso"
+        (input)="onCnpjAvulsoInput($event)"
+        placeholder="00.000.000/0000-00"
+        inputmode="numeric"
+        [disabled]="consultandoAvulso()"
+      />
+      <button type="submit" class="btn btn-outline" [disabled]="consultandoAvulso()">
+        @if (consultandoAvulso()) {
+          Consultando...
+        } @else {
+          Consultar CNPJ
+        }
+      </button>
+    </form>
+
+    @if (erroAvulso()) {
+      <div class="alert alert-error">{{ erroAvulso() }}</div>
+    }
+
+    @if (resultadoAvulso(); as r) {
+      <div class="direct-result">
+        <p><strong>{{ r.cnpj }}</strong> — {{ r.razaoSocial || r.erro }}</p>
+        @if (r.statusConsulta === 'SUCESSO') {
+          <p class="direct-meta">{{ r.cidade }}/{{ r.uf }} · {{ r.situacaoCadastral }}</p>
+        }
+      </div>
+    }
+  </main>
 
   <main class="card" [class.card--bloqueado]="jobAtivo()">
     <section class="mode-section">
@@ -63,7 +110,7 @@
         <span class="upload-icon">📄</span>
         <span>Clique para selecionar o arquivo</span>
         <span class="upload-hint">
-          CSV ou Excel (.xlsx) · até {{ maxFileSizeMb }} MB e {{ maxRowsPerFile }} linhas · coluna <strong>cnpj</strong> obrigatória
+          CSV ou Excel (.xlsx) · até {{ maxFileSizeMb }} MB e {{ maxRowsPerFile() }} linhas · coluna <strong>cnpj</strong> obrigatória
         </span>
       </label>
       <input

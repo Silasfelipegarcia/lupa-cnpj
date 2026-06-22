@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { ImportJobResponse, ImportJobSummary } from '../models/import-job.model';
+import { ImportJobResponse, ImportJobSummary, CnpjResultadoItem } from '../models/import-job.model';
 import { CnpjConfig } from '../models/cnpj-config.model';
 
 interface ImportJobSummaryApi {
@@ -86,6 +86,14 @@ export class CnpjImportService {
   baixarModeloExcel(): Observable<Blob> {
     return this.http.get(`${this.apiBase}/cnpj/template`, {
       responseType: 'blob'
+    }).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  consultarCnpjDireto(cnpj: string): Observable<CnpjResultadoItem> {
+    return this.http.get<CnpjResultadoItem>(`${this.apiBase}/cnpj/consulta`, {
+      params: { cnpj }
     }).pipe(
       catchError(this.tratarErro)
     );

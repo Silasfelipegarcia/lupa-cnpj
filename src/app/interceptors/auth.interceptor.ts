@@ -1,18 +1,35 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { environment } from '../../environments/environment';
+import { isJwtExpired } from '../utils/jwt.util';
+
+const PUBLIC_API_SEGMENTS = [
+  '/auth/login',
+  '/auth/register',
+  '/cnpj/preview',
+  '/plans',
+  '/payments/mercadopago/webhook'
+];
+
+function isPublicApi(url: string): boolean {
+  return PUBLIC_API_SEGMENTS.some((segment) => url.includes(segment));
+}
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-  const router = inject(Router);
 
   const isApiCall = req.url.startsWith(environment.apiUrl);
+  const isPublic = isPublicApi(req.url);
   const token = authService.getToken();
 
-  if (isApiCall && token) {
+  if (isApiCall && token && !isPublic) {
+    if (isJwtExpired(token)) {
+      authService.logoutPorExpiracao();
+      return throwError(() => new Error('Sessão expirada'));
+    }
+
     req = req.clone({
       setHeaders: { Authorization: `Bearer ${token}` }
     });
@@ -20,9 +37,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && isApiCall && !req.url.includes('/auth/login') && !req.url.includes('/auth/register')) {
-        authService.logout();
-        router.navigate(['/login']);
+      if (error.status === 401 && isApiCall && !isPublic) {
+        authService.logoutPorExpiracao();
       }
       return throwError(() => error);
     })
