@@ -90,9 +90,9 @@ export class RegisterComponent {
           this.router.navigate(['/consulta', job.jobId]);
           return;
         }
-        this.router.navigate(['/']);
+        this.router.navigate(['/app']);
       },
-      error: () => this.router.navigate(['/'])
+      error: () => this.router.navigate(['/app'])
     });
   }
 }

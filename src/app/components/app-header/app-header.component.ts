@@ -11,7 +11,7 @@ import { AppBrandComponent } from '../app-brand/app-brand.component';
     <header class="app-header">
       <app-brand />
       <nav class="nav">
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <a routerLink="/app" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
           Importar
         </a>
         <a routerLink="/historico" routerLinkActive="active">Histórico</a>
@@ -87,6 +87,6 @@ export class AppHeaderComponent {
 
   sair(): void {
     this.authService.logout();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
   }
 }

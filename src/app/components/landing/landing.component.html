@@ -1,0 +1,106 @@
+<div class="landing">
+  <header class="topbar">
+    <app-brand link="/" ariaLabel="LupaCNPJ — página inicial" />
+    <nav class="topbar-nav">
+      <a href="#como-funciona" class="nav-link">Como funciona</a>
+      <a href="#recursos" class="nav-link">Recursos</a>
+      @if (authService.isAuthenticated()) {
+        <a routerLink="/app" class="btn btn-primary">Acessar painel</a>
+      } @else {
+        <a routerLink="/login" class="nav-link">Entrar</a>
+        <a routerLink="/cadastro" class="btn btn-primary">Começar grátis</a>
+      }
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <span class="badge">Consulta CNPJ em lote</span>
+      <h1>Enriqueça sua lista de CNPJs em minutos</h1>
+      <p class="hero-lead">
+        O LupaCNPJ consulta a base da Receita Federal via CNPJ.ws e devolve uma planilha
+        completa com dados cadastrais — sem planilha manual, sem copy-paste.
+      </p>
+      <div class="hero-actions">
+        @if (authService.isAuthenticated()) {
+          <a routerLink="/app" class="btn btn-primary btn-lg">Ir para o painel</a>
+          <a routerLink="/historico" class="btn btn-outline btn-lg">Ver histórico</a>
+        } @else {
+          <a routerLink="/cadastro" class="btn btn-primary btn-lg">Criar conta gratuita</a>
+          <a routerLink="/login" class="btn btn-outline btn-lg">Já tenho conta</a>
+        }
+      </div>
+      <p class="hero-note">CSV ou Excel · até 900 linhas · download em CSV</p>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="mock-card">
+        <div class="mock-header">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="mock-title">consulta_empresas.xlsx</span>
+        </div>
+        <div class="mock-progress">
+          <div class="mock-bar" style="width: 72%"></div>
+        </div>
+        <p class="mock-status">Consultando 36 de 50 (72%)</p>
+        <div class="mock-table">
+          <div class="mock-row head"><span>CNPJ</span><span>Razão social</span><span>Cidade</span></div>
+          <div class="mock-row"><span>12.345.678/0001-90</span><span>Empresa Alpha Ltda</span><span>São Paulo</span></div>
+          <div class="mock-row"><span>98.765.432/0001-10</span><span>Beta Comércio SA</span><span>Curitiba</span></div>
+          <div class="mock-row dim"><span>11.222.333/0001-44</span><span>Consultando...</span><span>—</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="recursos" class="section">
+    <h2>Tudo que você precisa para prospectar e validar cadastros</h2>
+    <p class="section-lead">Feito para quem trabalha com listas de empresas — vendas, crédito, compliance ou operações.</p>
+    <div class="features-grid">
+      @for (f of features; track f.title) {
+        <article class="feature-card">
+          <span class="feature-icon">{{ f.icon }}</span>
+          <h3>{{ f.title }}</h3>
+          <p>{{ f.text }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section id="como-funciona" class="section section-alt">
+    <h2>Como funciona</h2>
+    <div class="steps">
+      @for (s of steps; track s.num) {
+        <div class="step">
+          <span class="step-num">{{ s.num }}</span>
+          <h3>{{ s.title }}</h3>
+          <p>{{ s.text }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Dados que você recebe</h2>
+    <p class="section-lead">Cada linha da sua planilha é enriquecida com informações oficiais do CNPJ.</p>
+    <div class="fields-wrap">
+      @for (field of fields; track field) {
+        <span class="field-tag">{{ field }}</span>
+      }
+    </div>
+  </section>
+
+  <section class="cta">
+    <h2>Pronto para consultar seus CNPJs?</h2>
+    <p>Crie sua conta e envie a primeira planilha em menos de um minuto.</p>
+    @if (authService.isAuthenticated()) {
+      <a routerLink="/app" class="btn btn-primary btn-lg">Nova consulta</a>
+    } @else {
+      <a routerLink="/cadastro" class="btn btn-primary btn-lg">Começar agora</a>
+    }
+  </section>
+
+  <footer class="footer">
+    <app-brand link="/" ariaLabel="LupaCNPJ" />
+    <p>Dados via <a href="https://publica.cnpj.ws" target="_blank" rel="noopener">CNPJ.ws</a> · {{ ano }} LupaCNPJ</p>
+  </footer>
+</div>
