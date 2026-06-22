@@ -161,6 +161,50 @@
   }
 }
 
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+
+  &--success {
+    color: #86efac;
+  }
+
+  &--error {
+    color: #fca5a5;
+  }
+}
+
+.section-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.results-card--success {
+  border-color: #166534;
+}
+
+.results-card--error {
+  border-color: #7f1d1d;
+}
+
+.live-banner {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
 .live-indicator {
   display: flex;
   align-items: center;
@@ -192,6 +236,10 @@
   overflow-x: auto;
   border-radius: 8px;
   border: 1px solid #334155;
+
+  &--error {
+    border-color: #7f1d1d;
+  }
 }
 
 table {
@@ -224,6 +272,19 @@ tr:last-child td {
   background: rgba(69, 10, 10, 0.15);
 }
 
+.observacao {
+  max-width: 220px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.cell-error-msg {
+  color: #fca5a5;
+  font-size: 0.85rem;
+  max-width: 420px;
+  line-height: 1.4;
+}
+
 .mono {
   font-family: ui-monospace, monospace;
   white-space: nowrap;
@@ -240,34 +301,9 @@ tr:last-child td {
   margin-top: 0.2rem;
 }
 
-.cell-error {
-  font-size: 0.75rem;
-  color: #f87171;
-  margin-top: 0.35rem;
-  max-width: 200px;
-}
-
 .email {
   max-width: 180px;
   word-break: break-all;
-}
-
-.badge {
-  display: inline-block;
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.badge-success {
-  background: #14532d;
-  color: #bbf7d0;
-}
-
-.badge-error {
-  background: #450a0a;
-  color: #fecaca;
 }
 
 .alert {

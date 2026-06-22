@@ -44,19 +44,27 @@
       }
     </section>
 
-    <section class="card results-card">
-      <div class="results-header">
-        <h2>Resultados ({{ resultados().length }})</h2>
-        @if (emAndamento()) {
-          <span class="live-indicator"><span class="pulse"></span> Atualizando ao vivo</span>
-        }
+    @if (emAndamento()) {
+      <div class="live-banner">
+        <span class="live-indicator"><span class="pulse"></span> Atualizando ao vivo</span>
       </div>
+    }
 
-      @if (resultados().length === 0 && emAndamento()) {
+    @if (resultados().length === 0 && emAndamento()) {
+      <section class="card results-card">
         <p class="empty-state">Aguardando os primeiros resultados...</p>
-      }
+      </section>
+    }
 
-      @if (resultados().length > 0) {
+    @if (resultadosSucesso().length > 0) {
+      <section class="card results-card results-card--success">
+        <div class="results-header">
+          <h2 class="section-title section-title--success">
+            Sucessos
+            <span class="section-count">{{ resultadosSucesso().length }}</span>
+          </h2>
+        </div>
+
         <div class="table-wrap">
           <table>
             <thead>
@@ -68,12 +76,12 @@
                 <th>Situação</th>
                 <th>Telefone</th>
                 <th>E-mail</th>
-                <th>Status</th>
+                <th>Observação</th>
               </tr>
             </thead>
             <tbody>
-              @for (item of resultados(); track $index) {
-                <tr [class.row-error]="item.statusConsulta === 'ERRO'">
+              @for (item of resultadosSucesso(); track $index) {
+                <tr>
                   <td>{{ $index + 1 }}</td>
                   <td class="mono">{{ item.cnpj || '—' }}</td>
                   <td>
@@ -86,24 +94,48 @@
                   <td>{{ item.situacaoCadastral || '—' }}</td>
                   <td>{{ item.telefone1 || '—' }}</td>
                   <td class="email">{{ item.email || '—' }}</td>
-                  <td>
-                    <span class="badge" [class.badge-success]="item.statusConsulta === 'SUCESSO'" [class.badge-error]="item.statusConsulta === 'ERRO'">
-                      {{ item.statusConsulta }}
-                    </span>
-                    @if (item.erro) {
-                      <div class="cell-error">{{ item.erro }}</div>
-                    }
-                    @if (item.observacao) {
-                      <div class="cell-sub">{{ item.observacao }}</div>
-                    }
-                  </td>
+                  <td class="observacao">{{ item.observacao || '—' }}</td>
                 </tr>
               }
             </tbody>
           </table>
         </div>
-      }
-    </section>
+      </section>
+    }
+
+    @if (resultadosErro().length > 0) {
+      <section class="card results-card results-card--error">
+        <div class="results-header">
+          <h2 class="section-title section-title--error">
+            Insucessos
+            <span class="section-count">{{ resultadosErro().length }}</span>
+          </h2>
+        </div>
+
+        <div class="table-wrap table-wrap--error">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>CNPJ informado</th>
+                <th>Razão social informada</th>
+                <th>Motivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of resultadosErro(); track $index) {
+                <tr class="row-error">
+                  <td>{{ $index + 1 }}</td>
+                  <td class="mono">{{ item.cnpj || '—' }}</td>
+                  <td>{{ item.razaoSocialInformada || '—' }}</td>
+                  <td class="cell-error-msg">{{ item.erro || 'Erro não informado' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
   }
 
   @if (erro()) {

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription, timer, switchMap } from 'rxjs';
@@ -19,6 +19,12 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
   jobId = signal<string>('');
   job = signal<ImportJobResponse | null>(null);
   resultados = signal<CnpjResultadoItem[]>([]);
+  resultadosSucesso = computed(() =>
+    this.resultados().filter((item) => item.statusConsulta === 'SUCESSO')
+  );
+  resultadosErro = computed(() =>
+    this.resultados().filter((item) => item.statusConsulta === 'ERRO')
+  );
   erro = signal<string>('');
 
   private pollingSubscription?: Subscription;
