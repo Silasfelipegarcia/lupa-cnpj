@@ -27,19 +27,24 @@ export class CnpjImportComponent implements OnInit {
   });
 
   readonly usageResumo = computed(() => {
-    const usage = this.authService.currentUser()?.usage;
+    const user = this.authService.currentUser();
+    const usage = user?.usage;
     if (!usage || usage.master) {
       return null;
     }
     const batchLimite = usage.maxBatchSearchesPerDay;
     const directLimite = usage.maxDirectCnpjPerDay;
+    const isFree = user?.plan === 'FREE';
+
     return {
       batch: batchLimite == null
-        ? `${usage.batchSearchesToday} buscas em lote hoje (ilimitado)`
-        : `${usage.batchSearchesToday} de ${batchLimite} buscas em lote hoje`,
+        ? `${usage.batchSearchesToday} empresas em planilha hoje (ilimitado)`
+        : isFree
+          ? `${usage.batchSearchesToday} de ${batchLimite} empresas em planilha hoje`
+          : `${usage.batchSearchesToday} de ${batchLimite} buscas em lote hoje`,
       direct: directLimite == null
         ? `${usage.directCnpjToday} CNPJs avulsos hoje (ilimitado)`
-        : `${usage.directCnpjToday} de ${directLimite} CNPJs avulsos hoje`
+        : `${usage.directCnpjToday} de ${directLimite} CNPJs únicos hoje`
     };
   });
 

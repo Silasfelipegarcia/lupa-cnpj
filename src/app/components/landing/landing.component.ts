@@ -48,7 +48,7 @@ export class LandingComponent implements OnInit {
 
   readonly steps = [
     { num: '1', title: 'Crie sua conta', text: 'Cadastro rápido com nome, e-mail e CPF.' },
-    { num: '2', title: 'Envie a planilha', text: 'Colunas cnpj e/ou razao_social — de 10 a 900 linhas conforme o plano.' },
+    { num: '2', title: 'Envie a planilha', text: 'Colunas cnpj e/ou razao_social — até 10 empresas/dia no Free.' },
     { num: '3', title: 'Acompanhe e baixe', text: 'Veja o progresso ao vivo e baixe o CSV enriquecido.' }
   ];
 

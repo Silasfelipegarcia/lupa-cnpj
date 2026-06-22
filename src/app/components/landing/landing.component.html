@@ -32,7 +32,7 @@
           <a routerLink="/login" class="btn btn-outline btn-lg">Já tenho conta</a>
         }
       </div>
-      <p class="hero-note">CSV ou Excel · planos de 10 a 900 linhas · download em CSV</p>
+      <p class="hero-note">CSV ou Excel · até 10 empresas/dia no Free · download em CSV</p>
     </div>
     <div class="hero-visual" aria-hidden="true">
       <div class="mock-card">
@@ -102,7 +102,7 @@
           <div class="preview-alert preview-alert-limit">
             Você já viu sua consulta gratuita completa neste dispositivo.
             <a routerLink="/cadastro" class="preview-cta-link">Crie sua conta grátis</a>
-            e consulte até <strong>5 CNPJs por dia</strong>, com planilhas de até <strong>10 empresas</strong>.
+            e consulte até <strong>15 CNPJs únicos por dia</strong>, com até <strong>10 empresas em planilha por dia</strong>.
           </div>
         }
 
@@ -125,9 +125,9 @@
             <div class="preview-upsell">
               <p class="preview-upsell-title">Gostou? Continue consultando com uma conta grátis</p>
               <ul class="preview-upsell-list">
-                <li>Até <strong>{{ r.cadastroLimiteCnpjDia ?? 5 }} CNPJs por dia</strong> com dados completos</li>
-                <li>Importe planilhas com até <strong>{{ r.cadastroLimitePlanilha ?? 10 }} empresas</strong></li>
-                <li><strong>{{ r.cadastroLimiteLoteDia ?? 1 }} busca em lote por dia</strong> no plano Free</li>
+                <li>Até <strong>{{ r.cadastroLimiteCnpjDia ?? 15 }} CNPJs únicos por dia</strong> com dados completos</li>
+                <li>Até <strong>{{ r.cadastroLimitePlanilha ?? 10 }} empresas em planilha por dia</strong></li>
+                <li>Importe várias empresas de uma vez — plano Free sem custo</li>
               </ul>
               <div class="preview-upsell-actions">
                 <a routerLink="/cadastro" class="btn btn-primary">Criar conta grátis</a>
