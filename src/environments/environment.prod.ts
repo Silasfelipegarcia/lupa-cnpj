@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:8080',
+  apiUrl: 'https://lupa-cnpj-api.up.railway.app',
   limits: {
     maxFileSizeMb: 5,
     maxRowsPerFile: 200,
