@@ -1,7 +1,8 @@
 <div class="container">
   <header class="header">
     <a routerLink="/" class="back-link">← Nova consulta</a>
-    <h1>Acompanhamento da consulta</h1>
+    <app-brand />
+    <h1 class="page-title">Acompanhamento da consulta</h1>
     @if (job()) {
       <p class="subtitle">
         Arquivo: <strong>{{ job()!.arquivo }}</strong>

@@ -4,11 +4,12 @@ import { Router } from '@angular/router';
 import { CnpjImportService } from '../../services/cnpj-import.service';
 import { ImportJobStorage } from '../../services/import-job-storage';
 import { environment } from '../../../environments/environment';
+import { AppBrandComponent } from '../app-brand/app-brand.component';
 
 @Component({
   selector: 'app-cnpj-import',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AppBrandComponent],
   templateUrl: './cnpj-import.component.html',
   styleUrl: './cnpj-import.component.scss'
 })
@@ -16,6 +17,9 @@ export class CnpjImportComponent implements OnInit {
 
   readonly maxFileSizeMb = environment.limits.maxFileSizeMb;
   readonly maxRowsPerFile = environment.limits.maxRowsPerFile;
+
+  pesquisaRazaoSocialHabilitada = signal(false);
+  carregandoConfig = signal(true);
 
   arquivoSelecionado = signal<File | null>(null);
   mensagem = signal<string>('');
@@ -30,7 +34,16 @@ export class CnpjImportComponent implements OnInit {
     const persistido = ImportJobStorage.recuperar();
     if (persistido) {
       this.router.navigate(['/consulta', persistido.jobId]);
+      return;
     }
+
+    this.cnpjImportService.obterConfiguracao().subscribe({
+      next: (config) => {
+        this.pesquisaRazaoSocialHabilitada.set(config.pesquisaRazaoSocialHabilitada);
+        this.carregandoConfig.set(false);
+      },
+      error: () => this.carregandoConfig.set(false)
+    });
   }
 
   onArquivoSelecionado(event: Event): void {
@@ -55,7 +68,7 @@ export class CnpjImportComponent implements OnInit {
     this.cnpjImportService.baixarModeloExcel().subscribe({
       next: (blob) => {
         this.cnpjImportService.baixarBlob(blob, 'lupa-cnpj-modelo.xlsx');
-        this.mensagem.set('Modelo Excel baixado. Preencha e importe o arquivo.');
+        this.mensagem.set('Modelo Excel baixado. Preencha a coluna CNPJ e importe o arquivo.');
       },
       error: (erro: string) => this.mensagem.set(erro)
     });

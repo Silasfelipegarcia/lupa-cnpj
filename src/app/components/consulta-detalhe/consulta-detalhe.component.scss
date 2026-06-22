@@ -27,7 +27,7 @@
     }
   }
 
-  h1 {
+  h1, .page-title {
     font-size: 1.75rem;
     font-weight: 700;
     margin: 0 0 0.5rem;
@@ -35,6 +35,11 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  app-brand {
+    display: block;
+    margin-bottom: 0.75rem;
   }
 
   .subtitle {

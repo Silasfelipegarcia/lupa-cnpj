@@ -6,11 +6,12 @@ import { CnpjImportService } from '../../services/cnpj-import.service';
 import { ImportJobStorage } from '../../services/import-job-storage';
 import { CnpjResultadoItem, ImportJobResponse } from '../../models/import-job.model';
 import { environment } from '../../../environments/environment';
+import { AppBrandComponent } from '../app-brand/app-brand.component';
 
 @Component({
   selector: 'app-consulta-detalhe',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, AppBrandComponent],
   templateUrl: './consulta-detalhe.component.html',
   styleUrl: './consulta-detalhe.component.scss'
 })

@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { ImportJobResponse } from '../models/import-job.model';
+import { CnpjConfig } from '../models/cnpj-config.model';
 
 @Injectable({ providedIn: 'root' })
 export class CnpjImportService {
@@ -13,6 +14,12 @@ export class CnpjImportService {
   private readonly importUrl = `${environment.apiUrl}/cnpj/import`;
 
   constructor(private http: HttpClient) {}
+
+  obterConfiguracao(): Observable<CnpjConfig> {
+    return this.http.get<CnpjConfig>(`${this.apiBase}/cnpj/config`).pipe(
+      catchError(this.tratarErro)
+    );
+  }
 
   iniciarImportacao(arquivo: File): Observable<ImportJobResponse> {
     const formData = new FormData();

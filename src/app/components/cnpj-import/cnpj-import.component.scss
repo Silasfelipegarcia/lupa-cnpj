@@ -26,6 +26,11 @@
     background-clip: text;
   }
 
+  app-brand {
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+
   .subtitle {
     color: #94a3b8;
     margin: 0;
@@ -58,6 +63,78 @@
   background: #0f172a;
   border-radius: 12px;
   border: 1px dashed #475569;
+}
+
+.mode-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: #0f172a;
+  border-radius: 12px;
+  border: 1px solid #334155;
+}
+
+.mode-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.mode-label {
+  font-weight: 600;
+  color: #e2e8f0;
+  font-size: 0.95rem;
+}
+
+.mode-hint {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.toggle {
+  position: relative;
+  display: inline-flex;
+  cursor: not-allowed;
+  flex-shrink: 0;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+}
+
+.toggle-track {
+  display: block;
+  width: 48px;
+  height: 28px;
+  background: #475569;
+  border-radius: 999px;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.toggle--on .toggle-track {
+  background: #0ea5e9;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle--on .toggle-thumb {
+  transform: translateX(20px);
 }
 
 .template-text {

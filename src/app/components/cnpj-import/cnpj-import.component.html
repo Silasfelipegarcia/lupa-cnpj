@@ -1,12 +1,33 @@
 <div class="container">
   <header class="header">
-    <h1>LupaCNPJ</h1>
+    <app-brand />
     <p class="subtitle">
-      Envie um CSV ou Excel com <code>cnpj</code> e/ou <code>razao_social</code>. Se um dado estiver errado, tentamos localizar pelo outro.
+      Envie um CSV ou Excel com a coluna <code>cnpj</code> para enriquecer os dados das empresas.
     </p>
   </header>
 
   <main class="card">
+    <section class="mode-section">
+      <div class="mode-info">
+        <span class="mode-label">Busca por razão social</span>
+        <span class="mode-hint">
+          @if (pesquisaRazaoSocialHabilitada()) {
+            Ativa — linhas só com nome também são consultadas.
+          } @else {
+            Desligada — apenas linhas com CNPJ são processadas.
+          }
+        </span>
+      </div>
+      <label class="toggle" [class.toggle--on]="pesquisaRazaoSocialHabilitada()" title="Controlado pelo servidor (token CNPJ.ws)">
+        <input
+          type="checkbox"
+          [checked]="pesquisaRazaoSocialHabilitada()"
+          disabled
+        />
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      </label>
+    </section>
+
     <section class="template-section">
       <p class="template-text">Não sabe como montar o arquivo? Baixe o modelo com exemplos:</p>
       <button class="btn btn-outline" type="button" (click)="baixarModelo()" [disabled]="enviando()">
@@ -18,7 +39,9 @@
       <label class="upload-label" for="csv-input">
         <span class="upload-icon">📄</span>
         <span>Clique para selecionar o arquivo</span>
-        <span class="upload-hint">CSV ou Excel (.xlsx) · até {{ maxFileSizeMb }} MB e {{ maxRowsPerFile }} linhas · colunas <strong>cnpj</strong> e/ou <strong>razao_social</strong></span>
+        <span class="upload-hint">
+          CSV ou Excel (.xlsx) · até {{ maxFileSizeMb }} MB e {{ maxRowsPerFile }} linhas · coluna <strong>cnpj</strong> obrigatória
+        </span>
       </label>
       <input
         id="csv-input"
@@ -59,9 +82,9 @@
   <footer class="info">
     <h2>Como funciona</h2>
     <ol>
-      <li>Preencha <strong>CNPJ</strong> e/ou <strong>razão social</strong> — se um estiver errado, tentamos pelo outro</li>
+      <li>Preencha a coluna <strong>CNPJ</strong> em cada linha da planilha</li>
       <li>Importe o arquivo (.xlsx ou .csv) e clique em <strong>Enriquecer CNPJs</strong></li>
-      <li>Acompanhe os resultados em tempo real na próxima página</li>
+      <li>Linhas sem CNPJ aparecem em <strong>Insucessos</strong> e não são consultadas</li>
       <li>Baixe a planilha completa enriquecida ao finalizar</li>
     </ol>
   </footer>
