@@ -1,21 +1,35 @@
-<div class="container">
+<div class="app-page">
+  <div class="app-container app-container--sm">
   <app-header />
 
-  <header class="header">
-    <p class="subtitle">
-      Envie um CSV ou Excel com a coluna <code>cnpj</code> para enriquecer os dados das empresas.
+  <header class="app-page-header">
+    <h1>Painel de prospecção</h1>
+    <p class="page-subtitle">
+      Transforme sua planilha em lista qualificada — enriqueça por CNPJ ou razão social e exporte para o CRM.
     </p>
     @if (usageResumo(); as uso) {
       <p class="usage-banner">
         <span>{{ uso.batch }}</span>
         <span>·</span>
         <span>{{ uso.direct }}</span>
-        <a routerLink="/planos" class="usage-link">Ver planos</a>
+        <a routerLink="/conta/plano" class="usage-link">Ver plano</a>
       </p>
     } @else if (authService.isMaster()) {
       <p class="usage-banner usage-banner--master">Conta Master — limites ilimitados</p>
     }
   </header>
+
+  @if (mostrarOnboarding()) {
+    <section class="onboarding card">
+      <h2>Como funciona em 3 passos</h2>
+      <ol class="onboarding-steps">
+        <li><strong>Importe</strong> — CSV ou Excel com CNPJ e/ou razão social</li>
+        <li><strong>Enriqueça</strong> — dados oficiais + filtros comerciais no resultado</li>
+        <li><strong>Exporte</strong> — CSV (Free) ou Excel (Prospecção+) pronto para ligar</li>
+      </ol>
+      <button type="button" class="btn btn-primary btn-sm" (click)="fecharOnboarding()">Entendi, vamos lá</button>
+    </section>
+  }
 
   @if (jobAtivo(); as ativo) {
     <section class="resume-banner card">
@@ -41,7 +55,7 @@
 
   <main class="card card--direct" [class.card--bloqueado]="jobAtivo()">
     <h2 class="section-title">Consulta avulsa por CNPJ</h2>
-    <p class="section-hint">Busque um CNPJ diretamente, sem planilha. Conta no limite diário do seu plano.</p>
+    <p class="section-hint">Valide um lead antes de ligar — conta no limite diário do seu plano.</p>
 
     <form class="direct-form" (ngSubmit)="consultarCnpjAvulso()">
       <input
@@ -68,38 +82,41 @@
 
     @if (resultadoAvulso(); as r) {
       <div class="direct-result">
-        <p><strong>{{ r.cnpj }}</strong> — {{ r.razaoSocial || r.erro }}</p>
+        <div class="direct-result-header">
+          <span class="result-label">Consulta completa</span>
+          <span class="mono">{{ r.cnpj }}</span>
+        </div>
         @if (r.statusConsulta === 'SUCESSO') {
-          <p class="direct-meta">{{ r.cidade }}/{{ r.uf }} · {{ r.situacaoCadastral }}</p>
+          <div class="result-grid">
+            @for (campo of camposResultadoAvulso(r); track campo.label) {
+              <div class="result-row">
+                <span class="result-label">{{ campo.label }}</span>
+                <span class="result-value">{{ campo.valor }}</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="alert alert-error">{{ r.erro }}</p>
         }
       </div>
     }
   </main>
 
   <main class="card" [class.card--bloqueado]="jobAtivo()">
-    <section class="mode-section">
-      <div class="mode-info">
-        <span class="mode-label">Busca por razão social</span>
-        <span class="mode-hint">
-          @if (pesquisaRazaoSocialHabilitada()) {
-            Ativa — linhas só com nome também são consultadas.
-          } @else {
-            Desligada — apenas linhas com CNPJ são processadas.
-          }
-        </span>
-      </div>
-      <label class="toggle" [class.toggle--on]="pesquisaRazaoSocialHabilitada()" title="Controlado pelo servidor (token CNPJ.ws)">
-        <input
-          type="checkbox"
-          [checked]="pesquisaRazaoSocialHabilitada()"
-          disabled
-        />
-        <span class="toggle-track"><span class="toggle-thumb"></span></span>
-      </label>
-    </section>
+    <h2 class="section-title">Importar planilha</h2>
+    @if (!config().pesquisaRazaoSocialHabilitada) {
+      <p class="section-hint upgrade-hint">
+        Busca por razão social disponível no plano Prospecção —
+        <a routerLink="/conta/plano">fazer upgrade</a>.
+      </p>
+    }
+
+    @if (config().dedupeHabilitado) {
+      <p class="feature-badge">Remoção automática de CNPJs duplicados no arquivo (Growth)</p>
+    }
 
     <section class="template-section">
-      <p class="template-text">Não sabe como montar o arquivo? Baixe o modelo com exemplos:</p>
+      <p class="template-text">Baixe o modelo com colunas CNPJ e razão social:</p>
       <button class="btn btn-outline" type="button" (click)="baixarModelo()" [disabled]="enviando()">
         Baixar modelo Excel
       </button>
@@ -110,7 +127,7 @@
         <span class="upload-icon">📄</span>
         <span>Clique para selecionar o arquivo</span>
         <span class="upload-hint">
-          CSV ou Excel (.xlsx) · até {{ maxFileSizeMb }} MB e {{ maxRowsPerFile() }} linhas · coluna <strong>cnpj</strong> obrigatória
+          CSV ou Excel (.xlsx) · até {{ maxFileSizeMb }} MB e {{ maxRowsPerFile() }} linhas
         </span>
       </label>
       <input
@@ -139,7 +156,7 @@
           <span class="spinner"></span>
           Enviando...
         } @else {
-          Enriquecer CNPJs
+          Enriquecer lista
         }
       </button>
     </div>
@@ -150,12 +167,12 @@
   </main>
 
   <footer class="info">
-    <h2>Como funciona</h2>
+    <h2>Dica para SDRs</h2>
     <ol>
-      <li>Preencha a coluna <strong>CNPJ</strong> em cada linha da planilha</li>
-      <li>Importe o arquivo (.xlsx ou .csv) e clique em <strong>Enriquecer CNPJs</strong></li>
-      <li>Linhas sem CNPJ aparecem em <strong>Insucessos</strong> e não são consultadas</li>
-      <li>Baixe a planilha completa enriquecida ao finalizar</li>
+      <li>Importe a planilha e acompanhe o enriquecimento ao vivo</li>
+      <li>No resultado, filtre <strong>só empresas ATIVAS</strong> (Prospecção+)</li>
+      <li>Exporte em <strong>Excel</strong> e importe no seu CRM</li>
     </ol>
   </footer>
+  </div>
 </div>

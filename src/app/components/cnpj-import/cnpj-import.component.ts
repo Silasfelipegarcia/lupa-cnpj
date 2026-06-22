@@ -6,9 +6,13 @@ import { CnpjImportService } from '../../services/cnpj-import.service';
 import { BrowserNotificationService } from '../../services/browser-notification.service';
 import { ImportJobMonitorService } from '../../services/import-job-monitor.service';
 import { AuthService } from '../../services/auth.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { ImportJobResponse, CnpjResultadoItem } from '../../models/import-job.model';
 import { environment } from '../../../environments/environment';
+import { buildCnpjResultFields, CnpjResultField } from '../../utils/cnpj-result-fields';
 import { AppHeaderComponent } from '../app-header/app-header.component';
+
+const ONBOARDING_KEY = 'lupa_onboarding_visto';
 
 @Component({
   selector: 'app-cnpj-import',
@@ -34,24 +38,29 @@ export class CnpjImportComponent implements OnInit {
     }
     const batchLimite = usage.maxBatchSearchesPerDay;
     const directLimite = usage.maxDirectCnpjPerDay;
-    const isFree = user?.plan === 'FREE';
 
     return {
       batch: batchLimite == null
         ? `${usage.batchSearchesToday} empresas em planilha hoje (ilimitado)`
-        : isFree
-          ? `${usage.batchSearchesToday} de ${batchLimite} empresas em planilha hoje`
-          : `${usage.batchSearchesToday} de ${batchLimite} buscas em lote hoje`,
+        : `${usage.batchSearchesToday} de ${batchLimite} empresas em planilha hoje`,
       direct: directLimite == null
         ? `${usage.directCnpjToday} CNPJs avulsos hoje (ilimitado)`
         : `${usage.directCnpjToday} de ${directLimite} CNPJs únicos hoje`
     };
   });
 
-  pesquisaRazaoSocialHabilitada = signal(false);
+  config = signal({
+    pesquisaRazaoSocialHabilitada: false,
+    exportExcel: false,
+    filtroSomenteAtivos: false,
+    filtrosAvancados: false,
+    dedupeHabilitado: false,
+    trialDisponivel: false
+  });
   carregandoConfig = signal(true);
   jobAtivo = signal<ImportJobResponse | null>(null);
   cancelando = signal(false);
+  mostrarOnboarding = signal(false);
 
   arquivoSelecionado = signal<File | null>(null);
   mensagem = signal<string>('');
@@ -67,10 +76,13 @@ export class CnpjImportComponent implements OnInit {
     private router: Router,
     private notificationService: BrowserNotificationService,
     private jobMonitor: ImportJobMonitorService,
+    private analytics: AnalyticsService,
     readonly authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.mostrarOnboarding.set(!localStorage.getItem(ONBOARDING_KEY));
+
     this.authService.refreshMe().subscribe({ error: () => {} });
 
     this.cnpjImportService.obterJobAtivo().subscribe({
@@ -83,6 +95,11 @@ export class CnpjImportComponent implements OnInit {
       },
       error: () => this.carregarConfiguracao()
     });
+  }
+
+  fecharOnboarding(): void {
+    localStorage.setItem(ONBOARDING_KEY, '1');
+    this.mostrarOnboarding.set(false);
   }
 
   continuarJobAtivo(): void {
@@ -119,7 +136,7 @@ export class CnpjImportComponent implements OnInit {
   private carregarConfiguracao(): void {
     this.cnpjImportService.obterConfiguracao().subscribe({
       next: (config) => {
-        this.pesquisaRazaoSocialHabilitada.set(config.pesquisaRazaoSocialHabilitada);
+        this.config.set(config);
         this.carregandoConfig.set(false);
       },
       error: () => this.carregandoConfig.set(false)
@@ -148,7 +165,7 @@ export class CnpjImportComponent implements OnInit {
     this.cnpjImportService.baixarModeloExcel().subscribe({
       next: (blob) => {
         this.cnpjImportService.baixarBlob(blob, 'lupa-cnpj-modelo.xlsx');
-        this.mensagem.set('Modelo Excel baixado. Preencha a coluna CNPJ e importe o arquivo.');
+        this.mensagem.set('Modelo Excel baixado. Preencha CNPJ e/ou razão social e importe.');
       },
       error: (erro: string) => this.mensagem.set(erro)
     });
@@ -222,6 +239,10 @@ export class CnpjImportComponent implements OnInit {
     });
   }
 
+  camposResultadoAvulso(r: CnpjResultadoItem): CnpjResultField[] {
+    return buildCnpjResultFields(r);
+  }
+
   private async iniciarProcessamento(arquivo: File): Promise<void> {
     if (this.notificationService.devePedirPermissao()) {
       await this.notificationService.solicitarPermissao();
@@ -229,6 +250,7 @@ export class CnpjImportComponent implements OnInit {
 
     this.cnpjImportService.iniciarImportacao(arquivo).subscribe({
       next: (job) => {
+        this.analytics.track('first_import', { jobId: job.jobId, arquivo: arquivo.name });
         this.authService.refreshMe().subscribe({ error: () => {} });
         this.router.navigate(['/consulta', job.jobId]);
       },

@@ -1,0 +1,25 @@
+.conta-page-header {
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0 0 0.35rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+}
+
+.billing-note {
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.loading,
+.empty {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 1.5rem 0;
+  margin: 0;
+}

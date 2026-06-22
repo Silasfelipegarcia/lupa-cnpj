@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { ImportJobResponse, ImportJobSummary, CnpjResultadoItem } from '../models/import-job.model';
-import { CnpjConfig } from '../models/cnpj-config.model';
+import { CnpjConfig, DownloadFiltros, ListaSalva } from '../models/cnpj-config.model';
 
 interface ImportJobSummaryApi {
   jobId: string;
@@ -69,14 +69,50 @@ export class CnpjImportService {
     );
   }
 
+  listarListasSalvas(): Observable<ListaSalva[]> {
+    return this.http.get<ListaSalva[]>(`${this.importUrl}/listas-salvas`).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  salvarLista(jobId: string, nomeLista: string): Observable<void> {
+    return this.http.post<void>(`${this.importUrl}/${jobId}/salvar-lista`, { nomeLista }).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  reprocessar(jobId: string): Observable<ImportJobResponse> {
+    return this.http.post<ImportJobResponse>(`${this.importUrl}/${jobId}/reprocessar`, {}).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
   cancelarImportacao(jobId: string): Observable<ImportJobResponse> {
     return this.http.delete<ImportJobResponse>(`${this.importUrl}/${jobId}`).pipe(
       catchError(this.tratarErro)
     );
   }
 
-  baixarResultado(jobId: string): Observable<Blob> {
+  baixarResultado(jobId: string, format: 'csv' | 'xlsx' = 'csv', filtros?: DownloadFiltros): Observable<Blob> {
+    let params = new HttpParams().set('format', format);
+    if (filtros?.somenteAtivos) {
+      params = params.set('somenteAtivos', 'true');
+    }
+    if (filtros?.uf) {
+      params = params.set('uf', filtros.uf);
+    }
+    if (filtros?.cnae) {
+      params = params.set('cnae', filtros.cnae);
+    }
+    if (filtros?.comTelefone) {
+      params = params.set('comTelefone', 'true');
+    }
+    if (filtros?.comEmail) {
+      params = params.set('comEmail', 'true');
+    }
+
     return this.http.get(`${this.importUrl}/${jobId}/download`, {
+      params,
       responseType: 'blob'
     }).pipe(
       catchError(this.tratarErro)
@@ -129,7 +165,7 @@ export class CnpjImportService {
       return throwError(() => 'Muitas requisições. Aguarde um momento e tente novamente.');
     }
     if (error.status === 403) {
-      return throwError(() => error.error?.erro || 'Você não tem permissão para acessar esta consulta.');
+      return throwError(() => error.error?.erro || 'Você não tem permissão para esta ação.');
     }
     const mensagem = error.error?.erro || 'Erro ao conectar com o servidor';
     return throwError(() => mensagem);

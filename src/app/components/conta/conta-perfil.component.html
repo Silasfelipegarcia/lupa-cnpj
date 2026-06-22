@@ -1,0 +1,30 @@
+<header class="conta-page-header">
+  <h1>Dados da conta</h1>
+  <p class="page-subtitle">Informações do seu cadastro no LupaCNPJ.</p>
+</header>
+
+@if (authService.currentUser(); as user) {
+  <section class="card profile-card">
+    <dl class="profile-list">
+      <div class="profile-row">
+        <dt>Nome</dt>
+        <dd>{{ user.nome }}</dd>
+      </div>
+      <div class="profile-row">
+        <dt>E-mail</dt>
+        <dd>{{ user.email }}</dd>
+      </div>
+      <div class="profile-row">
+        <dt>CPF</dt>
+        <dd>{{ formatarCpf(user.cpf) }}</dd>
+      </div>
+      <div class="profile-row">
+        <dt>Plano</dt>
+        <dd>{{ user.planNome || 'Free' }}</dd>
+      </div>
+    </dl>
+    <p class="profile-note">
+      Seus dados são usados apenas para autenticação, cobrança e operação do serviço, em conformidade com a LGPD.
+    </p>
+  </section>
+}

@@ -3,7 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { GuestCnpjPreviewService } from '../../services/guest-cnpj-preview.service';
+import { buildCnpjResultFields } from '../../utils/cnpj-result-fields';
 import { CnpjPreviewCampo, CnpjPreviewQuota, CnpjPreviewResult } from '../../models/cnpj-preview.model';
+import { AnalyticsService } from '../../services/analytics.service';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 
 @Component({
@@ -23,46 +25,82 @@ export class LandingComponent implements OnInit {
   resultado = signal<CnpjPreviewResult | null>(null);
   quota = signal<CnpjPreviewQuota | null>(null);
 
+  readonly stats = [
+    { value: '1', label: 'consulta completa grátis', sub: 'sem cadastro' },
+    { value: '10', label: 'empresas/dia no Free', sub: 'planilha' },
+    { value: 'Excel', label: 'export no Prospecção', sub: 'pronto pro CRM' }
+  ];
+
+  readonly personas = [
+    {
+      tag: 'SDR / pré-vendas',
+      title: 'Lista limpa para ligar hoje',
+      text: 'Filtre só empresas ativas, exporte com telefone e e-mail e comece o outreach sem planilha manual.'
+    },
+    {
+      tag: 'Agência / consultoria',
+      title: 'Volume com histórico',
+      text: 'Salve listas por campanha, reprocesse com dados atualizados e dedupe CNPJs duplicados no Growth.'
+    },
+    {
+      tag: 'Rep comercial',
+      title: 'Valide o lead em segundos',
+      text: 'Consulta avulsa por CNPJ ou importe a lista do CRM — dados cadastrais oficiais em minutos.'
+    }
+  ];
+
   readonly features = [
     {
-      icon: '📊',
-      title: 'Planilha em, dados completos fora',
-      text: 'Envie CSV ou Excel com CNPJs e receba razão social, endereço, telefone, e-mail, CNAE e situação cadastral.'
+      icon: 'target',
+      title: 'Lista pronta para prospecção',
+      text: 'Filtre empresas ativas, exporte em Excel e leve direto para o CRM — sem retrabalho pós-export.'
     },
     {
-      icon: '⚡',
+      icon: 'search',
+      title: 'CNPJ ou razão social',
+      text: 'Importe planilhas com CNPJ, nome da empresa ou misto. No plano Prospecção+, busca por razão social.'
+    },
+    {
+      icon: 'bolt',
       title: 'Acompanhamento em tempo real',
-      text: 'Barra de progresso e tabela com resultados parciais enquanto cada CNPJ é consultado.'
+      text: 'Barra de progresso e tabela com resultados parciais enquanto cada empresa é qualificada.'
     },
     {
-      icon: '🔒',
-      title: 'Sua conta, suas consultas',
-      text: 'Login seguro com JWT. Histórico privado e retomada automática se você sair no meio do processamento.'
-    },
-    {
-      icon: '📁',
-      title: 'Histórico e cancelamento',
-      text: 'Reabra consultas antigas, baixe resultados quando quiser e cancele para enviar outra planilha.'
+      icon: 'folder',
+      title: 'Histórico e listas salvas',
+      text: 'Reabra consultas, salve listas para campanhas e reprocesse com dados atualizados.'
     }
   ];
 
   readonly steps = [
-    { num: '1', title: 'Crie sua conta', text: 'Cadastro rápido com nome, e-mail e CPF.' },
-    { num: '2', title: 'Envie a planilha', text: 'Colunas cnpj e/ou razao_social — até 10 empresas/dia no Free.' },
-    { num: '3', title: 'Acompanhe e baixe', text: 'Veja o progresso ao vivo e baixe o CSV enriquecido.' }
+    { num: '1', title: 'Importe sua lista', text: 'CSV ou Excel com CNPJ e/ou razão social.' },
+    { num: '2', title: 'Enriqueça e filtre', text: 'Dados oficiais + filtro de empresas ativas (Prospecção+).' },
+    { num: '3', title: 'Exporte e prospecte', text: 'Baixe CSV ou Excel e comece o outreach hoje.' }
   ];
+
+  readonly compare = {
+    before: ['Planilha suja com nomes errados', 'Consulta manual empresa por empresa', 'Lista cheia de inaptas', 'Copy-paste para o CRM'],
+    after: ['Dados oficiais em lote', 'Filtro só empresas ATIVAS', 'Telefone, e-mail e CNAE', 'Export Excel em 1 clique']
+  };
 
   readonly fields = [
     'CNPJ', 'Razão social', 'Nome fantasia', 'Situação cadastral',
     'Telefones', 'E-mail', 'Endereço completo', 'CNAE principal'
   ];
 
-  constructor(private guestPreviewService: GuestCnpjPreviewService) {}
+  constructor(
+    private guestPreviewService: GuestCnpjPreviewService,
+    private analytics: AnalyticsService
+  ) {}
 
   ngOnInit(): void {
     if (!this.authService.isAuthenticated()) {
       this.carregarQuota();
     }
+  }
+
+  scrollTo(id: string): void {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   onCnpjInput(event: Event): void {
@@ -105,6 +143,7 @@ export class LandingComponent implements OnInit {
     this.guestPreviewService.consultar(digits).subscribe({
       next: (result) => {
         this.resultado.set(result);
+        this.analytics.track('guest_preview_success', { cnpj: digits });
         this.quota.set({
           consultasUsadas: result.consultasUsadas,
           consultasLimite: result.consultasLimite,
@@ -129,23 +168,6 @@ export class LandingComponent implements OnInit {
   }
 
   camposResultado(r: CnpjPreviewResult): CnpjPreviewCampo[] {
-    const telefones = [r.telefone1, r.telefone2].filter((t) => t && t.trim()).join(' · ');
-    const endereco = [
-      [r.logradouro, r.numero].filter(Boolean).join(', '),
-      r.complemento,
-      r.bairro,
-      [r.cidade, r.uf].filter(Boolean).join('/'),
-      r.cep
-    ].filter((parte) => parte && parte.trim()).join(' — ');
-
-    return [
-      { label: 'Razão social', valor: r.razaoSocial },
-      { label: 'Nome fantasia', valor: r.nomeFantasia || '—' },
-      { label: 'Situação cadastral', valor: r.situacaoCadastral || '—' },
-      { label: 'Telefones', valor: telefones || '—' },
-      { label: 'E-mail', valor: r.email || '—' },
-      { label: 'Endereço', valor: endereco || '—' },
-      { label: 'CNAE principal', valor: r.cnaePrincipal || '—' }
-    ];
+    return buildCnpjResultFields(r);
   }
 }

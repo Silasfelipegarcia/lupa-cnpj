@@ -1,7 +1,8 @@
-<div class="container">
+<div class="app-page">
+  <div class="app-container app-container--lg">
   <app-header />
 
-  <header class="header">
+  <header class="app-page-header">
     <button type="button" class="back-link" (click)="voltar()">
       @if (modoHistorico()) {
         ← Voltar ao histórico
@@ -88,9 +89,69 @@
       }
 
       @if (concluido() && !cancelado()) {
-        <button class="btn btn-primary" (click)="baixarCsv()">
-          Baixar planilha CSV
-        </button>
+        <section class="filters card">
+          <h3 class="filters-title">Filtros comerciais</h3>
+          <div class="filters-row">
+            <label class="filter-check">
+              <input
+                type="checkbox"
+                [checked]="somenteAtivos()"
+                (change)="somenteAtivos.set($any($event.target).checked)"
+                [disabled]="!config().filtroSomenteAtivos"
+              />
+              Só empresas ATIVAS
+              @if (!config().filtroSomenteAtivos) {
+                <span class="filter-lock">(Prospecção+)</span>
+              }
+            </label>
+            @if (config().filtrosAvancados) {
+              <label class="filter-field">
+                UF
+                <input type="text" maxlength="2" [ngModel]="filtroUf()" (ngModelChange)="filtroUf.set($event)" placeholder="SP" />
+              </label>
+              <label class="filter-field">
+                CNAE
+                <input type="text" [ngModel]="filtroCnae()" (ngModelChange)="filtroCnae.set($event)" placeholder="6201" />
+              </label>
+              <label class="filter-check">
+                <input type="checkbox" [checked]="comTelefone()" (change)="comTelefone.set($any($event.target).checked)" />
+                Com telefone
+              </label>
+              <label class="filter-check">
+                <input type="checkbox" [checked]="comEmail()" (change)="comEmail.set($any($event.target).checked)" />
+                Com e-mail
+              </label>
+            }
+          </div>
+          <p class="filters-count">Exibindo {{ resultadosSucesso().length }} sucesso(s) após filtros</p>
+        </section>
+
+        <div class="download-actions">
+          <button class="btn btn-primary" (click)="baixar('csv')">Baixar CSV</button>
+          @if (config().exportExcel) {
+            <button class="btn btn-secondary" (click)="baixar('xlsx')">Baixar Excel</button>
+          } @else {
+            <a routerLink="/conta/plano" class="btn btn-outline">Excel no plano Prospecção</a>
+          }
+        </div>
+
+        <section class="save-list card">
+          <h3>Salvar lista</h3>
+          <div class="save-list-row">
+            <input
+              type="text"
+              placeholder="Nome da campanha (ex: SDR Q2 — SP)"
+              [ngModel]="nomeLista()"
+              (ngModelChange)="nomeLista.set($event)"
+            />
+            <button type="button" class="btn btn-outline" (click)="salvarLista()" [disabled]="salvandoLista()">
+              @if (salvandoLista()) { Salvando... } @else { Salvar lista }
+            </button>
+            <button type="button" class="btn btn-outline" (click)="reprocessar()" [disabled]="reprocessando()">
+              @if (reprocessando()) { Reenfileirando... } @else { Reprocessar com dados atuais }
+            </button>
+          </div>
+        </section>
       }
 
       @if (cancelado()) {
@@ -100,7 +161,7 @@
             Enviar nova planilha
           </button>
           @if (resultados().length > 0) {
-            <button class="btn btn-secondary" (click)="baixarCsv()">
+            <button class="btn btn-secondary" (click)="baixar('csv')">
               Baixar resultados parciais
             </button>
           }
@@ -206,4 +267,5 @@
     <div class="alert alert-error">{{ erro() }}</div>
     <button class="btn btn-secondary" (click)="voltar()">Voltar ao início</button>
   }
+  </div>
 </div>

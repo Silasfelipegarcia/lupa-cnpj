@@ -1,21 +1,45 @@
-<div class="container">
+<div class="app-page">
+  <div class="app-container app-container--md">
   <app-header />
 
-  <header class="page-header">
-    <h1>Histórico de consultas</h1>
-    <p class="subtitle">Suas importações anteriores</p>
+  <header class="app-page-header">
+    <h1>Histórico de listas</h1>
+    <p class="page-subtitle">Suas importações e listas salvas para campanhas</p>
+    <label class="search-box">
+      <span class="visually-hidden">Buscar por nome do arquivo</span>
+      <input
+        type="search"
+        placeholder="Buscar por nome do arquivo..."
+        [value]="busca()"
+        (input)="onBuscaChange($any($event.target).value)"
+      />
+    </label>
   </header>
+
+  @if (listasSalvas().length > 0) {
+    <section class="saved-section">
+      <h2>Listas salvas</h2>
+      <div class="lista lista--saved">
+        @for (lista of listasSalvas(); track lista.jobId) {
+          <article class="card item item--saved" (click)="verDetalhes(lista.jobId, 'CONCLUIDO')">
+            <h3>{{ lista.nomeLista }}</h3>
+            <p>{{ lista.arquivo }} · {{ lista.total }} empresas · {{ formatarData(lista.createdAt) }}</p>
+          </article>
+        }
+      </div>
+    </section>
+  }
 
   @if (carregando()) {
     <div class="card loading">Carregando histórico...</div>
-  } @else if (consultas().length === 0) {
+  } @else if (consultasFiltradas().length === 0) {
     <div class="card empty">
-      <p>Nenhuma consulta realizada ainda.</p>
-      <a routerLink="/app" class="btn btn-primary">Fazer primeira consulta</a>
+      <p>Nenhuma consulta encontrada.</p>
+      <a routerLink="/app" class="btn btn-primary">Nova importação</a>
     </div>
   } @else {
     <div class="lista">
-      @for (item of consultas(); track item.jobId) {
+      @for (item of consultasFiltradas(); track item.jobId) {
         <article class="card item" [class.item--ativo]="emAndamento(item.status)" (click)="verDetalhes(item.jobId, item.status)">
           <div class="item-header">
             <span class="status-badge" [class]="'status-' + item.status.toLowerCase()">
@@ -50,6 +74,18 @@
               <button type="button" class="btn btn-secondary" (click)="verDetalhes(item.jobId, item.status)">
                 Ver detalhes
               </button>
+              <button
+                type="button"
+                class="btn btn-outline"
+                (click)="reprocessar(item.jobId, $event)"
+                [disabled]="reprocessandoId() === item.jobId"
+              >
+                @if (reprocessandoId() === item.jobId) {
+                  Reprocessando...
+                } @else {
+                  Reprocessar
+                }
+              </button>
             }
             @if (podeBaixar(item.status)) {
               <button type="button" class="btn btn-outline" (click)="baixarCsv(item.jobId, $event)">
@@ -65,4 +101,5 @@
   @if (erro()) {
     <div class="alert alert-error">{{ erro() }}</div>
   }
+  </div>
 </div>

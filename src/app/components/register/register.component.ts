@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CnpjImportService } from '../../services/cnpj-import.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 
 @Component({
@@ -26,7 +27,8 @@ export class RegisterComponent {
   constructor(
     private authService: AuthService,
     private cnpjImportService: CnpjImportService,
-    private router: Router
+    private router: Router,
+    private analytics: AnalyticsService
   ) {}
 
   onCpfInput(event: Event): void {
@@ -75,7 +77,10 @@ export class RegisterComponent {
       cpf: cpfDigits,
       password: this.password
     }).subscribe({
-      next: () => this.redirecionarAposCadastro(),
+      next: () => {
+        this.analytics.track('register');
+        this.redirecionarAposCadastro();
+      },
       error: (msg: string) => {
         this.erro.set(msg);
         this.enviando.set(false);

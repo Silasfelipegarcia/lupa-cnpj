@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { CheckoutRequest, CheckoutResponse, PlanCatalogItem, SubscriptionPlan } from '../models/auth.model';
+import { CheckoutRequest, CheckoutResponse, PlanCatalogItem, SubscriptionPlan, User } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class PlanService {
@@ -21,6 +21,12 @@ export class PlanService {
   iniciarCheckout(plan: SubscriptionPlan): Observable<CheckoutResponse> {
     const body: CheckoutRequest = { plan };
     return this.http.post<CheckoutResponse>(`${this.apiBase}/payments/checkout`, body).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  iniciarTrial(): Observable<User> {
+    return this.http.post<User>(`${this.apiBase}/payments/trial`, {}).pipe(
       catchError(this.tratarErro)
     );
   }

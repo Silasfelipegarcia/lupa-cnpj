@@ -1,0 +1,56 @@
+<header class="conta-page-header">
+  <h1>Plano e uso</h1>
+  <p class="page-subtitle">Gerencie sua assinatura e acompanhe o consumo diário.</p>
+</header>
+
+@if (authService.currentUser(); as user) {
+  <section class="card usage-card">
+    <div class="usage-card__header">
+      <div>
+        <span class="usage-label">Plano atual</span>
+        <h2>{{ user.planNome || 'Free' }}</h2>
+      </div>
+      @if (authService.isMaster()) {
+        <span class="plan-badge plan-badge--master">Master</span>
+      } @else {
+        <span class="plan-badge">{{ user.planNome || 'Free' }}</span>
+      }
+    </div>
+
+    @if (user.usage && !user.usage.master) {
+      <div class="usage-meters">
+        <div class="usage-meter">
+          <div class="usage-meter__label">
+            <span>Planilha hoje</span>
+            <span>{{ usoPlanilha() }}</span>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              [style.width.%]="percentual(user.usage.batchSearchesToday, user.usage.maxBatchSearchesPerDay)"
+            ></div>
+          </div>
+        </div>
+        <div class="usage-meter">
+          <div class="usage-meter__label">
+            <span>CNPJ único hoje</span>
+            <span>{{ usoCnpj() }}</span>
+          </div>
+          @if (user.usage.maxDirectCnpjPerDay != null) {
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                [style.width.%]="percentual(user.usage.directCnpjToday, user.usage.maxDirectCnpjPerDay)"
+              ></div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+}
+
+<section class="catalog-section">
+  <h2 class="catalog-title">Alterar plano</h2>
+  <app-plan-catalog />
+</section>

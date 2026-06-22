@@ -1,24 +1,31 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CnpjImportService } from '../../services/cnpj-import.service';
 import { ImportJobMonitorService } from '../../services/import-job-monitor.service';
 import { ImportJobSummary } from '../../models/import-job.model';
+import { ListaSalva } from '../../models/cnpj-config.model';
 import { AppHeaderComponent } from '../app-header/app-header.component';
 
 @Component({
   selector: 'app-historico',
   standalone: true,
-  imports: [CommonModule, RouterLink, AppHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterLink, AppHeaderComponent],
   templateUrl: './historico.component.html',
   styleUrl: './historico.component.scss'
 })
 export class HistoricoComponent implements OnInit {
 
   consultas = signal<ImportJobSummary[]>([]);
+  listasSalvas = signal<ListaSalva[]>([]);
+  busca = signal('');
   carregando = signal(true);
   erro = signal('');
   cancelandoId = signal<string | null>(null);
+  reprocessandoId = signal<string | null>(null);
+
+  consultasFiltradas = signal<ImportJobSummary[]>([]);
 
   constructor(
     private cnpjImportService: CnpjImportService,
@@ -28,6 +35,22 @@ export class HistoricoComponent implements OnInit {
 
   ngOnInit(): void {
     this.carregarHistorico();
+    this.carregarListasSalvas();
+  }
+
+  onBuscaChange(valor: string): void {
+    this.busca.set(valor);
+    this.aplicarBusca();
+  }
+
+  private aplicarBusca(): void {
+    const termo = this.busca().trim().toLowerCase();
+    const items = this.consultas();
+    if (!termo) {
+      this.consultasFiltradas.set(items);
+      return;
+    }
+    this.consultasFiltradas.set(items.filter((item) => item.arquivo.toLowerCase().includes(termo)));
   }
 
   carregarHistorico(): void {
@@ -35,6 +58,8 @@ export class HistoricoComponent implements OnInit {
     this.cnpjImportService.obterHistorico().subscribe({
       next: (items) => {
         this.consultas.set(items);
+        this.consultasFiltradas.set(items);
+        this.aplicarBusca();
         this.carregando.set(false);
         const ativo = items.find((item) => this.emAndamento(item.status));
         if (ativo) {
@@ -45,6 +70,13 @@ export class HistoricoComponent implements OnInit {
         this.erro.set(msg);
         this.carregando.set(false);
       }
+    });
+  }
+
+  carregarListasSalvas(): void {
+    this.cnpjImportService.listarListasSalvas().subscribe({
+      next: (listas) => this.listasSalvas.set(listas),
+      error: () => {}
     });
   }
 
@@ -82,6 +114,24 @@ export class HistoricoComponent implements OnInit {
     });
   }
 
+  reprocessar(jobId: string, event: Event): void {
+    event.stopPropagation();
+    if (this.reprocessandoId()) {
+      return;
+    }
+    this.reprocessandoId.set(jobId);
+    this.cnpjImportService.reprocessar(jobId).subscribe({
+      next: (job) => {
+        this.reprocessandoId.set(null);
+        this.router.navigate(['/consulta', job.jobId]);
+      },
+      error: (msg: string) => {
+        this.reprocessandoId.set(null);
+        this.erro.set(msg);
+      }
+    });
+  }
+
   emAndamento(status: string): boolean {
     return status === 'NA_FILA' || status === 'PROCESSANDO';
   }
@@ -91,7 +141,7 @@ export class HistoricoComponent implements OnInit {
     this.cnpjImportService.baixarResultado(jobId).subscribe({
       next: (blob) => {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-        this.cnpjImportService.baixarBlob(blob, `cnpj_resultado_${timestamp}.csv`);
+        this.cnpjImportService.baixarBlob(blob, `lupa_prospeccao_${timestamp}.csv`);
       },
       error: (msg: string) => this.erro.set(msg)
     });

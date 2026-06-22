@@ -8,6 +8,12 @@ export interface PlanUsage {
   batchSearchesToday: number;
   directCnpjToday: number;
   master: boolean;
+  pesquisaRazaoSocial?: boolean;
+  exportExcel?: boolean;
+  filtroSomenteAtivos?: boolean;
+  filtrosAvancados?: boolean;
+  dedupeHabilitado?: boolean;
+  trialDisponivel?: boolean;
 }
 
 export interface User {
@@ -39,13 +45,16 @@ export interface RegisterRequest {
 }
 
 export interface PlanCatalogItem {
-  plan: SubscriptionPlan;
+  plan?: SubscriptionPlan;
   nome: string;
+  descricao?: string;
   maxRowsPerFile: number;
   batchSearchesPerDay: string;
   directCnpjPerDay: string;
   priceCents: number;
   priceLabel: string;
+  beneficios?: string[];
+  contatoComercial?: boolean;
 }
 
 export interface CheckoutRequest {

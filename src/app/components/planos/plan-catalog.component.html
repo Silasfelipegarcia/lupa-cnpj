@@ -1,0 +1,113 @@
+@if (carregando()) {
+  <p class="loading">Carregando planos...</p>
+} @else {
+  @if (trialDisponivel() && !somentePublico()) {
+    <button type="button" class="btn btn-outline trial-banner" (click)="iniciarTrial()" [disabled]="!!processando()">
+      @if (processando() === 'trial') {
+        Ativando trial...
+      } @else {
+        Experimentar Prospecção grátis por 7 dias
+      }
+    </button>
+  }
+
+  <div id="planos" class="plans-grid">
+    @for (item of planosPrincipais(); track item.nome) {
+      <article
+        class="plan-card"
+        [class.plan-card--current]="item.plan && isPlanoAtual(item.plan)"
+        [class.plan-card--featured]="item.plan === 'PREMIUM'"
+      >
+        @if (item.plan === 'PREMIUM') {
+          <span class="plan-popular">Mais popular</span>
+        }
+        <div class="plan-card__header">
+          <h2>{{ item.nome }}</h2>
+          <span class="plan-price">{{ item.priceLabel }}</span>
+        </div>
+        @if (item.descricao) {
+          <p class="plan-desc">{{ item.descricao }}</p>
+        }
+
+        @if (item.beneficios?.length) {
+          <ul class="plan-features">
+            @for (beneficio of item.beneficios!; track beneficio) {
+              <li>{{ beneficio }}</li>
+            }
+          </ul>
+        } @else {
+          <ul class="plan-features">
+            <li>Até <strong>{{ item.maxRowsPerFile | number }}</strong> empresas por arquivo</li>
+            <li>Planilha: <strong>{{ item.batchSearchesPerDay }}</strong></li>
+            <li>CNPJ único: <strong>{{ item.directCnpjPerDay }}</strong></li>
+          </ul>
+        }
+
+        <div class="plan-actions">
+          @if (authService.isMaster()) {
+            <span class="plan-badge plan-badge--master">Incluso no Master</span>
+          } @else if (item.plan && isPlanoAtual(item.plan)) {
+            <span class="plan-badge">Seu plano atual</span>
+          } @else if (item.plan === 'FREE') {
+            <span class="plan-badge plan-badge--muted">Plano inicial</span>
+          } @else if (item.plan && podeAssinar(item)) {
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="!!processando()"
+              (click)="assinar(item.plan!)"
+            >
+              @if (processando() === item.plan) {
+                Abrindo checkout...
+              } @else {
+                Assinar com cartão
+              }
+            </button>
+          } @else {
+            <span class="plan-badge plan-badge--muted">—</span>
+          }
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (planoBusiness(); as business) {
+    <article class="plan-card plan-card--business">
+      <div class="plan-card--business__content">
+        <div class="plan-card__header">
+          <h2>{{ business.nome }}</h2>
+          <span class="plan-price">{{ business.priceLabel }}</span>
+        </div>
+        @if (business.descricao) {
+          <p class="plan-desc">{{ business.descricao }}</p>
+        }
+        @if (business.beneficios?.length) {
+          <ul class="plan-features">
+            @for (beneficio of business.beneficios!; track beneficio) {
+              <li>{{ beneficio }}</li>
+            }
+          </ul>
+        }
+      </div>
+      <div class="plan-card--business__action">
+        <a href="mailto:contato@lupacnpj.com.br?subject=Plano%20Business" class="btn btn-primary">
+          Fale conosco
+        </a>
+      </div>
+    </article>
+  }
+}
+
+@if (mensagem()) {
+  <div class="alert alert-info">{{ mensagem() }}</div>
+}
+@if (erro()) {
+  <div class="alert alert-error">{{ erro() }}</div>
+}
+
+<p class="footer-note">
+  Pagamento seguro via Mercado Pago. Cancele quando quiser.
+  @if (!authService.isAuthenticated()) {
+    <a routerLink="/login"> Entre</a> para assinar um plano pago.
+  }
+</p>

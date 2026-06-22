@@ -10,7 +10,8 @@ const PUBLIC_API_SEGMENTS = [
   '/auth/register',
   '/cnpj/preview',
   '/plans',
-  '/payments/mercadopago/webhook'
+  '/payments/mercadopago/webhook',
+  '/analytics/event'
 ];
 
 function isPublicApi(url: string): boolean {
