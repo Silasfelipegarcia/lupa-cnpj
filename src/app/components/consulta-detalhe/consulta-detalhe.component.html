@@ -1,6 +1,10 @@
 <div class="container">
+  <app-header />
+
   <header class="header">
-    <button type="button" class="back-link" (click)="novaConsulta()">← Nova consulta</button>
+    <button type="button" class="back-link" (click)="voltar()">
+      {{ modoHistorico() ? '← Voltar ao histórico' : '← Nova consulta' }}
+    </button>
     <app-brand [onNavigate]="irParaNovaConsulta" />
     <h1 class="page-title">Acompanhamento da consulta</h1>
     @if (job()) {
@@ -159,6 +163,6 @@
 
   @if (erro()) {
     <div class="alert alert-error">{{ erro() }}</div>
-    <button class="btn btn-secondary" (click)="novaConsulta()">Voltar ao início</button>
+    <button class="btn btn-secondary" (click)="voltar()">Voltar ao início</button>
   }
 </div>

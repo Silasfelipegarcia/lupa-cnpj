@@ -1,0 +1,35 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <app-brand />
+    <h1>Entrar</h1>
+    <p class="subtitle">Acesse sua conta para consultar CNPJs</p>
+
+    <form (ngSubmit)="entrar()">
+      <label class="field">
+        <span>E-mail</span>
+        <input type="email" name="email" [(ngModel)]="email" required autocomplete="email" />
+      </label>
+
+      <label class="field">
+        <span>Senha</span>
+        <input type="password" name="password" [(ngModel)]="password" required minlength="8" autocomplete="current-password" />
+      </label>
+
+      <button class="btn btn-primary" type="submit" [disabled]="enviando()">
+        @if (enviando()) {
+          Entrando...
+        } @else {
+          Entrar
+        }
+      </button>
+    </form>
+
+    @if (erro()) {
+      <div class="alert alert-error">{{ erro() }}</div>
+    }
+
+    <p class="footer-link">
+      Não tem conta? <a routerLink="/cadastro">Cadastre-se</a>
+    </p>
+  </div>
+</div>

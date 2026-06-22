@@ -7,11 +7,12 @@ import { ImportJobStorage } from '../../services/import-job-storage';
 import { CnpjResultadoItem, ImportJobResponse } from '../../models/import-job.model';
 import { environment } from '../../../environments/environment';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
+import { AppHeaderComponent } from '../app-header/app-header.component';
 
 @Component({
   selector: 'app-consulta-detalhe',
   standalone: true,
-  imports: [CommonModule, AppBrandComponent],
+  imports: [CommonModule, AppBrandComponent, AppHeaderComponent],
   templateUrl: './consulta-detalhe.component.html',
   styleUrl: './consulta-detalhe.component.scss'
 })
@@ -27,6 +28,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
     this.resultados().filter((item) => item.statusConsulta === 'ERRO')
   );
   erro = signal<string>('');
+  modoHistorico = signal(false);
 
   private pollingSubscription?: Subscription;
 
@@ -45,9 +47,16 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const historico = this.route.snapshot.url.some((segment) => segment.path === 'historico');
+    this.modoHistorico.set(historico);
     this.jobId.set(id);
-    ImportJobStorage.salvar({ jobId: id, arquivo: '' });
-    this.iniciarPolling(id);
+
+    if (historico) {
+      this.carregarHistorico(id);
+    } else {
+      ImportJobStorage.salvar({ jobId: id, arquivo: '' });
+      this.iniciarPolling(id);
+    }
   }
 
   baixarCsv(): void {
@@ -75,9 +84,17 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
     return this.job()?.status === 'CANCELADO';
   }
 
+  voltar(): void {
+    if (this.modoHistorico()) {
+      this.router.navigate(['/historico']);
+      return;
+    }
+    this.novaConsulta();
+  }
+
   novaConsulta(): void {
     const id = this.jobId();
-    const ativo = this.emAndamento();
+    const ativo = this.emAndamento() && !this.modoHistorico();
 
     this.pararPolling();
     ImportJobStorage.limpar();
@@ -89,6 +106,13 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
     }
 
     this.router.navigate(['/']);
+  }
+
+  private carregarHistorico(jobId: string): void {
+    this.cnpjImportService.obterHistoricoDetalhe(jobId).subscribe({
+      next: (job) => this.atualizarJob(job),
+      error: (msg: string) => this.erro.set(msg)
+    });
   }
 
   private iniciarPolling(jobId: string): void {
@@ -107,7 +131,9 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
   private atualizarJob(job: ImportJobResponse): void {
     this.job.set(job);
     this.resultados.set(job.resultados ?? []);
-    ImportJobStorage.salvar({ jobId: job.jobId, arquivo: job.arquivo });
+    if (!this.modoHistorico()) {
+      ImportJobStorage.salvar({ jobId: job.jobId, arquivo: job.arquivo });
+    }
 
     if (job.status === 'CONCLUIDO' || job.status === 'ERRO' || job.status === 'CANCELADO') {
       this.pararPolling();

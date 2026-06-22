@@ -1,16 +1,29 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { ImportJobResponse } from '../models/import-job.model';
+import { ImportJobResponse, ImportJobSummary } from '../models/import-job.model';
 import { CnpjConfig } from '../models/cnpj-config.model';
+
+interface ImportJobSummaryApi {
+  jobId: string;
+  status: string;
+  arquivo: string;
+  total: number;
+  processados: number;
+  sucesso: number;
+  erros: number;
+  percentual: number;
+  mensagem: string;
+  createdAt?: string;
+  completedAt?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class CnpjImportService {
 
   private readonly apiBase = environment.apiUrl;
-
   private readonly importUrl = `${environment.apiUrl}/cnpj/import`;
 
   constructor(private http: HttpClient) {}
@@ -32,6 +45,19 @@ export class CnpjImportService {
 
   consultarStatus(jobId: string): Observable<ImportJobResponse> {
     return this.http.get<ImportJobResponse>(`${this.importUrl}/${jobId}/status`).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  obterHistorico(): Observable<ImportJobSummary[]> {
+    return this.http.get<ImportJobSummaryApi[]>(`${this.importUrl}/historico`).pipe(
+      map((items) => items.map((item) => this.normalizarResumo(item))),
+      catchError(this.tratarErro)
+    );
+  }
+
+  obterHistoricoDetalhe(jobId: string): Observable<ImportJobResponse> {
+    return this.http.get<ImportJobResponse>(`${this.importUrl}/historico/${jobId}`).pipe(
       catchError(this.tratarErro)
     );
   }
@@ -67,9 +93,28 @@ export class CnpjImportService {
     window.URL.revokeObjectURL(url);
   }
 
+  private normalizarResumo(item: ImportJobSummaryApi): ImportJobSummary {
+    return {
+      jobId: String(item.jobId),
+      status: item.status as ImportJobSummary['status'],
+      arquivo: item.arquivo,
+      total: item.total,
+      processados: item.processados,
+      sucesso: item.sucesso,
+      erros: item.erros,
+      percentual: item.percentual,
+      mensagem: item.mensagem,
+      createdAt: item.createdAt,
+      completedAt: item.completedAt
+    };
+  }
+
   private tratarErro(error: HttpErrorResponse): Observable<never> {
     if (error.status === 429) {
       return throwError(() => 'Muitas requisições. Aguarde um momento e tente novamente.');
+    }
+    if (error.status === 403) {
+      return throwError(() => error.error?.erro || 'Você não tem permissão para acessar esta consulta.');
     }
     const mensagem = error.error?.erro || 'Erro ao conectar com o servidor';
     return throwError(() => mensagem);

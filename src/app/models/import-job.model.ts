@@ -34,4 +34,20 @@ export interface ImportJobResponse {
   posicaoFila: number;
   mensagem: string;
   resultados: CnpjResultadoItem[];
+  createdAt?: string;
+  completedAt?: string;
+}
+
+export interface ImportJobSummary {
+  jobId: string;
+  status: ImportJobStatus;
+  arquivo: string;
+  total: number;
+  processados: number;
+  sucesso: number;
+  erros: number;
+  percentual: number;
+  mensagem: string;
+  createdAt?: string;
+  completedAt?: string;
 }

@@ -4,12 +4,12 @@ import { Router } from '@angular/router';
 import { CnpjImportService } from '../../services/cnpj-import.service';
 import { ImportJobStorage } from '../../services/import-job-storage';
 import { environment } from '../../../environments/environment';
-import { AppBrandComponent } from '../app-brand/app-brand.component';
+import { AppHeaderComponent } from '../app-header/app-header.component';
 
 @Component({
   selector: 'app-cnpj-import',
   standalone: true,
-  imports: [CommonModule, AppBrandComponent],
+  imports: [CommonModule, AppHeaderComponent],
   templateUrl: './cnpj-import.component.html',
   styleUrl: './cnpj-import.component.scss'
 })

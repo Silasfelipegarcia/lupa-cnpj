@@ -1,0 +1,50 @@
+<div class="container">
+  <app-header />
+
+  <header class="page-header">
+    <h1>Histórico de consultas</h1>
+    <p class="subtitle">Suas importações anteriores</p>
+  </header>
+
+  @if (carregando()) {
+    <div class="card loading">Carregando histórico...</div>
+  } @else if (consultas().length === 0) {
+    <div class="card empty">
+      <p>Nenhuma consulta realizada ainda.</p>
+      <a routerLink="/" class="btn btn-primary">Fazer primeira consulta</a>
+    </div>
+  } @else {
+    <div class="lista">
+      @for (item of consultas(); track item.jobId) {
+        <article class="card item" (click)="verDetalhes(item.jobId)">
+          <div class="item-header">
+            <span class="status-badge" [class]="'status-' + item.status.toLowerCase()">
+              {{ rotuloStatus(item.status) }}
+            </span>
+            <span class="data">{{ formatarData(item.createdAt) }}</span>
+          </div>
+          <h2 class="arquivo">{{ item.arquivo }}</h2>
+          <div class="stats">
+            <span>{{ item.total }} linha(s)</span>
+            <span class="stat-success">{{ item.sucesso }} sucesso(s)</span>
+            <span class="stat-error">{{ item.erros }} erro(s)</span>
+          </div>
+          <div class="actions" (click)="$event.stopPropagation()">
+            <button type="button" class="btn btn-secondary" (click)="verDetalhes(item.jobId)">
+              Ver detalhes
+            </button>
+            @if (podeBaixar(item.status)) {
+              <button type="button" class="btn btn-outline" (click)="baixarCsv(item.jobId, $event)">
+                Baixar CSV
+              </button>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  @if (erro()) {
+    <div class="alert alert-error">{{ erro() }}</div>
+  }
+</div>
