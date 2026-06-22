@@ -15,6 +15,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://lupa-cnpj-api-production.up.railway.app/:path*"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

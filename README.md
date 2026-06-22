@@ -26,16 +26,15 @@ Certifique-se de que a API está rodando em `http://localhost:8080` (veja o repo
 ## Deploy na Vercel
 
 1. Importe o repositório `lupa-cnpj` em [vercel.com](https://vercel.com)
-2. Configure a variável de ambiente:
-   - `API_URL` = URL da API no Railway (ex: `https://lupa-cnpj-api.up.railway.app`)
+2. **Não** defina `API_URL` na Vercel (o padrão `/api` usa o proxy para o Railway)
 3. Deploy automático a cada push na branch `main`
 
-O script `scripts/set-api-url.js` injeta a `API_URL` no build de produção.
+O `vercel.json` encaminha `/api/*` → `https://lupa-cnpj-api-production.up.railway.app/*` (mesma origem, sem CORS).
 
 ## Variáveis de ambiente
 
 | Variável | Descrição | Local |
 |----------|-----------|-------|
-| `API_URL` | URL base da API | Vercel |
+| `API_URL` | URL base da API (opcional; padrão `/api` na Vercel) | Vercel |
 
-Desenvolvimento: edite `src/environments/environment.ts`.
+Desenvolvimento: edite `src/environments/environment.ts` (`http://localhost:8080`).

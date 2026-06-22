@@ -1,7 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const apiUrl = process.env.API_URL || 'https://lupa-cnpj-api.up.railway.app';
+// Em produção na Vercel usamos /api (proxy no vercel.json → Railway).
+// Para build local apontando direto na API, defina API_URL.
+const apiUrl = process.env.API_URL || '/api';
 const target = path.join(__dirname, '../src/environments/environment.prod.ts');
 
 const content = `export const environment = {
