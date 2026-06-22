@@ -9,17 +9,27 @@
 
   @if (jobAtivo(); as ativo) {
     <section class="resume-banner card">
-      <div>
+      <div class="resume-banner__text">
         <strong>Consulta em andamento</strong>
         <p>{{ ativo.arquivo }} · {{ ativo.processados }} de {{ ativo.total }} linha(s) ({{ ativo.percentual }}%)</p>
+        <p class="resume-hint">Enviou a planilha errada? Cancele para importar o arquivo correto.</p>
       </div>
-      <button type="button" class="btn btn-primary" (click)="continuarJobAtivo()">
-        Continuar de onde parou
-      </button>
+      <div class="resume-banner__actions">
+        <button type="button" class="btn btn-primary" (click)="continuarJobAtivo()" [disabled]="cancelando()">
+          Continuar acompanhamento
+        </button>
+        <button type="button" class="btn btn-cancel" (click)="cancelarJobAtivo()" [disabled]="cancelando()">
+          @if (cancelando()) {
+            Cancelando...
+          } @else {
+            Cancelar e enviar outra
+          }
+        </button>
+      </div>
     </section>
   }
 
-  <main class="card">
+  <main class="card" [class.card--bloqueado]="jobAtivo()">
     <section class="mode-section">
       <div class="mode-info">
         <span class="mode-label">Busca por razão social</span>
@@ -61,7 +71,7 @@
         type="file"
         accept=".csv,.xlsx,.xls"
         (change)="onArquivoSelecionado($event)"
-        [disabled]="enviando()"
+        [disabled]="enviando() || !!jobAtivo() || cancelando()"
       />
     </section>
 
@@ -76,7 +86,7 @@
       <button
         class="btn btn-primary"
         (click)="processar()"
-        [disabled]="!arquivoSelecionado() || enviando() || !!jobAtivo()"
+        [disabled]="!arquivoSelecionado() || enviando() || !!jobAtivo() || cancelando()"
       >
         @if (enviando()) {
           <span class="spinner"></span>

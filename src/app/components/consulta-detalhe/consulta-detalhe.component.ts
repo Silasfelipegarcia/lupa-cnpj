@@ -28,6 +28,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
   );
   erro = signal<string>('');
   modoHistorico = signal(false);
+  cancelando = signal(false);
 
   private pollingSubscription?: Subscription;
 
@@ -86,18 +87,34 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
   }
 
   novaConsulta(): void {
-    const id = this.jobId();
-    const ativo = this.emAndamento() && !this.modoHistorico();
-
+    if (this.emAndamento()) {
+      this.cancelarEEnviarOutro();
+      return;
+    }
     this.pararPolling();
+    this.router.navigate(['/']);
+  }
 
-    if (ativo && id) {
-      this.cnpjImportService.cancelarImportacao(id).subscribe({
-        error: () => undefined
-      });
+  cancelarEEnviarOutro(): void {
+    const id = this.jobId();
+    if (!id || this.cancelando() || !this.emAndamento()) {
+      return;
     }
 
-    this.router.navigate(['/']);
+    this.cancelando.set(true);
+    this.pararPolling();
+
+    this.cnpjImportService.cancelarImportacao(id).subscribe({
+      next: () => {
+        this.cancelando.set(false);
+        this.router.navigate(['/']);
+      },
+      error: (msg: string) => {
+        this.cancelando.set(false);
+        this.erro.set(msg);
+        this.iniciarPolling(id);
+      }
+    });
   }
 
   private iniciarPolling(jobId: string): void {

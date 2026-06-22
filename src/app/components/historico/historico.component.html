@@ -34,6 +34,18 @@
               <button type="button" class="btn btn-primary" (click)="continuarAcompanhamento(item.jobId, $event)">
                 Continuar acompanhamento
               </button>
+              <button
+                type="button"
+                class="btn btn-cancel"
+                (click)="cancelarConsulta(item.jobId, $event)"
+                [disabled]="cancelandoId() === item.jobId"
+              >
+                @if (cancelandoId() === item.jobId) {
+                  Cancelando...
+                } @else {
+                  Cancelar
+                }
+              </button>
             } @else {
               <button type="button" class="btn btn-secondary" (click)="verDetalhes(item.jobId, item.status)">
                 Ver detalhes

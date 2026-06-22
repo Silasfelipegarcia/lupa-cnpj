@@ -17,6 +17,7 @@ export class HistoricoComponent implements OnInit {
   consultas = signal<ImportJobSummary[]>([]);
   carregando = signal(true);
   erro = signal('');
+  cancelandoId = signal<string | null>(null);
 
   constructor(
     private cnpjImportService: CnpjImportService,
@@ -52,6 +53,27 @@ export class HistoricoComponent implements OnInit {
   continuarAcompanhamento(jobId: string, event: Event): void {
     event.stopPropagation();
     this.router.navigate(['/consulta', jobId]);
+  }
+
+  cancelarConsulta(jobId: string, event: Event): void {
+    event.stopPropagation();
+    if (this.cancelandoId()) {
+      return;
+    }
+
+    this.cancelandoId.set(jobId);
+    this.erro.set('');
+
+    this.cnpjImportService.cancelarImportacao(jobId).subscribe({
+      next: () => {
+        this.cancelandoId.set(null);
+        this.carregarHistorico();
+      },
+      error: (msg: string) => {
+        this.cancelandoId.set(null);
+        this.erro.set(msg);
+      }
+    });
   }
 
   emAndamento(status: string): boolean {

@@ -21,6 +21,7 @@ export class CnpjImportComponent implements OnInit {
   pesquisaRazaoSocialHabilitada = signal(false);
   carregandoConfig = signal(true);
   jobAtivo = signal<ImportJobResponse | null>(null);
+  cancelando = signal(false);
 
   arquivoSelecionado = signal<File | null>(null);
   mensagem = signal<string>('');
@@ -46,6 +47,29 @@ export class CnpjImportComponent implements OnInit {
     if (job) {
       this.router.navigate(['/consulta', job.jobId]);
     }
+  }
+
+  cancelarJobAtivo(): void {
+    const job = this.jobAtivo();
+    if (!job || this.cancelando()) {
+      return;
+    }
+
+    this.cancelando.set(true);
+    this.mensagem.set('');
+
+    this.cnpjImportService.cancelarImportacao(job.jobId).subscribe({
+      next: () => {
+        this.jobAtivo.set(null);
+        this.arquivoSelecionado.set(null);
+        this.cancelando.set(false);
+        this.mensagem.set('Consulta cancelada. Selecione a planilha correta e envie novamente.');
+      },
+      error: (erro: string) => {
+        this.cancelando.set(false);
+        this.mensagem.set(erro);
+      }
+    });
   }
 
   private carregarConfiguracao(): void {

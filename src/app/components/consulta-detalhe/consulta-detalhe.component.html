@@ -3,7 +3,13 @@
 
   <header class="header">
     <button type="button" class="back-link" (click)="voltar()">
-      {{ modoHistorico() ? '← Voltar ao histórico' : '← Nova consulta' }}
+      @if (modoHistorico()) {
+        ← Voltar ao histórico
+      } @else if (emAndamento()) {
+        ← Voltar (consulta continua em segundo plano)
+      } @else {
+        ← Nova consulta
+      }
     </button>
     <app-brand [onNavigate]="irParaNovaConsulta" />
     <h1 class="page-title">Acompanhamento da consulta</h1>
@@ -51,19 +57,41 @@
 
       <p class="mensagem">{{ job()!.mensagem }}</p>
 
+      @if (emAndamento()) {
+        <div class="progress-actions">
+          <button
+            type="button"
+            class="btn btn-cancel"
+            (click)="cancelarEEnviarOutro()"
+            [disabled]="cancelando()"
+          >
+            @if (cancelando()) {
+              Cancelando...
+            } @else {
+              Cancelar e enviar outra planilha
+            }
+          </button>
+        </div>
+      }
+
       @if (concluido() && !cancelado()) {
         <button class="btn btn-primary" (click)="baixarCsv()">
           Baixar planilha CSV
         </button>
       }
 
-      @if (cancelado() && resultados().length > 0) {
-        <button class="btn btn-secondary" (click)="baixarCsv()">
-          Baixar resultados parciais
-        </button>
-        <button class="btn btn-primary" (click)="novaConsulta()">
-          Iniciar nova consulta
-        </button>
+      @if (cancelado()) {
+        <div class="progress-actions">
+          <p class="cancel-hint">Esta consulta foi cancelada. Você pode enviar a planilha correta na tela inicial.</p>
+          <button class="btn btn-primary" (click)="voltar()">
+            Enviar nova planilha
+          </button>
+          @if (resultados().length > 0) {
+            <button class="btn btn-secondary" (click)="baixarCsv()">
+              Baixar resultados parciais
+            </button>
+          }
+        </div>
       }
     </section>
 

@@ -55,7 +55,7 @@
 
 .resume-banner {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
@@ -63,6 +63,18 @@
   padding: 1.25rem 1.5rem;
   border-color: #38bdf8;
   background: #1e3a5f;
+
+  &__text {
+    flex: 1;
+    min-width: 220px;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 200px;
+  }
 
   strong {
     display: block;
@@ -75,6 +87,42 @@
     color: #94a3b8;
     font-size: 0.9rem;
   }
+
+  .resume-hint {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #fde68a;
+  }
+}
+
+.btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.25rem;
+  border: 1px solid #f87171;
+  border-radius: 8px;
+  background: transparent;
+  color: #fecaca;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover:not(:disabled) {
+    background: rgba(248, 113, 113, 0.15);
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.card--bloqueado {
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 .template-section {
