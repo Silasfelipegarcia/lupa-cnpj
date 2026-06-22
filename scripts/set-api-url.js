@@ -9,7 +9,7 @@ const content = `export const environment = {
   apiUrl: '${apiUrl.replace(/'/g, "\\'")}',
   limits: {
     maxFileSizeMb: 5,
-    maxRowsPerFile: 100,
+    maxRowsPerFile: 200,
     statusPollIntervalMs: 3000
   }
 };

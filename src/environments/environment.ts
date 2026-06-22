@@ -3,7 +3,7 @@ export const environment = {
   apiUrl: 'http://localhost:8080',
   limits: {
     maxFileSizeMb: 5,
-    maxRowsPerFile: 100,
+    maxRowsPerFile: 200,
     statusPollIntervalMs: 3000
   }
 };
