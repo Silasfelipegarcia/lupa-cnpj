@@ -55,6 +55,9 @@ export class CnpjImportService {
   }
 
   private tratarErro(error: HttpErrorResponse): Observable<never> {
+    if (error.status === 429) {
+      return throwError(() => 'Muitas requisições. Aguarde um momento e tente novamente.');
+    }
     const mensagem = error.error?.erro || 'Erro ao conectar com o servidor';
     return throwError(() => mensagem);
   }

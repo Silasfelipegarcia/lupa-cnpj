@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CnpjImportService } from '../../services/cnpj-import.service';
 import { ImportJobStorage } from '../../services/import-job-storage';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-cnpj-import',
@@ -12,6 +13,9 @@ import { ImportJobStorage } from '../../services/import-job-storage';
   styleUrl: './cnpj-import.component.scss'
 })
 export class CnpjImportComponent implements OnInit {
+
+  readonly maxFileSizeMb = environment.limits.maxFileSizeMb;
+  readonly maxRowsPerFile = environment.limits.maxRowsPerFile;
 
   arquivoSelecionado = signal<File | null>(null);
   mensagem = signal<string>('');
@@ -32,11 +36,22 @@ export class CnpjImportComponent implements OnInit {
   onArquivoSelecionado(event: Event): void {
     const input = event.target as HTMLInputElement;
     const arquivo = input.files?.[0] ?? null;
+
+    if (arquivo && arquivo.size > this.maxFileSizeMb * 1024 * 1024) {
+      this.arquivoSelecionado.set(null);
+      input.value = '';
+      this.mensagem.set(`O arquivo excede o limite de ${this.maxFileSizeMb} MB.`);
+      return;
+    }
+
     this.arquivoSelecionado.set(arquivo);
     this.mensagem.set(arquivo ? `Arquivo selecionado: ${arquivo.name}` : '');
   }
 
   baixarModelo(): void {
+    if (this.enviando()) {
+      return;
+    }
     this.cnpjImportService.baixarModeloExcel().subscribe({
       next: (blob) => {
         this.cnpjImportService.baixarBlob(blob, 'lupa-cnpj-modelo.xlsx');
@@ -47,6 +62,10 @@ export class CnpjImportComponent implements OnInit {
   }
 
   processar(): void {
+    if (this.enviando()) {
+      return;
+    }
+
     const arquivo = this.arquivoSelecionado();
     if (!arquivo) {
       this.mensagem.set('Selecione um arquivo antes de continuar.');

@@ -6,7 +6,12 @@ const target = path.join(__dirname, '../src/environments/environment.prod.ts');
 
 const content = `export const environment = {
   production: true,
-  apiUrl: '${apiUrl.replace(/'/g, "\\'")}'
+  apiUrl: '${apiUrl.replace(/'/g, "\\'")}',
+  limits: {
+    maxFileSizeMb: 5,
+    maxRowsPerFile: 100,
+    statusPollIntervalMs: 3000
+  }
 };
 `;
 

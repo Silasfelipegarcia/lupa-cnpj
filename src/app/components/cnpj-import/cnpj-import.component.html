@@ -2,7 +2,7 @@
   <header class="header">
     <h1>LupaCNPJ</h1>
     <p class="subtitle">
-      Envie um CSV ou Excel com as colunas <code>cnpj</code> e/ou <code>razao_social</code> e acompanhe os resultados em tempo real.
+      Envie um CSV ou Excel com <code>cnpj</code> e/ou <code>razao_social</code>. Se um dado estiver errado, tentamos localizar pelo outro.
     </p>
   </header>
 
@@ -18,7 +18,7 @@
       <label class="upload-label" for="csv-input">
         <span class="upload-icon">📄</span>
         <span>Clique para selecionar o arquivo</span>
-        <span class="upload-hint">CSV ou Excel (.xlsx) · colunas <strong>cnpj</strong> e/ou <strong>razao_social</strong></span>
+        <span class="upload-hint">CSV ou Excel (.xlsx) · até {{ maxFileSizeMb }} MB e {{ maxRowsPerFile }} linhas · colunas <strong>cnpj</strong> e/ou <strong>razao_social</strong></span>
       </label>
       <input
         id="csv-input"
@@ -59,7 +59,7 @@
   <footer class="info">
     <h2>Como funciona</h2>
     <ol>
-      <li>Baixe o <strong>modelo Excel</strong> e preencha com seus CNPJs ou razões sociais</li>
+      <li>Preencha <strong>CNPJ</strong> e/ou <strong>razão social</strong> — se um estiver errado, tentamos pelo outro</li>
       <li>Importe o arquivo (.xlsx ou .csv) e clique em <strong>Enriquecer CNPJs</strong></li>
       <li>Acompanhe os resultados em tempo real na próxima página</li>
       <li>Baixe a planilha completa enriquecida ao finalizar</li>

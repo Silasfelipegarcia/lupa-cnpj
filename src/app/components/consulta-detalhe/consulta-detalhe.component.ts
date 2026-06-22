@@ -5,6 +5,7 @@ import { Subscription, timer, switchMap } from 'rxjs';
 import { CnpjImportService } from '../../services/cnpj-import.service';
 import { ImportJobStorage } from '../../services/import-job-storage';
 import { CnpjResultadoItem, ImportJobResponse } from '../../models/import-job.model';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-consulta-detalhe',
@@ -66,7 +67,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
   }
 
   private iniciarPolling(jobId: string): void {
-    this.pollingSubscription = timer(0, 2000).pipe(
+    this.pollingSubscription = timer(0, environment.limits.statusPollIntervalMs).pipe(
       switchMap(() => this.cnpjImportService.consultarStatus(jobId))
     ).subscribe({
       next: (job) => this.atualizarJob(job),
