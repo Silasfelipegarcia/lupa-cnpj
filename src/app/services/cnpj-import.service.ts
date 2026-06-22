@@ -36,6 +36,12 @@ export class CnpjImportService {
     );
   }
 
+  cancelarImportacao(jobId: string): Observable<ImportJobResponse> {
+    return this.http.delete<ImportJobResponse>(`${this.importUrl}/${jobId}`).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
   baixarResultado(jobId: string): Observable<Blob> {
     return this.http.get(`${this.importUrl}/${jobId}/download`, {
       responseType: 'blob'

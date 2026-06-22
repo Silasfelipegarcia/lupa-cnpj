@@ -33,10 +33,27 @@ export class CnpjImportComponent implements OnInit {
   ngOnInit(): void {
     const persistido = ImportJobStorage.recuperar();
     if (persistido) {
-      this.router.navigate(['/consulta', persistido.jobId]);
+      this.cnpjImportService.consultarStatus(persistido.jobId).subscribe({
+        next: (job) => {
+          if (job.status === 'NA_FILA' || job.status === 'PROCESSANDO') {
+            this.router.navigate(['/consulta', persistido.jobId]);
+            return;
+          }
+          ImportJobStorage.limpar();
+          this.carregarConfiguracao();
+        },
+        error: () => {
+          ImportJobStorage.limpar();
+          this.carregarConfiguracao();
+        }
+      });
       return;
     }
 
+    this.carregarConfiguracao();
+  }
+
+  private carregarConfiguracao(): void {
     this.cnpjImportService.obterConfiguracao().subscribe({
       next: (config) => {
         this.pesquisaRazaoSocialHabilitada.set(config.pesquisaRazaoSocialHabilitada);

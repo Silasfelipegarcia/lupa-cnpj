@@ -1,7 +1,7 @@
 <div class="container">
   <header class="header">
-    <a routerLink="/" class="back-link">← Nova consulta</a>
-    <app-brand />
+    <button type="button" class="back-link" (click)="novaConsulta()">← Nova consulta</button>
+    <app-brand [onNavigate]="irParaNovaConsulta" />
     <h1 class="page-title">Acompanhamento da consulta</h1>
     @if (job()) {
       <p class="subtitle">
@@ -21,8 +21,17 @@
       }
 
       <div class="progress-header">
-        <span class="status-badge" [class.done]="concluido()" [class.error]="job()!.status === 'ERRO'">
-          {{ job()!.status === 'NA_FILA' ? 'Na fila' : job()!.status === 'PROCESSANDO' ? 'Processando' : job()!.status === 'CONCLUIDO' ? 'Concluído' : 'Erro' }}
+        <span class="status-badge"
+              [class.done]="concluido()"
+              [class.error]="job()!.status === 'ERRO'"
+              [class.cancelled]="job()!.status === 'CANCELADO'">
+          {{
+            job()!.status === 'NA_FILA' ? 'Na fila'
+              : job()!.status === 'PROCESSANDO' ? 'Processando'
+              : job()!.status === 'CONCLUIDO' ? 'Concluído'
+              : job()!.status === 'CANCELADO' ? 'Cancelado'
+              : 'Erro'
+          }}
         </span>
         <span>{{ job()!.percentual }}% · {{ job()!.processados }} / {{ job()!.total }}</span>
       </div>
@@ -38,9 +47,18 @@
 
       <p class="mensagem">{{ job()!.mensagem }}</p>
 
-      @if (concluido()) {
+      @if (concluido() && !cancelado()) {
         <button class="btn btn-primary" (click)="baixarCsv()">
           Baixar planilha CSV
+        </button>
+      }
+
+      @if (cancelado() && resultados().length > 0) {
+        <button class="btn btn-secondary" (click)="baixarCsv()">
+          Baixar resultados parciais
+        </button>
+        <button class="btn btn-primary" (click)="novaConsulta()">
+          Iniciar nova consulta
         </button>
       }
     </section>

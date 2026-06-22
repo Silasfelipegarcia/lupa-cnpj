@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, timer, switchMap } from 'rxjs';
 import { CnpjImportService } from '../../services/cnpj-import.service';
 import { ImportJobStorage } from '../../services/import-job-storage';
@@ -11,7 +11,7 @@ import { AppBrandComponent } from '../app-brand/app-brand.component';
 @Component({
   selector: 'app-consulta-detalhe',
   standalone: true,
-  imports: [CommonModule, RouterLink, AppBrandComponent],
+  imports: [CommonModule, AppBrandComponent],
   templateUrl: './consulta-detalhe.component.html',
   styleUrl: './consulta-detalhe.component.scss'
 })
@@ -29,6 +29,8 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
   erro = signal<string>('');
 
   private pollingSubscription?: Subscription;
+
+  readonly irParaNovaConsulta = (): void => this.novaConsulta();
 
   constructor(
     private route: ActivatedRoute,
@@ -65,11 +67,27 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
   }
 
   concluido(): boolean {
-    return this.job()?.status === 'CONCLUIDO';
+    const status = this.job()?.status;
+    return status === 'CONCLUIDO' || status === 'CANCELADO';
+  }
+
+  cancelado(): boolean {
+    return this.job()?.status === 'CANCELADO';
   }
 
   novaConsulta(): void {
+    const id = this.jobId();
+    const ativo = this.emAndamento();
+
+    this.pararPolling();
     ImportJobStorage.limpar();
+
+    if (ativo && id) {
+      this.cnpjImportService.cancelarImportacao(id).subscribe({
+        error: () => undefined
+      });
+    }
+
     this.router.navigate(['/']);
   }
 
@@ -91,7 +109,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
     this.resultados.set(job.resultados ?? []);
     ImportJobStorage.salvar({ jobId: job.jobId, arquivo: job.arquivo });
 
-    if (job.status === 'CONCLUIDO' || job.status === 'ERRO') {
+    if (job.status === 'CONCLUIDO' || job.status === 'ERRO' || job.status === 'CANCELADO') {
       this.pararPolling();
     }
   }

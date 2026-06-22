@@ -1,4 +1,4 @@
-export type ImportJobStatus = 'NA_FILA' | 'PROCESSANDO' | 'CONCLUIDO' | 'ERRO';
+export type ImportJobStatus = 'NA_FILA' | 'PROCESSANDO' | 'CONCLUIDO' | 'ERRO' | 'CANCELADO';
 
 export interface CnpjResultadoItem {
   razaoSocialInformada: string;
