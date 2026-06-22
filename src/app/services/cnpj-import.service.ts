@@ -8,7 +8,9 @@ import { ImportJobResponse } from '../models/import-job.model';
 @Injectable({ providedIn: 'root' })
 export class CnpjImportService {
 
-  private readonly baseUrl = `${environment.apiUrl}/cnpj/import`;
+  private readonly apiBase = environment.apiUrl;
+
+  private readonly importUrl = `${environment.apiUrl}/cnpj/import`;
 
   constructor(private http: HttpClient) {}
 
@@ -16,19 +18,27 @@ export class CnpjImportService {
     const formData = new FormData();
     formData.append('file', arquivo, arquivo.name);
 
-    return this.http.post<ImportJobResponse>(this.baseUrl, formData).pipe(
+    return this.http.post<ImportJobResponse>(this.importUrl, formData).pipe(
       catchError(this.tratarErro)
     );
   }
 
   consultarStatus(jobId: string): Observable<ImportJobResponse> {
-    return this.http.get<ImportJobResponse>(`${this.baseUrl}/${jobId}/status`).pipe(
+    return this.http.get<ImportJobResponse>(`${this.importUrl}/${jobId}/status`).pipe(
       catchError(this.tratarErro)
     );
   }
 
   baixarResultado(jobId: string): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/${jobId}/download`, {
+    return this.http.get(`${this.importUrl}/${jobId}/download`, {
+      responseType: 'blob'
+    }).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  baixarModeloExcel(): Observable<Blob> {
+    return this.http.get(`${this.apiBase}/cnpj/template`, {
       responseType: 'blob'
     }).pipe(
       catchError(this.tratarErro)

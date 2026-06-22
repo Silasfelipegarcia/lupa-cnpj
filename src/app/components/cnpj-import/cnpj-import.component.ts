@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CnpjImportService } from '../../services/cnpj-import.service';
@@ -36,15 +36,26 @@ export class CnpjImportComponent implements OnInit {
     this.mensagem.set(arquivo ? `Arquivo selecionado: ${arquivo.name}` : '');
   }
 
+  baixarModelo(): void {
+    this.cnpjImportService.baixarModeloExcel().subscribe({
+      next: (blob) => {
+        this.cnpjImportService.baixarBlob(blob, 'lupa-cnpj-modelo.xlsx');
+        this.mensagem.set('Modelo Excel baixado. Preencha e importe o arquivo.');
+      },
+      error: (erro: string) => this.mensagem.set(erro)
+    });
+  }
+
   processar(): void {
     const arquivo = this.arquivoSelecionado();
     if (!arquivo) {
-      this.mensagem.set('Selecione um arquivo CSV antes de continuar.');
+      this.mensagem.set('Selecione um arquivo antes de continuar.');
       return;
     }
 
-    if (!arquivo.name.toLowerCase().endsWith('.csv')) {
-      this.mensagem.set('O arquivo deve estar no formato CSV.');
+    const nome = arquivo.name.toLowerCase();
+    if (!nome.endsWith('.csv') && !nome.endsWith('.xlsx') && !nome.endsWith('.xls')) {
+      this.mensagem.set('O arquivo deve estar no formato CSV ou Excel (.xlsx).');
       return;
     }
 

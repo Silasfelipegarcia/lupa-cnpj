@@ -2,21 +2,28 @@
   <header class="header">
     <h1>LupaCNPJ</h1>
     <p class="subtitle">
-      Envie um CSV com as colunas <code>cnpj</code> e/ou <code>razao_social</code> e acompanhe os resultados em tempo real.
+      Envie um CSV ou Excel com as colunas <code>cnpj</code> e/ou <code>razao_social</code> e acompanhe os resultados em tempo real.
     </p>
   </header>
 
   <main class="card">
+    <section class="template-section">
+      <p class="template-text">Não sabe como montar o arquivo? Baixe o modelo com exemplos:</p>
+      <button class="btn btn-outline" type="button" (click)="baixarModelo()" [disabled]="enviando()">
+        Baixar modelo Excel
+      </button>
+    </section>
+
     <section class="upload-section">
       <label class="upload-label" for="csv-input">
         <span class="upload-icon">📄</span>
-        <span>Clique para selecionar o CSV de entrada</span>
-        <span class="upload-hint">Colunas: <strong>cnpj</strong> e/ou <strong>razao_social</strong> (pelo menos uma por linha)</span>
+        <span>Clique para selecionar o arquivo</span>
+        <span class="upload-hint">CSV ou Excel (.xlsx) · colunas <strong>cnpj</strong> e/ou <strong>razao_social</strong></span>
       </label>
       <input
         id="csv-input"
         type="file"
-        accept=".csv"
+        accept=".csv,.xlsx,.xls"
         (change)="onArquivoSelecionado($event)"
         [disabled]="enviando()"
       />
@@ -52,10 +59,10 @@
   <footer class="info">
     <h2>Como funciona</h2>
     <ol>
-      <li>Prepare um CSV com <code>cnpj</code> e/ou <code>razao_social</code></li>
-      <li>Faça o upload e clique em <strong>Enriquecer CNPJs</strong></li>
-      <li>Você será levado à página de acompanhamento com os dados aparecendo em tempo real</li>
-      <li>Ao finalizar, baixe a planilha completa em CSV</li>
+      <li>Baixe o <strong>modelo Excel</strong> e preencha com seus CNPJs ou razões sociais</li>
+      <li>Importe o arquivo (.xlsx ou .csv) e clique em <strong>Enriquecer CNPJs</strong></li>
+      <li>Acompanhe os resultados em tempo real na próxima página</li>
+      <li>Baixe a planilha completa enriquecida ao finalizar</li>
     </ol>
   </footer>
 </div>

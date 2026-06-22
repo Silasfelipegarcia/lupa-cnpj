@@ -48,6 +48,50 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
+.template-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: #0f172a;
+  border-radius: 12px;
+  border: 1px dashed #475569;
+}
+
+.template-text {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.65rem 1.25rem;
+  border: 1px solid #38bdf8;
+  border-radius: 8px;
+  background: transparent;
+  color: #38bdf8;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover:not(:disabled) {
+    background: #1e3a5f;
+    color: #bae6fd;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 .upload-section {
   position: relative;
   margin-bottom: 1.5rem;
