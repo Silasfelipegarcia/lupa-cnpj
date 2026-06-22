@@ -10,6 +10,57 @@
   max-width: 400px;
 }
 
+.payment-prefs {
+  margin-bottom: 1.5rem;
+
+  h3 {
+    margin: 0 0 0.85rem;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  &__row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+
+  &__hint {
+    margin: 0.75rem 0 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .field {
+    flex: 1;
+    min-width: 160px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+
+    span {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    &--cvv {
+      max-width: 100px;
+      flex: 0 0 100px;
+    }
+  }
+
+  select {
+    font-family: var(--font);
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-card);
+  }
+}
+
 .plans-grid {
   display: grid;
   grid-template-columns: 1fr;

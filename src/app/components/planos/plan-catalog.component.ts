@@ -1,15 +1,18 @@
 import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { PlanService } from '../../services/plan.service';
+import { PaymentService } from '../../services/payment.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { PlanCatalogItem, SubscriptionPlan } from '../../models/auth.model';
+import { SavedCard } from '../../models/payment.model';
 
 @Component({
   selector: 'app-plan-catalog',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './plan-catalog.component.html',
   styleUrl: './plan-catalog.component.scss'
 })
@@ -17,6 +20,7 @@ export class PlanCatalogComponent implements OnInit {
 
   readonly authService = inject(AuthService);
   private readonly planService = inject(PlanService);
+  private readonly paymentService = inject(PaymentService);
   private readonly router = inject(Router);
   private readonly analytics = inject(AnalyticsService);
 
@@ -28,6 +32,10 @@ export class PlanCatalogComponent implements OnInit {
   processando = signal<SubscriptionPlan | 'trial' | null>(null);
   mensagem = signal('');
   erro = signal('');
+
+  cartoes = signal<SavedCard[]>([]);
+  cartaoSelecionado = signal('');
+  cvv = '';
 
   planosPrincipais = computed(() => this.catalogo().filter((i) => !i.contatoComercial));
   planoBusiness = computed(() => this.catalogo().find((i) => i.contatoComercial));
@@ -43,6 +51,18 @@ export class PlanCatalogComponent implements OnInit {
         this.carregando.set(false);
       }
     });
+
+    if (this.authService.isAuthenticated()) {
+      this.paymentService.listarCartoes().subscribe({
+        next: (cards) => {
+          this.cartoes.set(cards);
+          if (cards.length > 0) {
+            this.cartaoSelecionado.set(cards[0].id);
+          }
+        },
+        error: () => {}
+      });
+    }
   }
 
   planoAtual(): SubscriptionPlan | undefined {
@@ -114,14 +134,41 @@ export class PlanCatalogComponent implements OnInit {
 
     this.processando.set(plan);
     this.erro.set('');
-    this.mensagem.set('Redirecionando para o pagamento...');
     this.analytics.track('upgrade', { plan });
 
+    const cardId = this.cartaoSelecionado();
+    if (cardId && this.cvv.trim().length >= 3) {
+      this.mensagem.set('Processando pagamento...');
+      this.paymentService.cobrarPlano({
+        plan: plan as 'PREMIUM' | 'PRO_PLUS',
+        cardId,
+        securityCode: this.cvv.trim()
+      }).subscribe({
+        next: (result) => {
+          this.cvv = '';
+          this.authService.refreshMe().subscribe({ error: () => {} });
+          if (result.status === 'APPROVED') {
+            this.mensagem.set(`Plano ${result.planNome} ativado com sucesso!`);
+          } else {
+            this.mensagem.set(`Pagamento ${result.statusLabel.toLowerCase()}. Aguarde a confirmação.`);
+          }
+          this.processando.set(null);
+        },
+        error: (msg: string) => {
+          this.erro.set(msg);
+          this.processando.set(null);
+          this.mensagem.set('');
+        }
+      });
+      return;
+    }
+
+    this.mensagem.set('Redirecionando para o pagamento...');
     this.planService.iniciarCheckout(plan).subscribe({
       next: (checkout) => {
         const url = checkout.initPoint || checkout.sandboxInitPoint;
         if (!url) {
-          this.erro.set('Checkout indisponível no momento. Tente novamente em instantes.');
+          this.erro.set('Checkout indisponível. Cadastre um cartão em Cobrança ou tente mais tarde.');
           this.processando.set(null);
           this.mensagem.set('');
           return;

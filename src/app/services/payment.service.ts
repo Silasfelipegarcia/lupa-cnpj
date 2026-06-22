@@ -3,7 +3,13 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { PaymentHistoryItem } from '../models/payment.model';
+import {
+  ChargePlanRequest,
+  ChargePlanResponse,
+  PaymentConfig,
+  PaymentHistoryItem,
+  SavedCard
+} from '../models/payment.model';
 
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
@@ -12,14 +18,44 @@ export class PaymentService {
 
   constructor(private http: HttpClient) {}
 
+  obterConfig(): Observable<PaymentConfig> {
+    return this.http.get<PaymentConfig>(`${this.apiBase}/payments/config`).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
   listarHistorico(): Observable<PaymentHistoryItem[]> {
     return this.http.get<PaymentHistoryItem[]>(`${this.apiBase}/payments/history`).pipe(
       catchError(this.tratarErro)
     );
   }
 
+  listarCartoes(): Observable<SavedCard[]> {
+    return this.http.get<SavedCard[]>(`${this.apiBase}/payments/cards`).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  salvarCartao(token: string): Observable<SavedCard> {
+    return this.http.post<SavedCard>(`${this.apiBase}/payments/cards`, { token }).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  removerCartao(cardId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiBase}/payments/cards/${cardId}`).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  cobrarPlano(body: ChargePlanRequest): Observable<ChargePlanResponse> {
+    return this.http.post<ChargePlanResponse>(`${this.apiBase}/payments/charge`, body).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
   private tratarErro(error: HttpErrorResponse): Observable<never> {
-    const mensagem = error.error?.erro || error.error?.message || error.message || 'Erro ao carregar cobrança';
+    const mensagem = error.error?.erro || error.error?.message || error.message || 'Erro ao processar pagamento';
     return throwError(() => mensagem);
   }
 }

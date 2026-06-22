@@ -1,15 +1,70 @@
 <header class="conta-page-header">
   <h1>Cobrança</h1>
-  <p class="page-subtitle">Histórico de pagamentos e informações sobre sua assinatura.</p>
+  <p class="page-subtitle">Cartões salvos, pagamentos e histórico da sua assinatura.</p>
 </header>
 
-<section class="card">
+<section class="card cards-section">
+  <div class="section-head">
+    <h2>Cartões de crédito</h2>
+    @if (!mostrarFormulario()) {
+      <button type="button" class="btn btn-outline btn-sm" (click)="mostrarFormulario.set(true)">
+        + Adicionar cartão
+      </button>
+    }
+  </div>
+
   <p class="billing-note">
-    Pagamentos processados com segurança pelo Mercado Pago. Dados de cartão são gerenciados no checkout — não armazenamos informações de pagamento.
+    Pagamentos processados com segurança pelo Mercado Pago. O número completo do cartão não fica armazenado no LupaCNPJ.
   </p>
 
+  @if (cartoes().length > 0) {
+    <ul class="card-list">
+      @for (card of cartoes(); track card.id) {
+        <li class="card-item">
+          <div class="card-item__info">
+            <span class="card-item__brand">{{ rotuloBandeira(card.brand) }}</span>
+            <strong>•••• {{ card.lastFourDigits }}</strong>
+            <span class="card-item__meta">
+              {{ card.expirationMonth }}/{{ card.expirationYear }}
+              @if (card.holderName) {
+                · {{ card.holderName }}
+              }
+            </span>
+          </div>
+          <button
+            type="button"
+            class="btn btn-outline btn-sm"
+            (click)="removerCartao(card.id)"
+            [disabled]="removendo() === card.id"
+          >
+            @if (removendo() === card.id) {
+              Removendo...
+            } @else {
+              Remover
+            }
+          </button>
+        </li>
+      }
+    </ul>
+  } @else if (!mostrarFormulario()) {
+    <p class="empty">Nenhum cartão cadastrado. Adicione um para assinar planos sem sair do app.</p>
+  }
+
+  @if (mostrarFormulario()) {
+    <div class="card-form-wrap">
+      <app-card-register (cardSaved)="onCartaoSalvo($event)" />
+      <button type="button" class="btn btn-secondary btn-sm cancel-form" (click)="mostrarFormulario.set(false)">
+        Cancelar
+      </button>
+    </div>
+  }
+</section>
+
+<section class="card history-section">
+  <h2>Histórico de pagamentos</h2>
+
   @if (carregando()) {
-    <p class="loading">Carregando histórico...</p>
+    <p class="loading">Carregando...</p>
   } @else if (erro()) {
     <div class="alert alert-error">{{ erro() }}</div>
   } @else if (historico().length === 0) {

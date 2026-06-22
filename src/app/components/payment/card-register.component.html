@@ -1,0 +1,73 @@
+@if (carregando()) {
+  <p class="card-form-loading">Carregando formulário seguro...</p>
+} @else if (pronto()) {
+  <form class="card-form" (ngSubmit)="salvar()">
+    <div class="card-form-grid">
+      <label class="field field--full">
+        <span>Número do cartão</span>
+        <input
+          type="text"
+          name="cardNumber"
+          inputmode="numeric"
+          autocomplete="cc-number"
+          placeholder="0000 0000 0000 0000"
+          [value]="cardNumber"
+          (input)="onCardNumberInput($event)"
+          [disabled]="salvando()"
+        />
+      </label>
+      <label class="field field--full">
+        <span>Nome no cartão</span>
+        <input
+          type="text"
+          name="cardholderName"
+          autocomplete="cc-name"
+          placeholder="Como impresso no cartão"
+          [(ngModel)]="cardholderName"
+          [disabled]="salvando()"
+        />
+      </label>
+      <label class="field">
+        <span>Validade</span>
+        <input
+          type="text"
+          name="expiration"
+          inputmode="numeric"
+          autocomplete="cc-exp"
+          placeholder="MM/AA"
+          [value]="expiration"
+          (input)="onExpirationInput($event)"
+          [disabled]="salvando()"
+        />
+      </label>
+      <label class="field">
+        <span>CVV</span>
+        <input
+          type="password"
+          name="securityCode"
+          inputmode="numeric"
+          autocomplete="cc-csc"
+          placeholder="123"
+          maxlength="4"
+          [(ngModel)]="securityCode"
+          [disabled]="salvando()"
+        />
+      </label>
+    </div>
+    <p class="card-form-note">
+      Dados processados com segurança pelo Mercado Pago. Não armazenamos o número do cartão.
+    </p>
+    @if (erro()) {
+      <div class="alert alert-error">{{ erro() }}</div>
+    }
+    <button type="submit" class="btn btn-primary" [disabled]="salvando()">
+      @if (salvando()) {
+        Salvando cartão...
+      } @else {
+        Salvar cartão
+      }
+    </button>
+  </form>
+} @else if (erro()) {
+  <div class="alert alert-error">{{ erro() }}</div>
+}

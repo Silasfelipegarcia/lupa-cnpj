@@ -11,6 +11,41 @@
     </button>
   }
 
+  @if (authService.isAuthenticated()) {
+    <section class="payment-prefs card">
+      <h3>Forma de pagamento</h3>
+      @if (cartoes().length > 0) {
+        <div class="payment-prefs__row">
+          <label class="field">
+            <span>Cartão salvo</span>
+            <select [ngModel]="cartaoSelecionado()" (ngModelChange)="cartaoSelecionado.set($event)">
+              @for (card of cartoes(); track card.id) {
+                <option [value]="card.id">
+                  {{ card.brand }} •••• {{ card.lastFourDigits }}
+                </option>
+              }
+            </select>
+          </label>
+          <label class="field field--cvv">
+            <span>CVV</span>
+            <input
+              type="password"
+              inputmode="numeric"
+              maxlength="4"
+              placeholder="123"
+              [(ngModel)]="cvv"
+            />
+          </label>
+        </div>
+        <p class="payment-prefs__hint">Informe o CVV e clique em Assinar para pagar com o cartão salvo.</p>
+      } @else {
+        <p class="payment-prefs__hint">
+          <a routerLink="/conta/cobranca">Cadastre um cartão</a> para assinar sem sair do app, ou use o checkout Mercado Pago.
+        </p>
+      }
+    </section>
+  }
+
   <div id="planos" class="plans-grid">
     @for (item of planosPrincipais(); track item.nome) {
       <article
@@ -58,9 +93,11 @@
               (click)="assinar(item.plan!)"
             >
               @if (processando() === item.plan) {
-                Abrindo checkout...
+                Processando...
+              } @else if (cartoes().length > 0 && cvv.length >= 3) {
+                Pagar com cartão salvo
               } @else {
-                Assinar com cartão
+                Assinar (checkout)
               }
             </button>
           } @else {

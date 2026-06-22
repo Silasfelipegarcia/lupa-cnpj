@@ -1,12 +1,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PaymentService } from '../../services/payment.service';
-import { PaymentHistoryItem } from '../../models/payment.model';
+import { PaymentHistoryItem, SavedCard } from '../../models/payment.model';
+import { CardRegisterComponent } from '../payment/card-register.component';
 
 @Component({
   selector: 'app-conta-cobranca',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CardRegisterComponent],
   templateUrl: './conta-cobranca.component.html',
   styleUrl: './conta-cobranca.component.scss'
 })
@@ -15,19 +16,70 @@ export class ContaCobrancaComponent implements OnInit {
 
   carregando = signal(true);
   historico = signal<PaymentHistoryItem[]>([]);
+  cartoes = signal<SavedCard[]>([]);
   erro = signal('');
+  mostrarFormulario = signal(false);
+  removendo = signal<string | null>(null);
 
   ngOnInit(): void {
-    this.paymentService.listarHistorico().subscribe({
-      next: (items) => {
-        this.historico.set(items);
-        this.carregando.set(false);
+    this.recarregar();
+  }
+
+  recarregar(): void {
+    this.carregando.set(true);
+    this.erro.set('');
+
+    this.paymentService.listarCartoes().subscribe({
+      next: (cards) => {
+        this.cartoes.set(cards);
+        this.paymentService.listarHistorico().subscribe({
+          next: (items) => {
+            this.historico.set(items);
+            this.carregando.set(false);
+          },
+          error: (msg: string) => {
+            this.erro.set(msg);
+            this.carregando.set(false);
+          }
+        });
       },
       error: (msg: string) => {
         this.erro.set(msg);
         this.carregando.set(false);
       }
     });
+  }
+
+  onCartaoSalvo(card: SavedCard): void {
+    this.cartoes.update((lista) => {
+      const filtrada = lista.filter((c) => c.id !== card.id);
+      return [card, ...filtrada];
+    });
+    this.mostrarFormulario.set(false);
+  }
+
+  removerCartao(cardId: string): void {
+    if (this.removendo()) {
+      return;
+    }
+    this.removendo.set(cardId);
+    this.paymentService.removerCartao(cardId).subscribe({
+      next: () => {
+        this.cartoes.update((lista) => lista.filter((c) => c.id !== cardId));
+        this.removendo.set(null);
+      },
+      error: (msg: string) => {
+        this.erro.set(msg);
+        this.removendo.set(null);
+      }
+    });
+  }
+
+  rotuloBandeira(brand: string): string {
+    if (!brand) {
+      return 'Cartão';
+    }
+    return brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase();
   }
 
   formatarData(iso: string): string {
