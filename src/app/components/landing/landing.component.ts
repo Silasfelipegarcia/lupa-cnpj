@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { GuestCnpjPreviewService } from '../../services/guest-cnpj-preview.service';
-import { CnpjPreviewQuota, CnpjPreviewResult } from '../../models/cnpj-preview.model';
+import { CnpjPreviewCampo, CnpjPreviewQuota, CnpjPreviewResult } from '../../models/cnpj-preview.model';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 
 @Component({
@@ -126,5 +126,26 @@ export class LandingComponent implements OnInit {
       next: (quota) => this.quota.set(quota),
       error: () => {}
     });
+  }
+
+  camposResultado(r: CnpjPreviewResult): CnpjPreviewCampo[] {
+    const telefones = [r.telefone1, r.telefone2].filter((t) => t && t.trim()).join(' · ');
+    const endereco = [
+      [r.logradouro, r.numero].filter(Boolean).join(', '),
+      r.complemento,
+      r.bairro,
+      [r.cidade, r.uf].filter(Boolean).join('/'),
+      r.cep
+    ].filter((parte) => parte && parte.trim()).join(' — ');
+
+    return [
+      { label: 'Razão social', valor: r.razaoSocial },
+      { label: 'Nome fantasia', valor: r.nomeFantasia || '—' },
+      { label: 'Situação cadastral', valor: r.situacaoCadastral || '—' },
+      { label: 'Telefones', valor: telefones || '—' },
+      { label: 'E-mail', valor: r.email || '—' },
+      { label: 'Endereço', valor: endereco || '—' },
+      { label: 'CNAE principal', valor: r.cnaePrincipal || '—' }
+    ];
   }
 }

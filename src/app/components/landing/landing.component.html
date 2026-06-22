@@ -58,9 +58,9 @@
     <section id="experimente" class="section section-preview">
       <h2>Experimente agora — sem cadastro</h2>
       <p class="section-lead">
-        Consulte <strong>1 CNPJ por vez</strong> e veja a razão social na hora.
+        Faça <strong>1 consulta completa grátis</strong> — todos os dados oficiais, sem cadastro.
         @if (quota(); as q) {
-          <span class="quota-badge">{{ q.consultasRestantes }} de {{ q.consultasLimite }} consultas gratuitas restantes</span>
+          <span class="quota-badge">{{ q.consultasRestantes }} de {{ q.consultasLimite }} consulta(s) gratuita(s) restante(s)</span>
         }
       </p>
 
@@ -100,37 +100,44 @@
 
         @if (quota()?.limiteAtingido) {
           <div class="preview-alert preview-alert-limit">
-            Você usou sua consulta gratuita neste dispositivo.
-            <a routerLink="/cadastro" class="preview-cta-link">Crie sua conta</a> para consultar planilhas inteiras com todos os dados.
+            Você já viu sua consulta gratuita completa neste dispositivo.
+            <a routerLink="/cadastro" class="preview-cta-link">Crie sua conta grátis</a>
+            e consulte até <strong>5 CNPJs por dia</strong>, com planilhas de até <strong>10 empresas</strong>.
           </div>
         }
 
         @if (resultado(); as r) {
           <div class="preview-result">
             <div class="preview-result-header">
-              <span class="preview-label">Prévia gratuita</span>
+              <span class="preview-label">Consulta completa — degustação grátis</span>
               <span class="preview-cnpj">{{ r.cnpj }}</span>
             </div>
 
-            <div class="preview-row preview-row-visible">
-              <span class="preview-field-label">Razão social</span>
-              <span class="preview-field-value">{{ r.razaoSocial }}</span>
+            <div class="preview-dados">
+              @for (campo of camposResultado(r); track campo.label) {
+                <div class="preview-row preview-row-visible">
+                  <span class="preview-field-label">{{ campo.label }}</span>
+                  <span class="preview-field-value">{{ campo.valor }}</span>
+                </div>
+              }
             </div>
 
-            @for (campo of r.camposComLogin; track campo) {
-              <div class="preview-row preview-row-locked">
-                <span class="preview-field-label">{{ campo }}</span>
-                <span class="preview-field-blur">••••••••••••</span>
-                <span class="preview-lock" aria-hidden="true">🔒</span>
-              </div>
-            }
-
             <div class="preview-upsell">
-              <p>
-                <strong>Com conta gratuita</strong> você desbloqueia telefone, e-mail, endereço, CNAE e exporta
-                centenas de CNPJs de uma vez em planilha.
-              </p>
-              <a routerLink="/cadastro" class="btn btn-primary">Criar conta e ver tudo</a>
+              <p class="preview-upsell-title">Gostou? Continue consultando com uma conta grátis</p>
+              <ul class="preview-upsell-list">
+                <li>Até <strong>{{ r.cadastroLimiteCnpjDia ?? 5 }} CNPJs por dia</strong> com dados completos</li>
+                <li>Importe planilhas com até <strong>{{ r.cadastroLimitePlanilha ?? 10 }} empresas</strong></li>
+                <li><strong>{{ r.cadastroLimiteLoteDia ?? 1 }} busca em lote por dia</strong> no plano Free</li>
+              </ul>
+              <div class="preview-upsell-actions">
+                <a routerLink="/cadastro" class="btn btn-primary">Criar conta grátis</a>
+                <a routerLink="/planos" class="btn btn-outline btn-sm">Ver planos Premium</a>
+              </div>
+              @if (r.consultasRestantes <= 0) {
+                <p class="preview-upsell-note">
+                  Esta foi sua única consulta sem cadastro neste dispositivo. Cadastre-se para continuar.
+                </p>
+              }
             </div>
           </div>
         }

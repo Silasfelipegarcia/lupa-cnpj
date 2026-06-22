@@ -8,5 +8,25 @@ export interface CnpjPreviewQuota {
 export interface CnpjPreviewResult extends CnpjPreviewQuota {
   cnpj: string;
   razaoSocial: string;
-  camposComLogin: string[];
+  nomeFantasia?: string;
+  situacaoCadastral?: string;
+  telefone1?: string;
+  telefone2?: string;
+  email?: string;
+  logradouro?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  cidade?: string;
+  uf?: string;
+  cep?: string;
+  cnaePrincipal?: string;
+  cadastroLimiteCnpjDia?: number;
+  cadastroLimitePlanilha?: number;
+  cadastroLimiteLoteDia?: number;
+}
+
+export interface CnpjPreviewCampo {
+  label: string;
+  valor: string;
 }
