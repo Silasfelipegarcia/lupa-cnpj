@@ -60,6 +60,11 @@
   }
 }
 
+.item--ativo {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.25);
+}
+
 .item-header {
   display: flex;
   justify-content: space-between;

@@ -2,7 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CnpjImportService } from '../../services/cnpj-import.service';
-import { ImportJobStorage } from '../../services/import-job-storage';
+import { ImportJobResponse } from '../../models/import-job.model';
 import { environment } from '../../../environments/environment';
 import { AppHeaderComponent } from '../app-header/app-header.component';
 
@@ -20,6 +20,7 @@ export class CnpjImportComponent implements OnInit {
 
   pesquisaRazaoSocialHabilitada = signal(false);
   carregandoConfig = signal(true);
+  jobAtivo = signal<ImportJobResponse | null>(null);
 
   arquivoSelecionado = signal<File | null>(null);
   mensagem = signal<string>('');
@@ -31,26 +32,20 @@ export class CnpjImportComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const persistido = ImportJobStorage.recuperar();
-    if (persistido) {
-      this.cnpjImportService.consultarStatus(persistido.jobId).subscribe({
-        next: (job) => {
-          if (job.status === 'NA_FILA' || job.status === 'PROCESSANDO') {
-            this.router.navigate(['/consulta', persistido.jobId]);
-            return;
-          }
-          ImportJobStorage.limpar();
-          this.carregarConfiguracao();
-        },
-        error: () => {
-          ImportJobStorage.limpar();
-          this.carregarConfiguracao();
-        }
-      });
-      return;
-    }
+    this.cnpjImportService.obterJobAtivo().subscribe({
+      next: (job) => {
+        this.jobAtivo.set(job);
+        this.carregarConfiguracao();
+      },
+      error: () => this.carregarConfiguracao()
+    });
+  }
 
-    this.carregarConfiguracao();
+  continuarJobAtivo(): void {
+    const job = this.jobAtivo();
+    if (job) {
+      this.router.navigate(['/consulta', job.jobId]);
+    }
   }
 
   private carregarConfiguracao(): void {
@@ -92,7 +87,7 @@ export class CnpjImportComponent implements OnInit {
   }
 
   processar(): void {
-    if (this.enviando()) {
+    if (this.enviando() || this.jobAtivo()) {
       return;
     }
 
@@ -113,10 +108,6 @@ export class CnpjImportComponent implements OnInit {
 
     this.cnpjImportService.iniciarImportacao(arquivo).subscribe({
       next: (job) => {
-        ImportJobStorage.salvar({
-          jobId: job.jobId,
-          arquivo: job.arquivo || arquivo.name
-        });
         this.router.navigate(['/consulta', job.jobId]);
       },
       error: (erro: string) => {

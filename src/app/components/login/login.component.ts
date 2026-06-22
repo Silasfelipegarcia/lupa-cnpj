@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { CnpjImportService } from '../../services/cnpj-import.service';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 
 @Component({
@@ -21,6 +22,7 @@ export class LoginComponent {
 
   constructor(
     private authService: AuthService,
+    private cnpjImportService: CnpjImportService,
     private router: Router
   ) {}
 
@@ -33,11 +35,24 @@ export class LoginComponent {
     this.enviando.set(true);
 
     this.authService.login({ email: this.email.trim(), password: this.password }).subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => this.redirecionarAposLogin(),
       error: (msg: string) => {
         this.erro.set(msg);
         this.enviando.set(false);
       }
+    });
+  }
+
+  private redirecionarAposLogin(): void {
+    this.cnpjImportService.obterJobAtivo().subscribe({
+      next: (job) => {
+        if (job) {
+          this.router.navigate(['/consulta', job.jobId]);
+          return;
+        }
+        this.router.navigate(['/']);
+      },
+      error: () => this.router.navigate(['/'])
     });
   }
 }

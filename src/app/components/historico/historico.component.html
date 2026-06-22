@@ -16,7 +16,7 @@
   } @else {
     <div class="lista">
       @for (item of consultas(); track item.jobId) {
-        <article class="card item" (click)="verDetalhes(item.jobId)">
+        <article class="card item" [class.item--ativo]="emAndamento(item.status)" (click)="verDetalhes(item.jobId, item.status)">
           <div class="item-header">
             <span class="status-badge" [class]="'status-' + item.status.toLowerCase()">
               {{ rotuloStatus(item.status) }}
@@ -30,9 +30,15 @@
             <span class="stat-error">{{ item.erros }} erro(s)</span>
           </div>
           <div class="actions" (click)="$event.stopPropagation()">
-            <button type="button" class="btn btn-secondary" (click)="verDetalhes(item.jobId)">
-              Ver detalhes
-            </button>
+            @if (emAndamento(item.status)) {
+              <button type="button" class="btn btn-primary" (click)="continuarAcompanhamento(item.jobId, $event)">
+                Continuar acompanhamento
+              </button>
+            } @else {
+              <button type="button" class="btn btn-secondary" (click)="verDetalhes(item.jobId, item.status)">
+                Ver detalhes
+              </button>
+            }
             @if (podeBaixar(item.status)) {
               <button type="button" class="btn btn-outline" (click)="baixarCsv(item.jobId, $event)">
                 Baixar CSV

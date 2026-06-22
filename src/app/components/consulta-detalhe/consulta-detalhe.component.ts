@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, timer, switchMap } from 'rxjs';
 import { CnpjImportService } from '../../services/cnpj-import.service';
-import { ImportJobStorage } from '../../services/import-job-storage';
 import { CnpjResultadoItem, ImportJobResponse } from '../../models/import-job.model';
 import { environment } from '../../../environments/environment';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
@@ -50,13 +49,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
     const historico = this.route.snapshot.url.some((segment) => segment.path === 'historico');
     this.modoHistorico.set(historico);
     this.jobId.set(id);
-
-    if (historico) {
-      this.carregarHistorico(id);
-    } else {
-      ImportJobStorage.salvar({ jobId: id, arquivo: '' });
-      this.iniciarPolling(id);
-    }
+    this.iniciarPolling(id);
   }
 
   baixarCsv(): void {
@@ -89,7 +82,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
       this.router.navigate(['/historico']);
       return;
     }
-    this.novaConsulta();
+    this.router.navigate(['/']);
   }
 
   novaConsulta(): void {
@@ -97,7 +90,6 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
     const ativo = this.emAndamento() && !this.modoHistorico();
 
     this.pararPolling();
-    ImportJobStorage.limpar();
 
     if (ativo && id) {
       this.cnpjImportService.cancelarImportacao(id).subscribe({
@@ -108,21 +100,17 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
     this.router.navigate(['/']);
   }
 
-  private carregarHistorico(jobId: string): void {
-    this.cnpjImportService.obterHistoricoDetalhe(jobId).subscribe({
-      next: (job) => this.atualizarJob(job),
-      error: (msg: string) => this.erro.set(msg)
-    });
-  }
-
   private iniciarPolling(jobId: string): void {
+    const consulta = this.modoHistorico()
+      ? () => this.cnpjImportService.obterHistoricoDetalhe(jobId)
+      : () => this.cnpjImportService.consultarStatus(jobId);
+
     this.pollingSubscription = timer(0, environment.limits.statusPollIntervalMs).pipe(
-      switchMap(() => this.cnpjImportService.consultarStatus(jobId))
+      switchMap(consulta)
     ).subscribe({
       next: (job) => this.atualizarJob(job),
       error: (msg: string) => {
         this.erro.set(msg);
-        ImportJobStorage.limpar();
         this.pararPolling();
       }
     });
@@ -131,9 +119,6 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
   private atualizarJob(job: ImportJobResponse): void {
     this.job.set(job);
     this.resultados.set(job.resultados ?? []);
-    if (!this.modoHistorico()) {
-      ImportJobStorage.salvar({ jobId: job.jobId, arquivo: job.arquivo });
-    }
 
     if (job.status === 'CONCLUIDO' || job.status === 'ERRO' || job.status === 'CANCELADO') {
       this.pararPolling();

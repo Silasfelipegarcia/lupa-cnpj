@@ -41,8 +41,21 @@ export class HistoricoComponent implements OnInit {
     });
   }
 
-  verDetalhes(jobId: string): void {
+  verDetalhes(jobId: string, status: string): void {
+    if (this.emAndamento(status)) {
+      this.router.navigate(['/consulta', jobId]);
+      return;
+    }
     this.router.navigate(['/historico', jobId]);
+  }
+
+  continuarAcompanhamento(jobId: string, event: Event): void {
+    event.stopPropagation();
+    this.router.navigate(['/consulta', jobId]);
+  }
+
+  emAndamento(status: string): boolean {
+    return status === 'NA_FILA' || status === 'PROCESSANDO';
   }
 
   baixarCsv(jobId: string, event: Event): void {

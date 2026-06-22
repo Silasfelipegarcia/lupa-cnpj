@@ -49,6 +49,13 @@ export class CnpjImportService {
     );
   }
 
+  obterJobAtivo(): Observable<ImportJobResponse | null> {
+    return this.http.get<ImportJobResponse>(`${this.importUrl}/ativo`, { observe: 'response' }).pipe(
+      map((response) => (response.status === 204 ? null : response.body!)),
+      catchError(this.tratarErro)
+    );
+  }
+
   obterHistorico(): Observable<ImportJobSummary[]> {
     return this.http.get<ImportJobSummaryApi[]>(`${this.importUrl}/historico`).pipe(
       map((items) => items.map((item) => this.normalizarResumo(item))),

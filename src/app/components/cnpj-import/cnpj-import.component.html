@@ -7,6 +7,18 @@
     </p>
   </header>
 
+  @if (jobAtivo(); as ativo) {
+    <section class="resume-banner card">
+      <div>
+        <strong>Consulta em andamento</strong>
+        <p>{{ ativo.arquivo }} · {{ ativo.processados }} de {{ ativo.total }} linha(s) ({{ ativo.percentual }}%)</p>
+      </div>
+      <button type="button" class="btn btn-primary" (click)="continuarJobAtivo()">
+        Continuar de onde parou
+      </button>
+    </section>
+  }
+
   <main class="card">
     <section class="mode-section">
       <div class="mode-info">
@@ -64,7 +76,7 @@
       <button
         class="btn btn-primary"
         (click)="processar()"
-        [disabled]="!arquivoSelecionado() || enviando()"
+        [disabled]="!arquivoSelecionado() || enviando() || !!jobAtivo()"
       >
         @if (enviando()) {
           <span class="spinner"></span>
