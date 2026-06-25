@@ -12,7 +12,8 @@ import { environment } from '../../../environments/environment';
 import { buildCnpjResultFields, CnpjResultField } from '../../utils/cnpj-result-fields';
 import { AppHeaderComponent } from '../app-header/app-header.component';
 
-const ONBOARDING_KEY = 'lupa_onboarding_visto';
+const ONBOARDING_KEY = 'lupa_insights_onboarding_visto';
+const LEGACY_ONBOARDING_KEY = 'lupa_onboarding_visto';
 
 @Component({
   selector: 'app-cnpj-import',
@@ -81,6 +82,10 @@ export class CnpjImportComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    if (!localStorage.getItem(ONBOARDING_KEY) && localStorage.getItem(LEGACY_ONBOARDING_KEY)) {
+      localStorage.setItem(ONBOARDING_KEY, localStorage.getItem(LEGACY_ONBOARDING_KEY)!);
+      localStorage.removeItem(LEGACY_ONBOARDING_KEY);
+    }
     this.mostrarOnboarding.set(!localStorage.getItem(ONBOARDING_KEY));
 
     this.authService.refreshMe().subscribe({ error: () => {} });
@@ -164,7 +169,7 @@ export class CnpjImportComponent implements OnInit {
     }
     this.cnpjImportService.baixarModeloExcel().subscribe({
       next: (blob) => {
-        this.cnpjImportService.baixarBlob(blob, 'lupa-cnpj-modelo.xlsx');
+        this.cnpjImportService.baixarBlob(blob, 'lupa-insights-modelo.xlsx');
         this.mensagem.set('Modelo Excel baixado. Preencha CNPJ e/ou razão social e importe.');
       },
       error: (erro: string) => this.mensagem.set(erro)

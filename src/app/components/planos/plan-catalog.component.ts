@@ -35,6 +35,7 @@ export class PlanCatalogComponent implements OnInit {
 
   cartoes = signal<SavedCard[]>([]);
   cartaoSelecionado = signal('');
+  pagamentosConfigurados = signal(true);
   cvv = '';
 
   planosPrincipais = computed(() => this.catalogo().filter((i) => !i.contatoComercial));
@@ -53,6 +54,11 @@ export class PlanCatalogComponent implements OnInit {
     });
 
     if (this.authService.isAuthenticated()) {
+      this.paymentService.obterConfig().subscribe({
+        next: (config) => this.pagamentosConfigurados.set(config.configured && !!config.publicKey),
+        error: () => this.pagamentosConfigurados.set(false)
+      });
+
       this.paymentService.listarCartoes().subscribe({
         next: (cards) => {
           this.cartoes.set(cards);
@@ -129,6 +135,11 @@ export class PlanCatalogComponent implements OnInit {
 
     const item = this.catalogo().find((i) => i.plan === plan);
     if (this.processando() || !item || !this.podeAssinar(item)) {
+      return;
+    }
+
+    if (!this.pagamentosConfigurados()) {
+      this.erro.set('Pagamentos não configurados no servidor. Verifique as variáveis Mercado Pago na API.');
       return;
     }
 

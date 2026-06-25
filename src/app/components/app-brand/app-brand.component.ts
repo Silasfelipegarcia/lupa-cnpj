@@ -9,12 +9,12 @@ import { RouterLink } from '@angular/router';
     @if (onNavigate) {
       <button type="button" class="brand" (click)="onNavigate()" [attr.aria-label]="ariaLabel">
         <img class="brand-icon" src="favicon.svg" width="36" height="36" alt="" />
-        <span class="brand-name">LupaCNPJ</span>
+        <span class="brand-name">Lupa Insights</span>
       </button>
     } @else {
       <a class="brand" [routerLink]="link" [attr.aria-label]="ariaLabel">
         <img class="brand-icon" src="favicon.svg" width="36" height="36" alt="" />
-        <span class="brand-name">LupaCNPJ</span>
+        <span class="brand-name">Lupa Insights</span>
       </a>
     }
   `,
@@ -35,6 +35,6 @@ import { RouterLink } from '@angular/router';
 })
 export class AppBrandComponent {
   @Input() link = '/';
-  @Input() ariaLabel = 'LupaCNPJ — início';
+  @Input() ariaLabel = 'Lupa Insights — início';
   @Input() onNavigate?: () => void;
 }

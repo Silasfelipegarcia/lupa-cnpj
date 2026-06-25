@@ -43,7 +43,7 @@ export class CardRegisterComponent implements OnInit {
     this.paymentService.obterConfig().subscribe({
       next: async (config) => {
         if (!config.configured || !config.publicKey) {
-          this.erro.set('Cadastro de cartão indisponível no momento.');
+          this.erro.set('Pagamentos não configurados no servidor. Defina MERCADOPAGO_PUBLIC_KEY e MERCADOPAGO_ACCESS_TOKEN na API.');
           this.carregando.set(false);
           return;
         }

@@ -50,7 +50,7 @@ export class BrowserNotificationService {
     const notification = new Notification(title, {
       body,
       icon: '/favicon.svg',
-      tag: `lupa-cnpj-job-${job.jobId}`,
+      tag: `lupa-insights-job-${job.jobId}`,
       requireInteraction: job.status === 'ERRO'
     });
 

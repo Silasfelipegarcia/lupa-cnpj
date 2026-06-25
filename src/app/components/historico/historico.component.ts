@@ -141,7 +141,7 @@ export class HistoricoComponent implements OnInit {
     this.cnpjImportService.baixarResultado(jobId).subscribe({
       next: (blob) => {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-        this.cnpjImportService.baixarBlob(blob, `lupa_prospeccao_${timestamp}.csv`);
+        this.cnpjImportService.baixarBlob(blob, `lupa_insights_prospeccao_${timestamp}.csv`);
       },
       error: (msg: string) => this.erro.set(msg)
     });

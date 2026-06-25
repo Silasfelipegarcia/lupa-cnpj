@@ -1,9 +1,15 @@
 {
-  "name": "lupa-cnpj",
+  "name": "lupa-insights",
   "version": "0.0.0",
+  "engines": {
+    "node": ">=22 <23"
+  },
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "prestart": "node scripts/check-node.mjs",
+    "prestart:api-prod": "node scripts/check-node.mjs",
+    "start": "NG_CLI_ANALYTICS=false ng serve",
+    "start:api-prod": "NG_CLI_ANALYTICS=false ng serve --configuration railway",
     "build": "node scripts/set-api-url.js && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"

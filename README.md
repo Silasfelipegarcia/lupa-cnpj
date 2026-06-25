@@ -1,10 +1,10 @@
-# LupaCNPJ — Frontend
+# Lupa Insights — Frontend
 
 Interface web Angular 19 para consultar e enriquecer listas de CNPJs.
 
-API em [lupa-cnpj-api](https://github.com/Silasfelipegarcia/lupa-cnpj-api) · Documentação completa em [docs/DOCUMENTACAO.md](../docs/DOCUMENTACAO.md).
+API em [lupa-insights-api](https://github.com/Silasfelipegarcia/lupa-insights-api) · Documentação completa em [docs/DOCUMENTACAO.md](../docs/DOCUMENTACAO.md).
 
-**Produção:** https://lupa-cnpj.vercel.app
+**Produção:** https://lupa-insights.vercel.app
 
 ## Funcionalidades
 
@@ -31,24 +31,25 @@ API em [lupa-cnpj-api](https://github.com/Silasfelipegarcia/lupa-cnpj-api) · Do
 
 ```bash
 npm install
-npm start
+npm start              # API local (localhost:8080)
+npm run start:api-prod # API Railway em produção
 ```
 
 Acesse `http://localhost:4200`. A API deve estar em `http://localhost:8080` (`src/environments/environment.ts`).
 
 ## Deploy na Vercel
 
-1. Importe o repositório `lupa-cnpj` em [vercel.com](https://vercel.com)
+1. Importe o repositório `lupa-insights` em [vercel.com](https://vercel.com)
 2. **Não** defina `API_URL` — o padrão `/api` usa o proxy para o Railway
 3. Deploy automático a cada push em `main`
 
 ### Proxy (`vercel.json`)
 
 ```
-/api/:path*  →  https://lupa-cnpj-api-production.up.railway.app/:path*
+/api/:path*  →  https://lupa-insights-api-production.up.railway.app/:path*
 ```
 
-Isso evita CORS: o browser chama a mesma origem (`lupa-cnpj.vercel.app/api/...`).
+Isso evita CORS: o browser chama a mesma origem (`lupa-insights.vercel.app/api/...`).
 
 ## Variáveis de ambiente
 

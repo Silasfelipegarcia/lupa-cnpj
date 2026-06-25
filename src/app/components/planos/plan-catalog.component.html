@@ -11,6 +11,12 @@
     </button>
   }
 
+  @if (authService.isAuthenticated() && !pagamentosConfigurados()) {
+    <div class="alert alert-error">
+      Pagamentos não configurados no servidor. Configure MERCADOPAGO_PUBLIC_KEY e MERCADOPAGO_ACCESS_TOKEN na API (Railway).
+    </div>
+  }
+
   @if (authService.isAuthenticated()) {
     <section class="payment-prefs card">
       <h3>Forma de pagamento</h3>
@@ -127,7 +133,7 @@
         }
       </div>
       <div class="plan-card--business__action">
-        <a href="mailto:contato@lupacnpj.com.br?subject=Plano%20Business" class="btn btn-primary">
+        <a href="mailto:contato@lupainsights.com.br?subject=Plano%20Business" class="btn btn-primary">
           Fale conosco
         </a>
       </div>
