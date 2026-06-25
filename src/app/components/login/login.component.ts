@@ -30,6 +30,8 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     if (this.route.snapshot.queryParamMap.get('sessaoExpirada') === '1') {
       this.erro.set('Sua sessão expirou. Faça login novamente para continuar.');
+    } else if (this.route.snapshot.queryParamMap.get('ambiente') === '1') {
+      this.erro.set('Você trocou de ambiente (local ↔ produção). Faça login novamente nesta API.');
     }
   }
 

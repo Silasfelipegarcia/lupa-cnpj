@@ -34,11 +34,23 @@ export class AuthService {
     if (!token) {
       return false;
     }
+    if (!this.sessaoCompativelComApi()) {
+      this.logout();
+      return false;
+    }
     if (isJwtExpired(token)) {
       this.logout();
       return false;
     }
     return true;
+  }
+
+  sessaoCompativelComApi(): boolean {
+    const apiSalva = AuthStorage.recuperarApiUrl();
+    if (!apiSalva) {
+      return false;
+    }
+    return apiSalva === environment.apiUrl;
   }
 
   temSessaoExpirada(): boolean {
@@ -99,6 +111,13 @@ export class AuthService {
     });
   }
 
+  logoutPorAmbienteDiferente(): void {
+    this.logout();
+    this.router.navigate(['/login'], {
+      queryParams: { ambiente: '1' }
+    });
+  }
+
   verificarSessaoAtiva(): boolean {
     if (!this.temSessaoExpirada()) {
       this.agendarLogoutPorExpiracao();
@@ -110,6 +129,18 @@ export class AuthService {
 
   private configurarMonitoramentoSessao(): void {
     const token = this.getToken();
+    const user = AuthStorage.recuperarUsuario();
+
+    if (user && !token) {
+      this.logout();
+      return;
+    }
+
+    if (token && !this.sessaoCompativelComApi()) {
+      this.logoutPorAmbienteDiferente();
+      return;
+    }
+
     if (token && isJwtExpired(token)) {
       this.logout();
       return;
@@ -159,7 +190,7 @@ export class AuthService {
   }
 
   private persistirSessao(response: AuthResponse): void {
-    AuthStorage.salvarToken(response.token);
+    AuthStorage.salvarToken(response.token, environment.apiUrl);
     AuthStorage.salvarUsuario(response.user);
     this.currentUser.set(response.user);
     this.agendarLogoutPorExpiracao();

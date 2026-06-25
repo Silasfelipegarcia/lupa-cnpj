@@ -26,6 +26,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = authService.getToken();
 
   if (isApiCall && token && !isPublic) {
+    if (!authService.sessaoCompativelComApi()) {
+      authService.logoutPorAmbienteDiferente();
+      return throwError(() => new Error('Sessão de outro ambiente'));
+    }
     if (isJwtExpired(token)) {
       authService.logoutPorExpiracao();
       return throwError(() => new Error('Sessão expirada'));

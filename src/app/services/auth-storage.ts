@@ -2,6 +2,7 @@ import { User } from '../models/auth.model';
 
 const TOKEN_KEY = 'lupa_insights_token';
 const USER_KEY = 'lupa_insights_user';
+const API_URL_KEY = 'lupa_insights_api_url';
 const LEGACY_TOKEN_KEY = 'lupa_cnpj_token';
 const LEGACY_USER_KEY = 'lupa_cnpj_user';
 
@@ -18,8 +19,13 @@ function migrateLegacyKey(newKey: string, legacyKey: string): void {
 }
 
 export class AuthStorage {
-  static salvarToken(token: string): void {
+  static salvarToken(token: string, apiUrl: string): void {
     localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(API_URL_KEY, apiUrl);
+  }
+
+  static recuperarApiUrl(): string | null {
+    return localStorage.getItem(API_URL_KEY);
   }
 
   static recuperarToken(): string | null {
@@ -47,6 +53,7 @@ export class AuthStorage {
   static limpar(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(API_URL_KEY);
     localStorage.removeItem(LEGACY_TOKEN_KEY);
     localStorage.removeItem(LEGACY_USER_KEY);
   }
