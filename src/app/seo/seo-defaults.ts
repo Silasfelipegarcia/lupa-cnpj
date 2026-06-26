@@ -60,5 +60,20 @@ export const ROUTE_SEO: Record<string, RouteSeoConfig> = {
     title: 'Pagamento pendente | Lupa Insights',
     description: 'Pagamento em processamento.',
     index: false
+  },
+  privacidade: {
+    title: 'Política de Privacidade | Lupa Insights',
+    description: 'Como o Lupa Insights trata seus dados pessoais em conformidade com a LGPD.',
+    index: true
+  },
+  cookies: {
+    title: 'Política de Cookies | Lupa Insights',
+    description: 'Cookies e armazenamento local usados no Lupa Insights: essenciais, preferências e analíticos.',
+    index: true
+  },
+  termos: {
+    title: 'Termos de Uso | Lupa Insights',
+    description: 'Termos e condições para utilização da plataforma Lupa Insights.',
+    index: true
   }
 };

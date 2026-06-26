@@ -3,6 +3,9 @@ Allow: /
 Allow: /planos
 Allow: /cadastro
 Allow: /login
+Allow: /privacidade
+Allow: /cookies
+Allow: /termos
 Disallow: /app
 Disallow: /conta
 Disallow: /consulta

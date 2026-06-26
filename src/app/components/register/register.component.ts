@@ -6,11 +6,12 @@ import { AuthService } from '../../services/auth.service';
 import { CnpjImportService } from '../../services/cnpj-import.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
+import { LegalFooterLinksComponent } from '../legal-footer-links/legal-footer-links.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, AppBrandComponent],
+  imports: [CommonModule, FormsModule, RouterLink, AppBrandComponent, LegalFooterLinksComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
@@ -21,6 +22,7 @@ export class RegisterComponent {
   cpf = '';
   password = '';
   confirmarSenha = '';
+  aceitoTermos = false;
   erro = signal('');
   enviando = signal(false);
 
@@ -60,6 +62,11 @@ export class RegisterComponent {
 
     if (this.password !== this.confirmarSenha) {
       this.erro.set('As senhas não coincidem.');
+      return;
+    }
+
+    if (!this.aceitoTermos) {
+      this.erro.set('Você precisa aceitar os Termos de Uso e a Política de Privacidade.');
       return;
     }
 

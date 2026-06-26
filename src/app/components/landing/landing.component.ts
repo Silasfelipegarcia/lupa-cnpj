@@ -8,11 +8,12 @@ import { CnpjPreviewCampo, CnpjPreviewQuota, CnpjPreviewResult } from '../../mod
 import { AnalyticsService } from '../../services/analytics.service';
 import { LANDING_FAQ } from '../../seo/structured-data';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
+import { LegalFooterLinksComponent } from '../legal-footer-links/legal-footer-links.component';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [RouterLink, AppBrandComponent, FormsModule],
+  imports: [RouterLink, AppBrandComponent, LegalFooterLinksComponent, FormsModule],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss'
 })

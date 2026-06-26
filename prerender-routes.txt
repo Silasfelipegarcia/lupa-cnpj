@@ -2,3 +2,6 @@
 /planos
 /cadastro
 /login
+/privacidade
+/cookies
+/termos

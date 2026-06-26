@@ -6,11 +6,12 @@ import { AuthService } from '../../services/auth.service';
 import { CnpjImportService } from '../../services/cnpj-import.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
+import { LegalFooterLinksComponent } from '../legal-footer-links/legal-footer-links.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, AppBrandComponent],
+  imports: [CommonModule, FormsModule, RouterLink, AppBrandComponent, LegalFooterLinksComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })

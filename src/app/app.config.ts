@@ -14,7 +14,7 @@ function bootstrapAnalytics(): () => void {
   const analytics = inject(AnalyticsService);
   const routerAnalytics = inject(AnalyticsRouterService);
   return () => {
-    analytics.init();
+    analytics.initIfConsented();
     routerAnalytics.init();
   };
 }

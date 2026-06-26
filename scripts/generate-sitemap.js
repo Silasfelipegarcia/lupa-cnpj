@@ -8,7 +8,10 @@ const routes = [
   { loc: '/', changefreq: 'weekly', priority: '1.0' },
   { loc: '/planos', changefreq: 'weekly', priority: '0.9' },
   { loc: '/cadastro', changefreq: 'monthly', priority: '0.8' },
-  { loc: '/login', changefreq: 'monthly', priority: '0.5' }
+  { loc: '/login', changefreq: 'monthly', priority: '0.5' },
+  { loc: '/privacidade', changefreq: 'yearly', priority: '0.4' },
+  { loc: '/cookies', changefreq: 'yearly', priority: '0.4' },
+  { loc: '/termos', changefreq: 'yearly', priority: '0.4' }
 ];
 
 const urls = routes.map((route) => `  <url>

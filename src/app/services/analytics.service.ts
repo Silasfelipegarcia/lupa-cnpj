@@ -10,6 +10,7 @@ import {
 } from '../models/analytics.model';
 import { SubscriptionPlan } from '../models/auth.model';
 import { AnalyticsFlowService } from './analytics-flow.service';
+import { CookieConsentService } from './cookie-consent.service';
 
 const PLAN_LABELS: Record<SubscriptionPlan, string> = {
   FREE: 'free',
@@ -21,6 +22,7 @@ const PLAN_LABELS: Record<SubscriptionPlan, string> = {
 export class AnalyticsService {
   private readonly http = inject(HttpClient);
   private readonly flowService = inject(AnalyticsFlowService);
+  private readonly consentService = inject(CookieConsentService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
@@ -31,7 +33,7 @@ export class AnalyticsService {
   private currentPlanTier: string | null = null;
 
   init(): void {
-    if (!this.isBrowser || !this.measurementId || this.initialized) {
+    if (!this.isBrowser || !this.measurementId || this.initialized || !this.consentService.hasAnalyticsConsent()) {
       return;
     }
 
@@ -51,6 +53,18 @@ export class AnalyticsService {
       });
       this.initialized = true;
     }).catch(() => {});
+  }
+
+  initIfConsented(): void {
+    this.init();
+  }
+
+  onConsentGranted(): void {
+    this.init();
+  }
+
+  onConsentRevoked(): void {
+    // Mantém sessão e funcionalidades essenciais; apenas deixa de enviar novos eventos analíticos.
   }
 
   pageView(path: string, title: string, routeConfig?: RouteAnalyticsConfig): void {
@@ -92,7 +106,7 @@ export class AnalyticsService {
       this.currentPlanTier = PLAN_LABELS[plan] ?? plan.toLowerCase();
     }
 
-    if (!this.isBrowser || !this.measurementId || !this.initialized) {
+    if (!this.isBrowser || !this.measurementId || !this.initialized || !this.consentService.hasAnalyticsConsent()) {
       return;
     }
 
@@ -283,6 +297,10 @@ export class AnalyticsService {
   }
 
   private send(event: AnalyticsEventName, params: AnalyticsEventParams = {}): void {
+    if (!this.consentService.hasAnalyticsConsent()) {
+      return;
+    }
+
     const enriched: AnalyticsEventParams = {
       ...params,
       flow_id: params.flow_id ?? this.flowService.getFlowId(),
@@ -304,7 +322,7 @@ export class AnalyticsService {
   }
 
   private sendPurchaseToGa4(params: AnalyticsEventParams): void {
-    if (!this.isBrowser || !this.measurementId) {
+    if (!this.isBrowser || !this.measurementId || !this.consentService.hasAnalyticsConsent()) {
       return;
     }
     if (!this.initialized) {
@@ -334,7 +352,7 @@ export class AnalyticsService {
   }
 
   private sendToGa4(event: AnalyticsEventName, params: AnalyticsEventParams): void {
-    if (!this.isBrowser || !this.measurementId) {
+    if (!this.isBrowser || !this.measurementId || !this.consentService.hasAnalyticsConsent()) {
       return;
     }
 

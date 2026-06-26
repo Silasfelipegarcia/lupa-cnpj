@@ -7,6 +7,9 @@ import { HistoricoComponent } from './components/historico/historico.component';
 import { LandingComponent } from './components/landing/landing.component';
 import { PlanosComponent } from './components/planos/planos.component';
 import { PlanosResultadoComponent } from './components/planos/planos-resultado.component';
+import { PrivacidadeComponent } from './components/legal/privacidade.component';
+import { CookiesComponent } from './components/legal/cookies.component';
+import { TermosComponent } from './components/legal/termos.component';
 import { ContaShellComponent } from './components/conta/conta-shell.component';
 import { ContaPlanoComponent } from './components/conta/conta-plano.component';
 import { ContaPerfilComponent } from './components/conta/conta-perfil.component';
@@ -77,6 +80,21 @@ export const routes: Routes = [
       { path: 'plano', component: ContaPlanoComponent },
       { path: 'cobranca', component: ContaCobrancaComponent }
     ]
+  },
+  {
+    path: 'privacidade',
+    component: PrivacidadeComponent,
+    data: { seo: ROUTE_SEO['privacidade'] }
+  },
+  {
+    path: 'cookies',
+    component: CookiesComponent,
+    data: { seo: ROUTE_SEO['cookies'] }
+  },
+  {
+    path: 'termos',
+    component: TermosComponent,
+    data: { seo: ROUTE_SEO['termos'] }
   },
   { path: '**', redirectTo: '' }
 ];
