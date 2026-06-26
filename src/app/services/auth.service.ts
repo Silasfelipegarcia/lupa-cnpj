@@ -203,7 +203,18 @@ export class AuthService {
   }
 
   private tratarErro(error: HttpErrorResponse): Observable<never> {
-    const mensagem = error.error?.erro || 'Erro ao autenticar';
-    return throwError(() => mensagem);
+    const body = error.error;
+    if (body && typeof body === 'object' && typeof body.erro === 'string') {
+      return throwError(() => body.erro);
+    }
+    if (error.status === 0) {
+      return throwError(() => 'Sem conexão com a API. Verifique sua rede e tente novamente.');
+    }
+    if (error.status === 404) {
+      return throwError(() =>
+        'API indisponível (404). Na Vercel, remova API_URL ou use /api e confira o proxy em vercel.json.'
+      );
+    }
+    return throwError(() => 'Erro ao autenticar');
   }
 }

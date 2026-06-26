@@ -1,9 +1,10 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AppHeaderComponent } from '../app-header/app-header.component';
 import { AuthService } from '../../services/auth.service';
 import { PaymentService } from '../../services/payment.service';
 import { CheckoutSyncRequest, CHECKOUT_ORDER_STORAGE_KEY } from '../../models/payment.model';
+import { environment } from '../../../environments/environment';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -67,6 +68,7 @@ import { Subscription } from 'rxjs';
 export class PlanosResultadoComponent implements OnInit, OnDestroy {
 
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly paymentService = inject(PaymentService);
 
@@ -81,7 +83,8 @@ export class PlanosResultadoComponent implements OnInit, OnDestroy {
     this.tipo = path.includes('sucesso') ? 'sucesso' : 'pendente';
 
     if (!this.authService.isAuthenticated()) {
-      this.mensagemStatus = 'Faça login para atualizar seu plano.';
+      const redirect = this.router.url;
+      void this.router.navigate(['/login'], { queryParams: { redirect } });
       return;
     }
 
@@ -109,7 +112,9 @@ export class PlanosResultadoComponent implements OnInit, OnDestroy {
       },
       error: (msg: string) => {
         this.mensagemStatus = msg;
-        this.avisoLocal = 'Se você acabou de pagar no Mercado Pago, aguarde alguns segundos e recarregue esta página.';
+        this.avisoLocal = environment.production
+          ? 'Se você acabou de pagar, aguarde alguns segundos e recarregue esta página.'
+          : 'Sandbox local: após pagar no MP, abra /planos/sucesso se não redirecionar sozinho.';
         this.authService.refreshMe().subscribe({ error: () => {} });
       }
     });

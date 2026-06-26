@@ -46,7 +46,7 @@ Acesse `http://localhost:4200`. A API deve estar em `http://localhost:8080` (`sr
 ### Proxy (`vercel.json`)
 
 ```
-/api/:path*  →  https://lupa-insights-api-production.up.railway.app/:path*
+/api/:path*  →  https://lupa-cnpj-api-production.up.railway.app/:path*
 ```
 
 Isso evita CORS: o browser chama a mesma origem (`lupa-insights.vercel.app/api/...`).

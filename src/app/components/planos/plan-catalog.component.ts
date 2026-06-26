@@ -296,7 +296,7 @@ export class PlanCatalogComponent implements OnInit {
         }
         if (this.sandboxMercadoPago()) {
           this.mensagem.set(
-            'Após pagar no Mercado Pago, abra: http://localhost:4200/planos/sucesso (o sandbox não redireciona sozinho).'
+            'Sandbox: após pagar, se não voltar sozinho, abra http://localhost:4200/planos/sucesso'
           );
         }
         window.location.href = url;
