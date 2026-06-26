@@ -2,7 +2,7 @@
 
 Interface web Angular 19 para consultar e enriquecer listas de CNPJs.
 
-API em [lupa-insights-api](https://github.com/Silasfelipegarcia/lupa-insights-api) · Documentação completa em [docs/DOCUMENTACAO.md](../docs/DOCUMENTACAO.md).
+API em [lupa-insights-api](https://github.com/Silasfelipegarcia/lupa-insights-api) · Documentação em [docs/DOCUMENTACAO.md](docs/DOCUMENTACAO.md) · Roadmap de negócio em [docs/ROADMAP-NEGOCIO.md](docs/ROADMAP-NEGOCIO.md).
 
 **Produção:** https://lupa-insights.vercel.app
 

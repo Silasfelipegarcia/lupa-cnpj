@@ -144,15 +144,29 @@ export class AnalyticsService {
     this.currentPlanTier = null;
   }
 
-  trackGuestPreview(cnpjDigits: string): void {
+  trackGuestPreview(cnpjDigits: string, extra?: AnalyticsEventParams): void {
     this.funnelEvent('guest_cnpj_preview', 'acquisition', 2, 'guest_cnpj_preview', {
-      cnpj_length: cnpjDigits.length
+      cnpj_length: cnpjDigits.length,
+      ...extra
     });
   }
 
-  trackGuestPreviewError(errorCode: string): void {
+  trackGuestPreviewError(errorCode: string, extra?: AnalyticsEventParams): void {
     this.funnelEvent('guest_cnpj_preview_error', 'acquisition', 2, 'guest_cnpj_preview', {
-      error_code: sanitizeAnalyticsError(errorCode)
+      error_code: sanitizeAnalyticsError(errorCode),
+      ...extra
+    });
+  }
+
+  trackConsultaCnpjLandingView(): void {
+    this.funnelEvent('consulta_cnpj_landing_view', 'acquisition', 1, 'consulta_cnpj_landing', {
+      landing_variant: 'consulta-cnpj'
+    });
+  }
+
+  trackConsultaCnpjClick(): void {
+    this.funnelEvent('consulta_cnpj_click', 'acquisition', 2, 'consulta_cnpj_submit', {
+      landing_variant: 'consulta-cnpj'
     });
   }
 

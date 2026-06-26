@@ -1,0 +1,191 @@
+@if (config) {
+  <div class="lp">
+    <header class="lp-brand" aria-label="Lupa Insights">Lupa Insights</header>
+
+    <section class="lp-hero" aria-labelledby="lp-title">
+      <h1 id="lp-title">{{ config.headline }}</h1>
+      <p class="lp-sub">{{ config.subheadline }}</p>
+
+      <div class="lp-form-wrap" id="consulta-form">
+        @if (isLoggedIn()) {
+          <a routerLink="/app" class="btn btn-primary lp-btn" appAnalyticsCta="ir_painel" appAnalyticsCtaLocation="ad_hero">
+            Ir para o painel
+          </a>
+        } @else {
+          <form class="lp-form" (ngSubmit)="consultarCnpj()" ngSkipHydration>
+            <label class="sr-only" for="cnpj-input">CNPJ da empresa</label>
+            <input
+              id="cnpj-input"
+              type="text"
+              name="cnpj"
+              [value]="cnpjInput"
+              (input)="onCnpjInput($event)"
+              [placeholder]="config.inputPlaceholder"
+              inputmode="numeric"
+              autocomplete="off"
+              [disabled]="consultando() || quota()?.limiteAtingido"
+            />
+            <button
+              type="submit"
+              class="btn btn-primary lp-btn"
+              [disabled]="consultando() || quota()?.limiteAtingido"
+            >
+              @if (consultando()) {
+                <span class="lp-spinner" aria-hidden="true"></span>
+                {{ config.previewButtonLoading }}
+              } @else if (quota()?.limiteAtingido) {
+                Criar conta grátis
+              } @else {
+                {{ config.previewButton }}
+              }
+            </button>
+          </form>
+
+          @if (erroPreview()) {
+            <p class="lp-alert lp-alert--error" role="alert">{{ erroPreview() }}</p>
+          }
+
+          @if (quota()?.limiteAtingido) {
+            <p class="lp-alert" role="status">
+              Consulta gratuita usada.
+              <a routerLink="/cadastro" [queryParams]="signupQueryParams" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="ad_hero_limite">
+                Criar conta grátis
+              </a>
+            </p>
+          }
+
+          @if (resultado(); as r) {
+            <div class="lp-live-result" role="region" aria-label="Resultado da consulta">
+              <p class="lp-live-label">Sua consulta · {{ r.cnpj }}</p>
+              @for (campo of camposResultado(r); track campo.label) {
+                <div class="lp-live-row">
+                  <span>{{ campo.label }}</span>
+                  <strong>{{ campo.valor }}</strong>
+                </div>
+              }
+              <a
+                routerLink="/cadastro"
+                [queryParams]="signupQueryParams"
+                class="btn btn-primary lp-btn lp-btn--soft"
+                appAnalyticsCta="criar_conta"
+                appAnalyticsCtaLocation="ad_hero_result"
+              >
+                Consultar mais empresas grátis
+              </a>
+            </div>
+          }
+        }
+      </div>
+
+      <ul class="lp-trust" aria-label="Indicadores de confiança">
+        @for (item of config.trustIndicators; track item.text) {
+          <li><span aria-hidden="true">{{ item.icon }}</span> {{ item.text }}</li>
+        }
+      </ul>
+    </section>
+
+    <section class="lp-section lp-defer" aria-labelledby="benefits-title">
+      <h2 id="benefits-title">O que você encontra na consulta</h2>
+      <ul class="lp-benefits">
+        @for (benefit of config.benefits; track benefit) {
+          <li>{{ benefit }}</li>
+        }
+      </ul>
+    </section>
+
+    <section class="lp-section lp-defer" aria-labelledby="example-title">
+      <h2 id="example-title">{{ config.exampleTitle }}</h2>
+      <div class="lp-example" role="img" aria-label="Exemplo de resultado de consulta CNPJ">
+        <div class="lp-example-chrome">
+          <span></span><span></span><span></span>
+          <span class="lp-example-url">lupainsights.com.br/consulta-cnpj</span>
+        </div>
+        <div class="lp-example-body">
+          <p class="lp-example-badge">Consulta concluída</p>
+          <p class="lp-example-cnpj">{{ config.exampleCnpj }}</p>
+          @for (row of config.exampleRows; track row.label) {
+            <div class="lp-example-row">
+              <span>{{ row.label }}</span>
+              @if (row.highlight) {
+                <strong class="lp-pill">{{ row.value }}</strong>
+              } @else {
+                <strong>{{ row.value }}</strong>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      <button type="button" class="btn btn-outline lp-cta-secondary" (click)="scrollToForm()">
+        Consultar minha empresa
+      </button>
+    </section>
+
+    <section class="lp-section lp-defer" aria-labelledby="steps-title">
+      <h2 id="steps-title">Como funciona</h2>
+      <ol class="lp-steps">
+        @for (step of config.steps; track step.num) {
+          <li>
+            <span class="lp-step-num">{{ step.num }}</span>
+            <div>
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.text }}</p>
+            </div>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <section class="lp-section lp-defer" aria-labelledby="why-title">
+      <h2 id="why-title">Por que utilizar</h2>
+      <div class="lp-why-grid">
+        @for (card of config.whyCards; track card.title) {
+          <article class="lp-why-card">
+            <h3>{{ card.title }}</h3>
+            <p>{{ card.text }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="lp-section lp-section--muted lp-defer" aria-labelledby="soon-title">
+      <h2 id="soon-title">{{ config.comingSoonTitle }}</h2>
+      <p class="lp-soon-note">{{ config.comingSoonNote }}</p>
+      <ul class="lp-soon-list">
+        @for (item of config.comingSoonItems; track item.text) {
+          <li><span aria-hidden="true">{{ item.icon }}</span> {{ item.text }}</li>
+        }
+      </ul>
+    </section>
+
+    <section class="lp-section lp-defer" aria-labelledby="faq-title">
+      <h2 id="faq-title">Perguntas frequentes</h2>
+      <div class="lp-faq">
+        @for (item of config.faq; track item.question) {
+          <details class="lp-faq-item">
+            <summary>{{ item.question }}</summary>
+            <p>{{ item.answer }}</p>
+          </details>
+        }
+      </div>
+    </section>
+
+    <section class="lp-final lp-defer" aria-labelledby="final-cta">
+      <h2 id="final-cta">Consulte agora</h2>
+      <button type="button" class="btn btn-primary lp-btn" (click)="scrollToForm()">
+        {{ config.previewButton }}
+      </button>
+    </section>
+
+    @if (!isLoggedIn()) {
+      <div class="lp-sticky" ngSkipHydration>
+        <button type="button" class="btn btn-primary lp-btn" (click)="scrollToForm()">
+          {{ config.previewButton }}
+        </button>
+      </div>
+    }
+
+    <footer class="lp-footer">
+      <app-legal-footer-links />
+    </footer>
+  </div>
+}

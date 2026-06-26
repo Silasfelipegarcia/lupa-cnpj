@@ -3,16 +3,20 @@
     <app-brand link="/" ariaLabel="Lupa Insights — página inicial" />
     <nav class="topbar-nav">
       <a href="#como-funciona" class="nav-link">Como funciona</a>
-      <a href="#experimente" class="nav-link">Experimente</a>
+      @if (!isLoggedIn()) {
+        <a href="#experimente" class="nav-link">Experimente</a>
+      }
       <a href="#recursos" class="nav-link">Recursos</a>
       <a href="#faq" class="nav-link">FAQ</a>
       <a routerLink="/planos" class="nav-link" appAnalyticsCta="planos" appAnalyticsCtaLocation="topbar">Planos</a>
-      @if (authService.isAuthenticated()) {
-        <a routerLink="/app" class="btn btn-primary" appAnalyticsCta="acessar_painel" appAnalyticsCtaLocation="topbar">Acessar painel</a>
-      } @else {
-        <a routerLink="/login" class="nav-link" appAnalyticsCta="entrar" appAnalyticsCtaLocation="topbar">Entrar</a>
-        <a routerLink="/cadastro" class="btn btn-primary" appAnalyticsCta="comecar_gratis" appAnalyticsCtaLocation="topbar">Começar grátis</a>
-      }
+      <span class="topbar-auth" ngSkipHydration>
+        @if (isLoggedIn()) {
+          <a routerLink="/app" class="btn btn-primary" appAnalyticsCta="acessar_painel" appAnalyticsCtaLocation="topbar">Acessar painel</a>
+        } @else {
+          <a routerLink="/login" class="nav-link" appAnalyticsCta="entrar" appAnalyticsCtaLocation="topbar">Entrar</a>
+          <a routerLink="/cadastro" class="btn btn-primary" appAnalyticsCta="comecar_gratis" appAnalyticsCtaLocation="topbar">Começar grátis</a>
+        }
+      </span>
     </nav>
   </header>
 
@@ -33,8 +37,8 @@
         Pare de perder tempo com consultas avulsas — filtre empresas ativas e exporte para o CRM em minutos.
       </p>
 
-      <div class="hero-actions">
-        @if (authService.isAuthenticated()) {
+      <div class="hero-actions" ngSkipHydration>
+        @if (isLoggedIn()) {
           <a routerLink="/app" class="btn btn-primary btn-lg" appAnalyticsCta="ir_painel" appAnalyticsCtaLocation="hero">Ir para o painel</a>
           <a routerLink="/historico" class="btn btn-outline btn-lg" appAnalyticsCta="ver_historico" appAnalyticsCtaLocation="hero">Ver histórico</a>
         } @else {
@@ -119,8 +123,8 @@
     </div>
   </section>
 
-  @if (!authService.isAuthenticated()) {
-    <section id="experimente" class="section section-preview">
+  @if (!isLoggedIn()) {
+    <section id="experimente" class="section section-preview" ngSkipHydration>
       <div class="section-head">
         <span class="section-tag">Degustação grátis</span>
         <h2>Veja o produto funcionando — sem cadastro</h2>
@@ -320,24 +324,32 @@
     <div class="cta-inner">
       <h2>Sua próxima campanha começa com uma lista limpa</h2>
       <p>Importe, enriqueça e exporte — sem depender de TI ou copy-paste.</p>
-      <div class="cta-actions">
-        @if (authService.isAuthenticated()) {
+      <div class="cta-actions" ngSkipHydration>
+        @if (isLoggedIn()) {
           <a routerLink="/app" class="btn btn-primary btn-lg" appAnalyticsCta="nova_consulta" appAnalyticsCtaLocation="cta_final">Nova consulta</a>
+          <a routerLink="/historico" class="btn btn-outline btn-lg" appAnalyticsCta="ver_historico" appAnalyticsCtaLocation="cta_final">Ver histórico</a>
         } @else {
           <a routerLink="/cadastro" class="btn btn-primary btn-lg" appAnalyticsCta="comecar_gratis" appAnalyticsCtaLocation="cta_final">Começar grátis</a>
           <a routerLink="/planos" class="btn btn-outline btn-lg" appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="cta_final">Ver planos</a>
         }
       </div>
-      <p class="cta-note">Free para sempre · Upgrade quando precisar de volume</p>
+      @if (!isLoggedIn()) {
+        <p class="cta-note">Free para sempre · Upgrade quando precisar de volume</p>
+      }
     </div>
   </section>
 
   <footer class="footer">
     <app-brand link="/" ariaLabel="Lupa Insights" />
-    <nav class="footer-nav" aria-label="Links do site">
+    <nav class="footer-nav" aria-label="Links do site" ngSkipHydration>
       <a routerLink="/planos" appAnalyticsCta="planos" appAnalyticsCtaLocation="footer">Planos</a>
-      <a routerLink="/cadastro" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="footer">Criar conta</a>
-      <a routerLink="/login" appAnalyticsCta="entrar" appAnalyticsCtaLocation="footer">Entrar</a>
+      @if (isLoggedIn()) {
+        <a routerLink="/app" appAnalyticsCta="acessar_painel" appAnalyticsCtaLocation="footer">Acessar painel</a>
+        <a routerLink="/historico" appAnalyticsCta="ver_historico" appAnalyticsCtaLocation="footer">Histórico</a>
+      } @else {
+        <a routerLink="/cadastro" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="footer">Criar conta</a>
+        <a routerLink="/login" appAnalyticsCta="entrar" appAnalyticsCtaLocation="footer">Entrar</a>
+      }
       <a href="mailto:contato&#64;lupainsights.com.br" appAnalyticsCta="contato_email" appAnalyticsCtaLocation="footer">contato&#64;lupainsights.com.br</a>
     </nav>
     <app-legal-footer-links />

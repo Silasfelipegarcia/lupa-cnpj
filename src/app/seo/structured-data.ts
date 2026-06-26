@@ -149,3 +149,62 @@ export function landingJsonLd(): Record<string, unknown>[] {
     faqPageJsonLd(LANDING_FAQ)
   ];
 }
+
+export const CONSULTA_CNPJ_FAQ: FaqItem[] = [
+  {
+    question: 'Os dados são públicos?',
+    answer:
+      'Sim. O Lupa Insights organiza informações de caráter público disponíveis em bases cadastrais oficiais de empresas brasileiras, como razão social, situação cadastral, endereço e CNAE.'
+  },
+  {
+    question: 'Preciso criar conta?',
+    answer:
+      'Não para a primeira consulta. Você pode consultar 1 CNPJ completo sem cadastro. Para consultar mais empresas ou importar planilhas, crie uma conta grátis.'
+  },
+  {
+    question: 'É gratuito?',
+    answer:
+      'Sim para começar. A consulta avulsa é gratuita (1 por dispositivo). Com conta Free, são 3 CNPJs por dia e 1 planilha de até 5 linhas.'
+  },
+  {
+    question: 'Posso consultar qualquer empresa?',
+    answer:
+      'Qualquer empresa brasileira com CNPJ na base cadastral consultada. Basta informar os 14 dígitos do CNPJ.'
+  },
+  {
+    question: 'Como funciona?',
+    answer:
+      'Digite o CNPJ, clique em Consultar Empresa e receba telefone, e-mail, endereço, CNAE e situação cadastral organizados em segundos.'
+  }
+];
+
+export function consultaCnpjJsonLd(): Record<string, unknown>[] {
+  const pageUrl = `${SITE}/consulta-cnpj`;
+
+  return [
+    organizationJsonLd(),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'Lupa Insights — Consultar CNPJ',
+      url: pageUrl,
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web',
+      browserRequirements: 'Requires JavaScript',
+      description:
+        'Consulte CNPJ online e veja telefone, e-mail, CNAE, situação cadastral, endereço, razão social e nome fantasia em segundos.',
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'BRL',
+        description: '1 consulta CNPJ grátis sem cadastro'
+      },
+      provider: {
+        '@type': 'Organization',
+        name: 'Lupa Insights',
+        url: SITE
+      }
+    },
+    faqPageJsonLd(CONSULTA_CNPJ_FAQ)
+  ];
+}

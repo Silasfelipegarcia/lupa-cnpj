@@ -1,5 +1,5 @@
 import { RouteSeoConfig } from '../models/seo.model';
-import { landingJsonLd, planosOffersJsonLd } from './structured-data';
+import { landingJsonLd, planosOffersJsonLd, consultaCnpjJsonLd } from './structured-data';
 
 export const DEFAULT_SEO: RouteSeoConfig = {
   title: 'Consulta e enriquecimento de CNPJ em lote | Lupa Insights',
@@ -10,8 +10,18 @@ export const DEFAULT_SEO: RouteSeoConfig = {
 
 export const ROUTE_SEO: Record<string, RouteSeoConfig> = {
   '': {
-    ...DEFAULT_SEO,
+    title: 'Lupa Insights — Prospecção B2B em lote',
+    description:
+      'Plataforma para equipes comerciais enriquecerem listas de empresas com dados cadastrais oficiais, filtros comerciais e exportação Excel para o CRM.',
+    index: true,
     jsonLd: landingJsonLd()
+  },
+  'consulta-cnpj': {
+    title: 'Consultar CNPJ Grátis — Telefone, E-mail e Dados em Segundos | Lupa Insights',
+    description:
+      'Consulte qualquer empresa em segundos. Informações públicas de empresas brasileiras: telefone, e-mail, CNAE, situação cadastral, endereço, razão social e nome fantasia. Grátis para testar.',
+    index: true,
+    jsonLd: consultaCnpjJsonLd()
   },
   planos: {
     title: 'Planos e preços — Prospecção B2B | Lupa Insights',

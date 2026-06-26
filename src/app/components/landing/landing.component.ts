@@ -20,6 +20,7 @@ import { LegalFooterLinksComponent } from '../legal-footer-links/legal-footer-li
 })
 export class LandingComponent implements OnInit {
   readonly authService = inject(AuthService);
+  readonly isLoggedIn = this.authService.isLoggedIn;
   readonly ano = new Date().getFullYear();
 
   cnpjInput = '';
@@ -99,7 +100,7 @@ export class LandingComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (!this.authService.isAuthenticated()) {
+    if (!this.isLoggedIn()) {
       this.carregarQuota();
     }
   }
@@ -126,7 +127,7 @@ export class LandingComponent implements OnInit {
   }
 
   consultarCnpj(): void {
-    if (this.consultando() || this.authService.isAuthenticated()) {
+    if (this.consultando() || this.isLoggedIn()) {
       return;
     }
 

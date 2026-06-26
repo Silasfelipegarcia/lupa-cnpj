@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of, tap, throwError } from 'rxjs';
@@ -20,6 +20,19 @@ export class AuthService {
 
   readonly currentUser = signal<User | null>(AuthStorage.recuperarUsuario());
 
+  /** Reativo para templates — evita UI duplicada após hidratação SSR. */
+  readonly isLoggedIn = computed(() => {
+    const user = this.currentUser();
+    const token = this.getToken();
+    if (!user || !token) {
+      return false;
+    }
+    if (!this.sessaoCompativelComApi()) {
+      return false;
+    }
+    return !isJwtExpired(token);
+  });
+
   private expiryTimer?: ReturnType<typeof setTimeout>;
   private visibilityListener?: () => void;
   private refreshInFlight?: Observable<User>;
@@ -38,16 +51,15 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    const token = this.getToken();
-    if (!token) {
-      return false;
-    }
-    if (!this.sessaoCompativelComApi()) {
-      this.logout();
-      return false;
-    }
-    if (isJwtExpired(token)) {
-      this.logout();
+    if (!this.isLoggedIn()) {
+      const token = this.getToken();
+      if (token) {
+        if (!this.sessaoCompativelComApi()) {
+          this.logout();
+        } else if (isJwtExpired(token)) {
+          this.logout();
+        }
+      }
       return false;
     }
     return true;

@@ -6,6 +6,7 @@ const today = new Date().toISOString().slice(0, 10);
 
 const routes = [
   { loc: '/', changefreq: 'weekly', priority: '1.0' },
+  { loc: '/consulta-cnpj', changefreq: 'weekly', priority: '0.98' },
   { loc: '/planos', changefreq: 'weekly', priority: '0.9' },
   { loc: '/cadastro', changefreq: 'monthly', priority: '0.8' },
   { loc: '/login', changefreq: 'monthly', priority: '0.5' },

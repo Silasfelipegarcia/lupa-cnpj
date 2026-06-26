@@ -5,6 +5,7 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { HistoricoComponent } from './components/historico/historico.component';
 import { LandingComponent } from './components/landing/landing.component';
+import { AdLandingComponent } from './components/ad-landing/ad-landing.component';
 import { PlanosComponent } from './components/planos/planos.component';
 import { PlanosResultadoComponent } from './components/planos/planos-resultado.component';
 import { PrivacidadeComponent } from './components/legal/privacidade.component';
@@ -27,6 +28,16 @@ import { ROUTE_ANALYTICS } from './models/analytics.model';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, data: { seo: ROUTE_SEO[''], analytics: ROUTE_ANALYTICS[''] } },
+  {
+    path: 'consulta-cnpj',
+    component: AdLandingComponent,
+    data: { seo: ROUTE_SEO['consulta-cnpj'], analytics: ROUTE_ANALYTICS['consulta-cnpj'] }
+  },
+  {
+    path: 'consultar-empresa',
+    redirectTo: 'consulta-cnpj',
+    pathMatch: 'full'
+  },
   {
     path: 'login',
     component: LoginComponent,

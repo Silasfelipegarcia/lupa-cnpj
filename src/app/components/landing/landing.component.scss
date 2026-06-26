@@ -38,6 +38,13 @@
   flex-wrap: wrap;
 }
 
+.topbar-auth {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
 .nav-link {
   color: var(--text-secondary);
   text-decoration: none;

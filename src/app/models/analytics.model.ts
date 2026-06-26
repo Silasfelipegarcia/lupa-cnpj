@@ -15,6 +15,8 @@ export type AnalyticsEventName =
   | 'funnel_step'
   | 'guest_cnpj_preview'
   | 'guest_cnpj_preview_error'
+  | 'consulta_cnpj_landing_view'
+  | 'consulta_cnpj_click'
   | 'signup_form_start'
   | 'sign_up'
   | 'sign_up_error'
@@ -92,6 +94,7 @@ export interface AnalyticsEventParams {
 /** Mapeamento rota → passo do funil (page_view + funnel_step automáticos). */
 export const ROUTE_ANALYTICS: Record<string, RouteAnalyticsConfig> = {
   '': { funnel: 'acquisition', step: 1, stepName: 'landing_view' },
+  'consulta-cnpj': { funnel: 'acquisition', step: 1, stepName: 'ad_landing_consulta_cnpj' },
   login: { funnel: 'acquisition', step: 2, stepName: 'login_form_view' },
   cadastro: { funnel: 'acquisition', step: 3, stepName: 'signup_form_view' },
   app: { funnel: 'activation', step: 1, stepName: 'import_dashboard_view' },
