@@ -145,29 +145,37 @@ export class AnalyticsService {
   }
 
   trackGuestPreview(cnpjDigits: string, extra?: AnalyticsEventParams): void {
-    this.funnelEvent('guest_cnpj_preview', 'acquisition', 2, 'guest_cnpj_preview', {
+    this.trackResultView({
+      cnpj_length: cnpjDigits.length,
+      source: 'guest_preview',
+      ...extra
+    });
+    this.funnelEvent('guest_cnpj_preview', 'acquisition', 3, 'guest_cnpj_preview', {
       cnpj_length: cnpjDigits.length,
       ...extra
     });
   }
 
   trackGuestPreviewError(errorCode: string, extra?: AnalyticsEventParams): void {
-    this.funnelEvent('guest_cnpj_preview_error', 'acquisition', 2, 'guest_cnpj_preview', {
+    this.funnelEvent('guest_cnpj_preview_error', 'acquisition', 2, 'cnpj_search', {
       error_code: sanitizeAnalyticsError(errorCode),
       ...extra
     });
   }
 
-  trackConsultaCnpjLandingView(): void {
-    this.funnelEvent('consulta_cnpj_landing_view', 'acquisition', 1, 'consulta_cnpj_landing', {
-      landing_variant: 'consulta-cnpj'
+  /** Funil de aquisição — use estes nomes no GA4 Explorations. */
+  trackLandingView(landingVariant: string): void {
+    this.funnelEvent('landing_view', 'acquisition', 1, 'landing_view', {
+      landing_variant: landingVariant
     });
   }
 
-  trackConsultaCnpjClick(): void {
-    this.funnelEvent('consulta_cnpj_click', 'acquisition', 2, 'consulta_cnpj_submit', {
-      landing_variant: 'consulta-cnpj'
-    });
+  trackCnpjSearch(extra?: AnalyticsEventParams): void {
+    this.funnelEvent('cnpj_search', 'acquisition', 2, 'cnpj_search', extra);
+  }
+
+  trackResultView(extra?: AnalyticsEventParams): void {
+    this.funnelEvent('result_view', 'acquisition', 3, 'result_view', extra);
   }
 
   trackSignUpStart(): void {
@@ -176,6 +184,7 @@ export class AnalyticsService {
 
   trackSignUp(userId: string, plan?: SubscriptionPlan): void {
     this.setUser(userId, plan);
+    this.funnelEvent('signup', 'acquisition', 4, 'signup', { method: 'email' });
     this.funnelEvent('sign_up', 'acquisition', 4, 'signup_complete', { method: 'email' });
   }
 
@@ -338,10 +347,12 @@ export class AnalyticsService {
   }
 
   trackBeginCheckout(plan: SubscriptionPlan): void {
-    this.funnelEvent('begin_checkout', 'monetization', 2, 'plan_selected', {
+    const params: AnalyticsEventParams = {
       plan_code: plan,
       plan_tier: PLAN_LABELS[plan]
-    });
+    };
+    this.funnelEvent('checkout_started', 'monetization', 2, 'checkout_started', params);
+    this.funnelEvent('begin_checkout', 'monetization', 2, 'plan_selected', params);
   }
 
   trackCheckoutRedirect(plan: SubscriptionPlan, orderId: string): void {
@@ -384,6 +395,7 @@ export class AnalyticsService {
       params.currency = 'BRL';
     }
 
+    this.send('purchase_completed', params);
     this.send('purchase', params);
     this.currentPlanTier = PLAN_LABELS[plan];
   }
@@ -543,8 +555,12 @@ export class AnalyticsService {
     };
     this.sendToBackend(event, backendPayload);
 
-    if (event === 'purchase') {
-      this.sendPurchaseToGa4(enriched);
+    if (event === 'purchase' || event === 'purchase_completed') {
+      if (event === 'purchase') {
+        this.sendPurchaseToGa4(enriched);
+      } else {
+        this.sendToGa4(event, enriched);
+      }
       return;
     }
 

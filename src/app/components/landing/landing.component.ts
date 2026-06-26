@@ -101,7 +101,8 @@ export class LandingComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (!this.isLoggedIn()) {
+    if (!this.authService.isAuthenticated()) {
+      this.analytics.trackLandingView('home');
       this.carregarQuota();
     }
   }
@@ -145,6 +146,7 @@ export class LandingComponent implements OnInit {
       return;
     }
 
+    this.analytics.trackCnpjSearch({ landing_variant: 'home' });
     this.consultando.set(true);
     this.erroPreview.set('');
     this.resultado.set(null);
@@ -152,7 +154,7 @@ export class LandingComponent implements OnInit {
     this.guestPreviewService.consultar(digits).subscribe({
       next: (result) => {
         this.resultado.set(result);
-        this.analytics.trackGuestPreview(digits);
+        this.analytics.trackGuestPreview(digits, { landing_variant: 'home' });
         this.quota.set({
           consultasUsadas: result.consultasUsadas,
           consultasLimite: result.consultasLimite,

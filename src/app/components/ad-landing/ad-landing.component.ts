@@ -45,7 +45,7 @@ export class AdLandingComponent implements OnInit {
       return;
     }
     this.config = config;
-    this.analytics.trackConsultaCnpjLandingView();
+    this.analytics.trackLandingView(config.slug);
 
     if (!this.isLoggedIn()) {
       this.carregarQuota();
@@ -85,7 +85,7 @@ export class AdLandingComponent implements OnInit {
       return;
     }
 
-    this.analytics.trackConsultaCnpjClick();
+    this.analytics.trackCnpjSearch({ landing_variant: this.config.slug });
 
     if (this.quota()?.limiteAtingido) {
       void this.router.navigate(['/cadastro'], { queryParams: this.signupQueryParams });
