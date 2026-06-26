@@ -50,8 +50,11 @@ export class PaymentService {
     );
   }
 
-  cobrarPlano(body: ChargePlanRequest): Observable<ChargePlanResponse> {
-    return this.http.post<ChargePlanResponse>(`${this.apiBase}/payments/charge`, body).pipe(
+  cobrarPlano(body: ChargePlanRequest, idempotencyKey?: string): Observable<ChargePlanResponse> {
+    const headers = idempotencyKey
+      ? { 'Idempotency-Key': idempotencyKey }
+      : undefined;
+    return this.http.post<ChargePlanResponse>(`${this.apiBase}/payments/charge`, body, { headers }).pipe(
       catchError(this.tratarErro)
     );
   }

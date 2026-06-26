@@ -18,9 +18,12 @@ export class PlanService {
     );
   }
 
-  iniciarCheckout(plan: SubscriptionPlan): Observable<CheckoutResponse> {
+  iniciarCheckout(plan: SubscriptionPlan, idempotencyKey?: string): Observable<CheckoutResponse> {
     const body: CheckoutRequest = { plan };
-    return this.http.post<CheckoutResponse>(`${this.apiBase}/payments/checkout`, body).pipe(
+    const headers = idempotencyKey
+      ? { 'Idempotency-Key': idempotencyKey }
+      : undefined;
+    return this.http.post<CheckoutResponse>(`${this.apiBase}/payments/checkout`, body, { headers }).pipe(
       catchError(this.tratarErro)
     );
   }

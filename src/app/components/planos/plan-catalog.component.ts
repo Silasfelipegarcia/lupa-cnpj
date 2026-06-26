@@ -231,7 +231,8 @@ export class PlanCatalogComponent implements OnInit {
     }
 
     this.mensagem.set('Redirecionando para o pagamento...');
-    this.planService.iniciarCheckout(plan).subscribe({
+    const idempotencyKey = crypto.randomUUID();
+    this.planService.iniciarCheckout(plan, idempotencyKey).subscribe({
       next: (checkout) => {
         const url = this.urlCheckoutMercadoPago(checkout);
         if (!url) {
@@ -255,11 +256,12 @@ export class PlanCatalogComponent implements OnInit {
     try {
       const token = await this.gerarTokenCartaoSalvo(cardId, this.cvv.trim());
       this.mensagem.set('Processando pagamento...');
+      const idempotencyKey = crypto.randomUUID();
       this.paymentService.cobrarPlano({
         plan: plan as 'PREMIUM' | 'PRO_PLUS',
         token,
         cardId
-      }).subscribe({
+      }, idempotencyKey).subscribe({
         next: (result) => {
           this.cvv = '';
           this.authService.refreshMe().subscribe({ error: () => {} });
