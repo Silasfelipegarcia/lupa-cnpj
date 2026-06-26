@@ -1,10 +1,9 @@
-import { Component, OnDestroy, OnInit, computed, effect, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription, timer, switchMap } from 'rxjs';
 import { CnpjImportService } from '../../services/cnpj-import.service';
-import { ImportDataStore } from '../../services/import-data-store.service';
 import { BrowserNotificationService } from '../../services/browser-notification.service';
 import { ImportJobMonitorService } from '../../services/import-job-monitor.service';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -57,6 +56,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
   pedindoNotificacao = signal(false);
 
   private pollingSubscription?: Subscription;
+  private unsubscribeMonitor?: () => void;
 
   readonly irParaNovaConsulta = (): void => this.novaConsulta();
 
@@ -64,20 +64,11 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private cnpjImportService: CnpjImportService,
-    private importDataStore: ImportDataStore,
     readonly notificationService: BrowserNotificationService,
     private jobMonitor: ImportJobMonitorService,
     private analytics: AnalyticsService,
     readonly authService: AuthService
-  ) {
-    effect(() => {
-      const jobMonitorado = this.jobMonitor.jobAtual();
-      const id = this.jobId();
-      if (!this.modoHistorico() && jobMonitorado && jobMonitorado.jobId === id) {
-        this.aplicarJob(jobMonitorado);
-      }
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('jobId');
@@ -91,10 +82,17 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
     this.jobId.set(id);
     this.carregarConfig();
     this.iniciarAcompanhamento(id);
+
+    this.unsubscribeMonitor = this.jobMonitor.onJobUpdate((jobMonitorado) => {
+      const currentId = this.jobId();
+      if (!this.modoHistorico() && jobMonitorado.jobId === currentId) {
+        this.aplicarJob(jobMonitorado);
+      }
+    });
   }
 
   private carregarConfig(): void {
-    this.importDataStore.getConfig().subscribe({
+    this.cnpjImportService.obterConfiguracao().subscribe({
       next: (config) => this.config.set(config),
       error: () => {}
     });
@@ -147,7 +145,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
         this.analytics.trackSaveList(this.jobId(), nome);
         this.nomeLista.set('');
         this.erro.set('');
-        this.importDataStore.invalidate('listas');
+        this.cnpjImportService.invalidarCache('listas');
       },
       error: (msg: string) => {
         this.salvandoLista.set(false);
@@ -166,7 +164,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
       next: (job) => {
         this.analytics.trackReprocess(this.jobId(), job.jobId);
         this.reprocessando.set(false);
-        this.importDataStore.invalidate('historico');
+        this.cnpjImportService.invalidarCache('historico');
         this.router.navigate(['/consulta', job.jobId]);
       },
       error: (msg: string) => {
@@ -222,7 +220,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
       next: () => {
         this.analytics.trackCancelImport(id, 'consulta_detail');
         this.cancelando.set(false);
-        this.importDataStore.invalidate('historico');
+        this.cnpjImportService.invalidarCache('historico');
         this.router.navigate(['/app']);
       },
       error: (msg: string) => {
@@ -318,7 +316,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
         this.aplicarProgresso(job);
         if (this.jobFinalizado(job.status)) {
           this.pararPollingLocal();
-          this.importDataStore.invalidate('historico');
+          this.cnpjImportService.invalidarCache('historico');
           this.cnpjImportService.obterHistoricoDetalhe(jobId).subscribe({
             next: (completo) => this.aplicarJob(completo),
             error: () => {}
@@ -367,5 +365,6 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.pararPollingLocal();
+    this.unsubscribeMonitor?.();
   }
 }

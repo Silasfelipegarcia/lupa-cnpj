@@ -8,7 +8,7 @@ import { AuthResponse, ChangePasswordRequest, LoginRequest, RegisterRequest, Use
 import { LogoutReason } from '../models/analytics.model';
 import { AuthStorage } from './auth-storage';
 import { AnalyticsService } from './analytics.service';
-import { ImportDataStore } from './import-data-store.service';
+import { CnpjImportService } from './cnpj-import.service';
 import { getJwtExpirationMs, isJwtExpired } from '../utils/jwt.util';
 
 @Injectable({ providedIn: 'root' })
@@ -16,7 +16,7 @@ export class AuthService {
 
   private readonly apiBase = `${environment.apiUrl}/auth`;
   private readonly analytics = inject(AnalyticsService);
-  private readonly importDataStore = inject(ImportDataStore);
+  private readonly cnpjImportService = inject(CnpjImportService);
 
   readonly currentUser = signal<User | null>(AuthStorage.recuperarUsuario());
 
@@ -134,7 +134,7 @@ export class AuthService {
     AuthStorage.limpar();
     this.currentUser.set(null);
     this.lastRefreshAt = 0;
-    this.importDataStore.invalidate('all');
+    this.cnpjImportService.invalidarCache('all');
     this.analytics.clearUser();
   }
 

@@ -1,37 +1,27 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { ImportJobResponse, ImportJobSummary, CnpjResultadoItem } from '../models/import-job.model';
 import { CnpjConfig, DownloadFiltros, ListaSalva } from '../models/cnpj-config.model';
-
-interface ImportJobSummaryApi {
-  jobId: string;
-  status: string;
-  arquivo: string;
-  total: number;
-  processados: number;
-  sucesso: number;
-  erros: number;
-  percentual: number;
-  mensagem: string;
-  createdAt?: string;
-  completedAt?: string;
-}
+import { ImportCacheKey, ImportDataStore } from './import-data-store.service';
 
 @Injectable({ providedIn: 'root' })
 export class CnpjImportService {
 
   private readonly apiBase = environment.apiUrl;
   private readonly importUrl = `${environment.apiUrl}/cnpj/import`;
+  private readonly store = inject(ImportDataStore);
 
   constructor(private http: HttpClient) {}
 
-  obterConfiguracao(): Observable<CnpjConfig> {
-    return this.http.get<CnpjConfig>(`${this.apiBase}/cnpj/config`).pipe(
-      catchError(this.tratarErro)
-    );
+  invalidarCache(keys: ImportCacheKey | ImportCacheKey[]): void {
+    this.store.invalidate(keys);
+  }
+
+  obterConfiguracao(force = false): Observable<CnpjConfig> {
+    return this.store.getConfig(force);
   }
 
   iniciarImportacao(arquivo: File): Observable<ImportJobResponse> {
@@ -56,11 +46,8 @@ export class CnpjImportService {
     );
   }
 
-  obterHistorico(): Observable<ImportJobSummary[]> {
-    return this.http.get<ImportJobSummaryApi[]>(`${this.importUrl}/historico`).pipe(
-      map((items) => items.map((item) => this.normalizarResumo(item))),
-      catchError(this.tratarErro)
-    );
+  obterHistorico(force = false): Observable<ImportJobSummary[]> {
+    return this.store.getHistorico(force);
   }
 
   obterHistoricoDetalhe(jobId: string): Observable<ImportJobResponse> {
@@ -69,10 +56,8 @@ export class CnpjImportService {
     );
   }
 
-  listarListasSalvas(): Observable<ListaSalva[]> {
-    return this.http.get<ListaSalva[]>(`${this.importUrl}/listas-salvas`).pipe(
-      catchError(this.tratarErro)
-    );
+  listarListasSalvas(force = false): Observable<ListaSalva[]> {
+    return this.store.getListasSalvas(force);
   }
 
   salvarLista(jobId: string, nomeLista: string): Observable<void> {
@@ -142,22 +127,6 @@ export class CnpjImportService {
     link.download = nomeArquivo;
     link.click();
     window.URL.revokeObjectURL(url);
-  }
-
-  private normalizarResumo(item: ImportJobSummaryApi): ImportJobSummary {
-    return {
-      jobId: String(item.jobId),
-      status: item.status as ImportJobSummary['status'],
-      arquivo: item.arquivo,
-      total: item.total,
-      processados: item.processados,
-      sucesso: item.sucesso,
-      erros: item.erros,
-      percentual: item.percentual,
-      mensagem: item.mensagem,
-      createdAt: item.createdAt,
-      completedAt: item.completedAt
-    };
   }
 
   private tratarErro(error: HttpErrorResponse): Observable<never> {

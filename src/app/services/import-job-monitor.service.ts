@@ -6,6 +6,8 @@ import { ImportJobResponse } from '../models/import-job.model';
 import { BrowserNotificationService } from './browser-notification.service';
 import { CnpjImportService } from './cnpj-import.service';
 
+type JobUpdateListener = (job: ImportJobResponse) => void;
+
 @Injectable({ providedIn: 'root' })
 export class ImportJobMonitorService {
 
@@ -14,6 +16,7 @@ export class ImportJobMonitorService {
   private pollingSubscription?: Subscription;
   private jobIdMonitorado?: string;
   private notificacaoEnviada = false;
+  private readonly listeners = new Set<JobUpdateListener>();
 
   constructor(
     private cnpjImportService: CnpjImportService,
@@ -48,8 +51,14 @@ export class ImportJobMonitorService {
     return this.jobIdMonitorado === jobId && !!this.pollingSubscription;
   }
 
+  onJobUpdate(listener: JobUpdateListener): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
   private processarAtualizacao(job: ImportJobResponse): void {
     this.jobAtual.set(job);
+    this.listeners.forEach((listener) => listener(job));
 
     if (!this.jobFinalizado(job.status) || this.notificacaoEnviada) {
       return;

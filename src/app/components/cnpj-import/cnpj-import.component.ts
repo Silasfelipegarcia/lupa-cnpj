@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CnpjImportService } from '../../services/cnpj-import.service';
-import { ImportDataStore } from '../../services/import-data-store.service';
 import { BrowserNotificationService } from '../../services/browser-notification.service';
 import { ImportJobMonitorService } from '../../services/import-job-monitor.service';
 import { AuthService } from '../../services/auth.service';
@@ -80,7 +79,6 @@ export class CnpjImportComponent implements OnInit {
 
   constructor(
     private cnpjImportService: CnpjImportService,
-    private importDataStore: ImportDataStore,
     private router: Router,
     private notificationService: BrowserNotificationService,
     private jobMonitor: ImportJobMonitorService,
@@ -139,7 +137,7 @@ export class CnpjImportComponent implements OnInit {
         this.arquivoSelecionado.set(null);
         this.cancelando.set(false);
         this.mensagem.set('Consulta cancelada. Selecione a planilha correta e envie novamente.');
-        this.importDataStore.invalidate('historico');
+        this.cnpjImportService.invalidarCache('historico');
         this.authService.refreshMe(true).subscribe({ error: () => {} });
       },
       error: (erro: string) => {
@@ -151,7 +149,7 @@ export class CnpjImportComponent implements OnInit {
   }
 
   private carregarConfiguracao(): void {
-    this.importDataStore.getConfig().subscribe({
+    this.cnpjImportService.obterConfiguracao().subscribe({
       next: (config) => {
         this.config.set(config);
         this.carregandoConfig.set(false);
@@ -278,7 +276,7 @@ export class CnpjImportComponent implements OnInit {
     this.cnpjImportService.iniciarImportacao(arquivo).subscribe({
       next: (job) => {
         this.analytics.trackFirstImport(job.jobId, arquivo.name);
-        this.importDataStore.invalidate('historico');
+        this.cnpjImportService.invalidarCache('historico');
         this.authService.refreshMe(true).subscribe({ error: () => {} });
         this.router.navigate(['/consulta', job.jobId]);
       },

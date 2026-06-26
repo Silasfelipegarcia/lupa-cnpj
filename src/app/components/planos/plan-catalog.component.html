@@ -14,7 +14,10 @@
 
   @if (authService.isAuthenticated() && !pagamentosConfigurados()) {
     <div class="alert alert-error">
-      Pagamentos não configurados no servidor. Configure MERCADOPAGO_PUBLIC_KEY e MERCADOPAGO_ACCESS_TOKEN na API (Railway).
+      Pagamentos não configurados na API. Em local: crie o arquivo <strong>.env</strong> na pasta
+      <strong>lupa-cnpj-api</strong> (copie de <code>.env.example</code>) com
+      <code>MERCADOPAGO_PUBLIC_KEY</code> e <code>MERCADOPAGO_ACCESS_TOKEN</code>, depois reinicie a API
+      (IntelliJ ou <code>./scripts/start-local.sh</code>).
     </div>
   }
 

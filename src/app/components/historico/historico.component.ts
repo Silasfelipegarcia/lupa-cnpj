@@ -1,9 +1,8 @@
-import { Component, OnInit, effect, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CnpjImportService } from '../../services/cnpj-import.service';
-import { ImportDataStore } from '../../services/import-data-store.service';
 import { ImportJobMonitorService } from '../../services/import-job-monitor.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
@@ -18,7 +17,7 @@ import { AppHeaderComponent } from '../app-header/app-header.component';
   templateUrl: './historico.component.html',
   styleUrl: './historico.component.scss'
 })
-export class HistoricoComponent implements OnInit {
+export class HistoricoComponent implements OnInit, OnDestroy {
 
   consultas = signal<ImportJobSummary[]>([]);
   listasSalvas = signal<ListaSalva[]>([]);
@@ -30,29 +29,30 @@ export class HistoricoComponent implements OnInit {
 
   consultasFiltradas = signal<ImportJobSummary[]>([]);
 
+  private unsubscribeMonitor?: () => void;
+
   constructor(
     private cnpjImportService: CnpjImportService,
-    private importDataStore: ImportDataStore,
     private router: Router,
     private jobMonitor: ImportJobMonitorService,
     private analytics: AnalyticsService
-  ) {
-    effect(() => {
-      const job = this.jobMonitor.jobAtual();
-      if (!job) {
-        return;
-      }
+  ) {}
+
+  ngOnInit(): void {
+    this.carregarHistorico();
+    this.carregarListasSalvas();
+
+    this.unsubscribeMonitor = this.jobMonitor.onJobUpdate((job) => {
       this.atualizarItemNaLista(job.jobId, job.status, job.processados, job.percentual);
       if (this.jobFinalizado(job.status)) {
-        this.importDataStore.invalidate('historico');
+        this.cnpjImportService.invalidarCache('historico');
         this.carregarHistorico(true);
       }
     });
   }
 
-  ngOnInit(): void {
-    this.carregarHistorico();
-    this.carregarListasSalvas();
+  ngOnDestroy(): void {
+    this.unsubscribeMonitor?.();
   }
 
   onBuscaChange(valor: string): void {
@@ -72,7 +72,7 @@ export class HistoricoComponent implements OnInit {
 
   carregarHistorico(force = false): void {
     this.carregando.set(true);
-    this.importDataStore.getHistorico(force).subscribe({
+    this.cnpjImportService.obterHistorico(force).subscribe({
       next: (items) => {
         this.consultas.set(items);
         this.consultasFiltradas.set(items);
@@ -91,7 +91,7 @@ export class HistoricoComponent implements OnInit {
   }
 
   carregarListasSalvas(force = false): void {
-    this.importDataStore.getListasSalvas(force).subscribe({
+    this.cnpjImportService.listarListasSalvas(force).subscribe({
       next: (listas) => this.listasSalvas.set(listas),
       error: () => {}
     });
@@ -129,7 +129,7 @@ export class HistoricoComponent implements OnInit {
       next: () => {
         this.analytics.trackCancelImport(jobId, 'history_list');
         this.cancelandoId.set(null);
-        this.importDataStore.invalidate('historico');
+        this.cnpjImportService.invalidarCache('historico');
         this.carregarHistorico(true);
       },
       error: (msg: string) => {
@@ -150,7 +150,7 @@ export class HistoricoComponent implements OnInit {
       next: (job) => {
         this.reprocessandoId.set(null);
         this.analytics.trackReprocess(jobId, job.jobId);
-        this.importDataStore.invalidate('historico');
+        this.cnpjImportService.invalidarCache('historico');
         this.router.navigate(['/consulta', job.jobId]);
       },
       error: (msg: string) => {

@@ -1,4 +1,4 @@
-import { APP_BOOTSTRAP_LISTENER, ApplicationConfig, PLATFORM_ID, afterNextRender, inject, provideZoneChangeDetection } from '@angular/core';
+import { APP_BOOTSTRAP_LISTENER, ApplicationConfig, EnvironmentInjector, PLATFORM_ID, afterNextRender, inject, provideZoneChangeDetection, runInInjectionContext } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { provideRouter, TitleStrategy } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -17,19 +17,22 @@ function bootstrapAnalytics(): () => void {
   const routerAnalytics = inject(AnalyticsRouterService);
   const consentService = inject(CookieConsentService);
   const platformId = inject(PLATFORM_ID);
+  const injector = inject(EnvironmentInjector);
 
   return () => {
     if (!isPlatformBrowser(platformId)) {
       return;
     }
 
-    afterNextRender(() => {
-      consentService.syncFromStorage();
-      analytics.initIfConsented();
-      routerAnalytics.init();
-      if (consentService.hasAnalyticsConsent()) {
-        routerAnalytics.trackCurrentPage();
-      }
+    runInInjectionContext(injector, () => {
+      afterNextRender(() => {
+        consentService.syncFromStorage();
+        analytics.initIfConsented();
+        routerAnalytics.init();
+        if (consentService.hasAnalyticsConsent()) {
+          routerAnalytics.trackCurrentPage();
+        }
+      });
     });
   };
 }
