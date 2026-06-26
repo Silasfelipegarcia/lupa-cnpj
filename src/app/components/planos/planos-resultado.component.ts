@@ -11,7 +11,7 @@ import { switchMap, take } from 'rxjs/operators';
   imports: [RouterLink, AppHeaderComponent],
   template: `
     <div class="app-page">
-      <div class="app-container app-container--sm">
+      <div class="app-container app-container--lg">
         <app-header />
         <main class="card resultado-card">
           @if (tipo === 'sucesso') {

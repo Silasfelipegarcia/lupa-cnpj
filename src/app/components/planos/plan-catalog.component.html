@@ -64,7 +64,16 @@
         }
         <div class="plan-card__header">
           <h2>{{ item.nome }}</h2>
-          <span class="plan-price">{{ item.priceLabel }}</span>
+          @if (cotacao(item.plan); as quote) {
+            @if (quote.upgrade) {
+              <span class="plan-price">{{ quote.amountLabel }}</span>
+              <span class="plan-price-note">{{ quote.description }}</span>
+            } @else {
+              <span class="plan-price">{{ item.priceLabel }}</span>
+            }
+          } @else {
+            <span class="plan-price">{{ item.priceLabel }}</span>
+          }
         </div>
         @if (item.descricao) {
           <p class="plan-desc">{{ item.descricao }}</p>
@@ -101,9 +110,13 @@
               @if (processando() === item.plan) {
                 Processando...
               } @else if (cartoes().length > 0 && cvv.length >= 3) {
-                Pagar com cartão salvo
+                @if (cotacao(item.plan!)?.upgrade) {
+                  Upgrade com cartão salvo
+                } @else {
+                  Pagar com cartão salvo
+                }
               } @else {
-                Assinar (checkout)
+                {{ rotuloAssinatura(item.plan!) }}
               }
             </button>
           } @else {
@@ -149,7 +162,8 @@
 }
 
 <p class="footer-note">
-  Pagamento seguro via Mercado Pago. Cancele quando quiser.
+  Pagamento seguro via Mercado Pago. Cancele quando quiser em
+  <a routerLink="/conta/plano">Conta → Plano</a>.
   @if (!authService.isAuthenticated()) {
     <a routerLink="/login"> Entre</a> para assinar um plano pago.
   }

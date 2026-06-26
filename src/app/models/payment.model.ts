@@ -34,3 +34,26 @@ export interface ChargePlanResponse {
   statusLabel: string;
   planNome: string;
 }
+
+export interface SubscriptionStatusResponse {
+  status: string;
+  plan?: 'PREMIUM' | 'PRO_PLUS' | 'FREE';
+  planNome?: string;
+  validUntil?: string;
+  cancelledAt?: string;
+  autoRenew: boolean;
+  daysRemaining: number;
+  defaultCardId?: string;
+  podeCancelar: boolean;
+  podeReativar: boolean;
+}
+
+export interface PlanQuote {
+  plan: 'PREMIUM' | 'PRO_PLUS';
+  amountCents: number;
+  amountLabel: string;
+  fullPriceCents: number;
+  fullPriceLabel: string;
+  upgrade: boolean;
+  description?: string;
+}

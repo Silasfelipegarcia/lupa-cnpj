@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 import { PaymentService } from '../../services/payment.service';
 import { PaymentHistoryItem, SavedCard } from '../../models/payment.model';
 import { CardRegisterComponent } from '../payment/card-register.component';
@@ -13,6 +14,7 @@ import { CardRegisterComponent } from '../payment/card-register.component';
 })
 export class ContaCobrancaComponent implements OnInit {
   private readonly paymentService = inject(PaymentService);
+  readonly authService = inject(AuthService);
 
   carregando = signal(true);
   historico = signal<PaymentHistoryItem[]>([]);
@@ -22,6 +24,7 @@ export class ContaCobrancaComponent implements OnInit {
   removendo = signal<string | null>(null);
 
   ngOnInit(): void {
+    this.authService.refreshMe().subscribe({ error: () => {} });
     this.recarregar();
   }
 
@@ -62,6 +65,15 @@ export class ContaCobrancaComponent implements OnInit {
     if (this.removendo()) {
       return;
     }
+    const sub = this.authService.currentUser()?.subscription;
+    if (sub?.autoRenew && sub.defaultCardId === cardId) {
+      const ok = confirm(
+        'Este é o cartão usado na renovação automática. Removê-lo pode impedir a próxima cobrança. Deseja continuar?'
+      );
+      if (!ok) {
+        return;
+      }
+    }
     this.removendo.set(cardId);
     this.paymentService.removerCartao(cardId).subscribe({
       next: () => {
@@ -95,5 +107,14 @@ export class ContaCobrancaComponent implements OnInit {
       return 'status-processando';
     }
     return 'status-erro';
+  }
+
+  isCartaoPadrao(cardId: string): boolean {
+    return this.authService.currentUser()?.subscription?.defaultCardId === cardId;
+  }
+
+  renovacaoAtiva(): boolean {
+    const sub = this.authService.currentUser()?.subscription;
+    return !!sub?.autoRenew && sub.status === 'ACTIVE';
   }
 }

@@ -17,6 +17,51 @@
       }
     </div>
 
+    @if (assinatura(); as sub) {
+      @if (sub.status === 'ACTIVE') {
+        <p class="subscription-note">
+          Próxima cobrança em <strong>{{ formatarData(sub.validUntil) }}</strong>
+          @if (sub.daysRemaining > 0) {
+            <span class="subscription-note__muted">({{ sub.daysRemaining }} dias restantes)</span>
+          }
+        </p>
+      } @else if (sub.status === 'CANCELLED_PENDING') {
+        <p class="subscription-note subscription-note--warning">
+          Renovação cancelada. Seu acesso continua até <strong>{{ formatarData(sub.validUntil) }}</strong>.
+        </p>
+      }
+    }
+
+    @if (!authService.isMaster() && assinatura()?.podeCancelar) {
+      <div class="subscription-actions">
+        <button
+          type="button"
+          class="btn btn-outline btn-sm"
+          (click)="abrirConfirmacaoCancelamento()"
+          [disabled]="processandoAssinatura()"
+        >
+          Cancelar assinatura
+        </button>
+      </div>
+    }
+
+    @if (!authService.isMaster() && assinatura()?.podeReativar) {
+      <div class="subscription-actions">
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          (click)="reativarAssinatura()"
+          [disabled]="processandoAssinatura()"
+        >
+          @if (processandoAssinatura()) {
+            Processando...
+          } @else {
+            Manter assinatura
+          }
+        </button>
+      </div>
+    }
+
     @if (user.usage && !user.usage.master) {
       <div class="usage-meters">
         <div class="usage-meter">
@@ -48,6 +93,44 @@
       </div>
     }
   </section>
+}
+
+@if (mensagemAssinatura()) {
+  <div class="alert alert-info">{{ mensagemAssinatura() }}</div>
+}
+@if (erroAssinatura()) {
+  <div class="alert alert-error">{{ erroAssinatura() }}</div>
+}
+
+@if (confirmarCancelamento()) {
+  <div class="modal-backdrop" (click)="fecharConfirmacaoCancelamento()">
+    <div class="modal card" (click)="$event.stopPropagation()">
+      <h3>Cancelar assinatura?</h3>
+      <p>
+        Você continuará com acesso ao plano
+        <strong>{{ authService.currentUser()?.planNome }}</strong>
+        até <strong>{{ formatarData(assinatura()?.validUntil) }}</strong>.
+        Depois disso voltará ao Free e não haverá novas cobranças.
+      </p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn-secondary" (click)="fecharConfirmacaoCancelamento()">
+          Voltar
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline"
+          (click)="cancelarAssinatura()"
+          [disabled]="processandoAssinatura()"
+        >
+          @if (processandoAssinatura()) {
+            Cancelando...
+          } @else {
+            Confirmar cancelamento
+          }
+        </button>
+      </div>
+    </div>
+  </div>
 }
 
 <section class="catalog-section">

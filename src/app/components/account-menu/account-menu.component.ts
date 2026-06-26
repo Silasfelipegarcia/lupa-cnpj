@@ -30,8 +30,8 @@ import { AuthService } from '../../services/auth.service';
             </span>
           </div>
           <nav class="account-dropdown-nav">
-            <a routerLink="/conta/plano" role="menuitem" (click)="fechar()">Plano e uso</a>
             <a routerLink="/conta/perfil" role="menuitem" (click)="fechar()">Dados da conta</a>
+            <a routerLink="/conta/plano" role="menuitem" (click)="fechar()">Plano e uso</a>
             <a routerLink="/conta/cobranca" role="menuitem" (click)="fechar()">Cobrança</a>
           </nav>
           @if (mostrarUpgrade()) {

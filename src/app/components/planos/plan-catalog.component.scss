@@ -141,6 +141,13 @@
   letter-spacing: -0.02em;
 }
 
+.plan-price-note {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
 .plan-card--featured .plan-price {
   color: var(--primary);
 }

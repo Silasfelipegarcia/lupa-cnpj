@@ -5,6 +5,7 @@
 
 @if (authService.currentUser(); as user) {
   <section class="card profile-card">
+    <h2 class="section-title">Seus dados</h2>
     <dl class="profile-list">
       <div class="profile-row">
         <dt>Nome</dt>
@@ -20,11 +21,72 @@
       </div>
       <div class="profile-row">
         <dt>Plano</dt>
-        <dd>{{ user.planNome || 'Free' }}</dd>
+        <dd>
+          {{ user.planNome || 'Free' }}
+          <a routerLink="/conta/plano" class="profile-link">Gerenciar plano</a>
+        </dd>
+      </div>
+      <div class="profile-row">
+        <dt>Membro desde</dt>
+        <dd>{{ formatarData(user.createdAt) }}</dd>
       </div>
     </dl>
     <p class="profile-note">
-      Seus dados são usados apenas para autenticação, cobrança e operação do serviço, em conformidade com a LGPD.
+      E-mail e CPF não podem ser alterados aqui. Seus dados são usados apenas para autenticação,
+      cobrança e operação do serviço, em conformidade com a LGPD.
     </p>
+  </section>
+
+  <section class="card password-card">
+    <h2 class="section-title">Alterar senha</h2>
+    <form class="password-form" (ngSubmit)="alterarSenha()">
+      <label class="field">
+        <span>Senha atual</span>
+        <input
+          type="password"
+          name="senhaAtual"
+          [(ngModel)]="senhaAtual"
+          autocomplete="current-password"
+          required
+        />
+      </label>
+      <label class="field">
+        <span>Nova senha</span>
+        <input
+          type="password"
+          name="senhaNova"
+          [(ngModel)]="senhaNova"
+          autocomplete="new-password"
+          minlength="8"
+          required
+        />
+      </label>
+      <label class="field">
+        <span>Confirmar nova senha</span>
+        <input
+          type="password"
+          name="confirmarSenha"
+          [(ngModel)]="confirmarSenha"
+          autocomplete="new-password"
+          minlength="8"
+          required
+        />
+      </label>
+
+      @if (mensagemSenha()) {
+        <div class="alert alert-info">{{ mensagemSenha() }}</div>
+      }
+      @if (erroSenha()) {
+        <div class="alert alert-error">{{ erroSenha() }}</div>
+      }
+
+      <button type="submit" class="btn btn-primary" [disabled]="salvandoSenha()">
+        @if (salvandoSenha()) {
+          Salvando...
+        } @else {
+          Salvar nova senha
+        }
+      </button>
+    </form>
   </section>
 }

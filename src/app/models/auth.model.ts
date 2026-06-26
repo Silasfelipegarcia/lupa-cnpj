@@ -1,6 +1,21 @@
 export type UserRole = 'USER' | 'ADMIN';
 export type SubscriptionPlan = 'FREE' | 'PREMIUM' | 'PRO_PLUS';
 
+export type SubscriptionStatusType = 'NONE' | 'ACTIVE' | 'CANCELLED_PENDING' | 'EXPIRED';
+
+export interface SubscriptionInfo {
+  status: SubscriptionStatusType;
+  plan?: SubscriptionPlan;
+  planNome?: string;
+  validUntil?: string;
+  cancelledAt?: string;
+  autoRenew: boolean;
+  daysRemaining: number;
+  defaultCardId?: string;
+  podeCancelar: boolean;
+  podeReativar: boolean;
+}
+
 export interface PlanUsage {
   maxRowsPerFile: number;
   maxBatchSearchesPerDay: number | null;
@@ -21,10 +36,12 @@ export interface User {
   nome: string;
   email: string;
   cpf: string;
+  createdAt?: string;
   role?: UserRole;
   plan?: SubscriptionPlan;
   planNome?: string;
   usage?: PlanUsage;
+  subscription?: SubscriptionInfo;
 }
 
 export interface AuthResponse {
@@ -42,6 +59,11 @@ export interface RegisterRequest {
   email: string;
   cpf: string;
   password: string;
+}
+
+export interface ChangePasswordRequest {
+  senhaAtual: string;
+  senhaNova: string;
 }
 
 export interface PlanCatalogItem {
@@ -66,4 +88,7 @@ export interface CheckoutResponse {
   preferenceId: string;
   initPoint: string;
   sandboxInitPoint?: string;
+  amountCents?: number;
+  amountLabel?: string;
+  upgrade?: boolean;
 }

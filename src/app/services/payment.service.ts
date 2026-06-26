@@ -8,7 +8,9 @@ import {
   ChargePlanResponse,
   PaymentConfig,
   PaymentHistoryItem,
-  SavedCard
+  PlanQuote,
+  SavedCard,
+  SubscriptionStatusResponse
 } from '../models/payment.model';
 
 @Injectable({ providedIn: 'root' })
@@ -50,6 +52,30 @@ export class PaymentService {
 
   cobrarPlano(body: ChargePlanRequest): Observable<ChargePlanResponse> {
     return this.http.post<ChargePlanResponse>(`${this.apiBase}/payments/charge`, body).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  obterCotacao(plan: 'PREMIUM' | 'PRO_PLUS'): Observable<PlanQuote> {
+    return this.http.get<PlanQuote>(`${this.apiBase}/payments/quote`, { params: { plan } }).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  obterAssinatura(): Observable<SubscriptionStatusResponse> {
+    return this.http.get<SubscriptionStatusResponse>(`${this.apiBase}/payments/subscription`).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  cancelarAssinatura(): Observable<SubscriptionStatusResponse> {
+    return this.http.post<SubscriptionStatusResponse>(`${this.apiBase}/payments/subscription/cancel`, {}).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  reativarAssinatura(): Observable<SubscriptionStatusResponse> {
+    return this.http.post<SubscriptionStatusResponse>(`${this.apiBase}/payments/subscription/reactivate`, {}).pipe(
       catchError(this.tratarErro)
     );
   }

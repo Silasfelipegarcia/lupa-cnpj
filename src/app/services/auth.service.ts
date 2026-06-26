@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, tap, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { AuthResponse, LoginRequest, RegisterRequest, User } from '../models/auth.model';
+import { AuthResponse, ChangePasswordRequest, LoginRequest, RegisterRequest, User } from '../models/auth.model';
 import { AuthStorage } from './auth-storage';
 import { getJwtExpirationMs, isJwtExpired } from '../utils/jwt.util';
 
@@ -84,6 +84,12 @@ export class AuthService {
 
   refreshMe(): Observable<User> {
     return this.carregarPerfil();
+  }
+
+  alterarSenha(request: ChangePasswordRequest): Observable<void> {
+    return this.http.put<void>(`${this.apiBase}/password`, request).pipe(
+      catchError(this.tratarErro)
+    );
   }
 
   isMaster(): boolean {

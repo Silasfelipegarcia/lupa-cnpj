@@ -74,6 +74,17 @@
   color: var(--text-muted);
 }
 
+.card-item__badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--primary, #6366f1);
+}
+
 .card-item__meta {
   font-size: 0.82rem;
   color: var(--text-secondary);

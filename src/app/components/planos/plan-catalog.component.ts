@@ -2,12 +2,24 @@ import { Component, OnInit, computed, inject, input, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { loadMercadoPago } from '@mercadopago/sdk-js';
 import { AuthService } from '../../services/auth.service';
 import { PlanService } from '../../services/plan.service';
 import { PaymentService } from '../../services/payment.service';
 import { AnalyticsService } from '../../services/analytics.service';
-import { PlanCatalogItem, SubscriptionPlan } from '../../models/auth.model';
-import { SavedCard } from '../../models/payment.model';
+import { PlanCatalogItem, SubscriptionPlan, CheckoutResponse } from '../../models/auth.model';
+import { PlanQuote, SavedCard } from '../../models/payment.model';
+
+declare global {
+  interface Window {
+    MercadoPago: new (publicKey: string, options?: { locale?: string }) => {
+      createCardToken: (data: Record<string, string>) => Promise<{ id?: string }>;
+      fields?: {
+        createCardToken: (data: Record<string, string>) => Promise<{ id?: string }>;
+      };
+    };
+  }
+}
 
 @Component({
   selector: 'app-plan-catalog',
@@ -36,7 +48,14 @@ export class PlanCatalogComponent implements OnInit {
   cartoes = signal<SavedCard[]>([]);
   cartaoSelecionado = signal('');
   pagamentosConfigurados = signal(true);
+  mpPublicKey = signal('');
+  cotacoes = signal<Partial<Record<SubscriptionPlan, PlanQuote>>>({});
   cvv = '';
+
+  private mp: {
+    createCardToken: (data: Record<string, string>) => Promise<{ id?: string }>;
+    fields?: { createCardToken: (data: Record<string, string>) => Promise<{ id?: string }> };
+  } | null = null;
 
   planosPrincipais = computed(() => this.catalogo().filter((i) => !i.contatoComercial));
   planoBusiness = computed(() => this.catalogo().find((i) => i.contatoComercial));
@@ -55,7 +74,18 @@ export class PlanCatalogComponent implements OnInit {
 
     if (this.authService.isAuthenticated()) {
       this.paymentService.obterConfig().subscribe({
-        next: (config) => this.pagamentosConfigurados.set(config.configured && !!config.publicKey),
+        next: async (config) => {
+          this.mpPublicKey.set(config.publicKey ?? '');
+          this.pagamentosConfigurados.set(config.configured && !!config.publicKey);
+          if (config.configured && config.publicKey) {
+            try {
+              await loadMercadoPago();
+              this.mp = new window.MercadoPago(config.publicKey, { locale: 'pt-BR' });
+            } catch {
+              this.mp = null;
+            }
+          }
+        },
         error: () => this.pagamentosConfigurados.set(false)
       });
 
@@ -68,7 +98,43 @@ export class PlanCatalogComponent implements OnInit {
         },
         error: () => {}
       });
+
+      this.carregarCotacoes();
     }
+  }
+
+  private carregarCotacoes(): void {
+    const planos: Array<'PREMIUM' | 'PRO_PLUS'> = ['PREMIUM', 'PRO_PLUS'];
+    for (const plan of planos) {
+      this.paymentService.obterCotacao(plan).subscribe({
+        next: (quote) => {
+          this.cotacoes.update((atual) => ({ ...atual, [plan]: quote }));
+        },
+        error: () => {}
+      });
+    }
+  }
+
+  cotacao(plan?: SubscriptionPlan): PlanQuote | undefined {
+    if (!plan) {
+      return undefined;
+    }
+    return this.cotacoes()[plan];
+  }
+
+  rotuloAssinatura(plan: SubscriptionPlan): string {
+    const quote = this.cotacao(plan);
+    if (quote?.upgrade) {
+      return `Upgrade por ${quote.amountLabel}`;
+    }
+    return 'Assinar (checkout)';
+  }
+
+  private urlCheckoutMercadoPago(checkout: CheckoutResponse): string | null {
+    const sandbox = checkout.sandboxInitPoint;
+    const producao = checkout.initPoint;
+    const isTeste = this.mpPublicKey().startsWith('TEST-');
+    return isTeste ? (sandbox || producao || null) : (producao || sandbox || null);
   }
 
   planoAtual(): SubscriptionPlan | undefined {
@@ -79,7 +145,18 @@ export class PlanCatalogComponent implements OnInit {
     if (!plan || this.authService.isMaster()) {
       return false;
     }
-    return this.planoAtual() === plan;
+    const user = this.authService.currentUser();
+    if (!user || user.plan !== plan) {
+      return false;
+    }
+    if (plan === 'FREE') {
+      return true;
+    }
+    const sub = user.subscription;
+    if (!sub) {
+      return plan === user.plan;
+    }
+    return sub.status === 'ACTIVE' || sub.status === 'CANCELLED_PENDING';
   }
 
   podeAssinar(item: PlanCatalogItem): boolean {
@@ -149,11 +226,39 @@ export class PlanCatalogComponent implements OnInit {
 
     const cardId = this.cartaoSelecionado();
     if (cardId && this.cvv.trim().length >= 3) {
+      void this.pagarComCartaoSalvo(plan, cardId);
+      return;
+    }
+
+    this.mensagem.set('Redirecionando para o pagamento...');
+    this.planService.iniciarCheckout(plan).subscribe({
+      next: (checkout) => {
+        const url = this.urlCheckoutMercadoPago(checkout);
+        if (!url) {
+          this.erro.set('Checkout indisponível. Cadastre um cartão em Cobrança ou tente mais tarde.');
+          this.processando.set(null);
+          this.mensagem.set('');
+          return;
+        }
+        window.location.href = url;
+      },
+      error: (msg: string) => {
+        this.erro.set(msg);
+        this.processando.set(null);
+        this.mensagem.set('');
+      }
+    });
+  }
+
+  private async pagarComCartaoSalvo(plan: SubscriptionPlan, cardId: string): Promise<void> {
+    this.mensagem.set('Validando cartão...');
+    try {
+      const token = await this.gerarTokenCartaoSalvo(cardId, this.cvv.trim());
       this.mensagem.set('Processando pagamento...');
       this.paymentService.cobrarPlano({
         plan: plan as 'PREMIUM' | 'PRO_PLUS',
-        cardId,
-        securityCode: this.cvv.trim()
+        token,
+        cardId
       }).subscribe({
         next: (result) => {
           this.cvv = '';
@@ -171,26 +276,35 @@ export class PlanCatalogComponent implements OnInit {
           this.mensagem.set('');
         }
       });
-      return;
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Não foi possível validar o cartão. Verifique o CVV.';
+      this.erro.set(msg);
+      this.processando.set(null);
+      this.mensagem.set('');
+    }
+  }
+
+  private async gerarTokenCartaoSalvo(cardId: string, securityCode: string): Promise<string> {
+    if (!this.mp) {
+      await loadMercadoPago();
+      const key = this.mpPublicKey();
+      if (!key) {
+        throw new Error('Mercado Pago não configurado.');
+      }
+      this.mp = new window.MercadoPago(key, { locale: 'pt-BR' });
     }
 
-    this.mensagem.set('Redirecionando para o pagamento...');
-    this.planService.iniciarCheckout(plan).subscribe({
-      next: (checkout) => {
-        const url = checkout.initPoint || checkout.sandboxInitPoint;
-        if (!url) {
-          this.erro.set('Checkout indisponível. Cadastre um cartão em Cobrança ou tente mais tarde.');
-          this.processando.set(null);
-          this.mensagem.set('');
-          return;
-        }
-        window.location.href = url;
-      },
-      error: (msg: string) => {
-        this.erro.set(msg);
-        this.processando.set(null);
-        this.mensagem.set('');
-      }
-    });
+    const payload = { cardId, securityCode };
+    let tokenResult: { id?: string } | undefined;
+    if (this.mp.fields?.createCardToken) {
+      tokenResult = await this.mp.fields.createCardToken(payload);
+    } else {
+      tokenResult = await this.mp.createCardToken(payload);
+    }
+
+    if (!tokenResult?.id) {
+      throw new Error('Não foi possível validar o cartão. Verifique o CVV.');
+    }
+    return tokenResult.id;
   }
 }

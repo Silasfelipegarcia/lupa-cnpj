@@ -18,12 +18,20 @@
   </p>
 
   @if (cartoes().length > 0) {
+    @if (renovacaoAtiva() && !authService.currentUser()?.subscription?.defaultCardId) {
+      <div class="alert alert-error">
+        Cadastre um cartão para a renovação automática da assinatura.
+      </div>
+    }
     <ul class="card-list">
       @for (card of cartoes(); track card.id) {
         <li class="card-item">
           <div class="card-item__info">
             <span class="card-item__brand">{{ rotuloBandeira(card.brand) }}</span>
             <strong>•••• {{ card.lastFourDigits }}</strong>
+            @if (isCartaoPadrao(card.id)) {
+              <span class="card-item__badge">Renovação automática</span>
+            }
             <span class="card-item__meta">
               {{ card.expirationMonth }}/{{ card.expirationYear }}
               @if (card.holderName) {

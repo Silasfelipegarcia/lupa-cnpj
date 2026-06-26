@@ -9,6 +9,9 @@ declare global {
   interface Window {
     MercadoPago: new (publicKey: string, options?: { locale?: string }) => {
       createCardToken: (data: Record<string, string>) => Promise<{ id?: string }>;
+      fields?: {
+        createCardToken: (data: Record<string, string>) => Promise<{ id?: string }>;
+      };
     };
   }
 }

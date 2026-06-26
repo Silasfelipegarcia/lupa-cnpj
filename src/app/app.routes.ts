@@ -31,9 +31,9 @@ export const routes: Routes = [
     component: ContaShellComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'plano', pathMatch: 'full' },
-      { path: 'plano', component: ContaPlanoComponent },
+      { path: '', redirectTo: 'perfil', pathMatch: 'full' },
       { path: 'perfil', component: ContaPerfilComponent },
+      { path: 'plano', component: ContaPlanoComponent },
       { path: 'cobranca', component: ContaCobrancaComponent }
     ]
   },
