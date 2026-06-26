@@ -5,7 +5,7 @@
 
 @if (avisoTrial()) {
   <div class="alert alert-info billing-trial-hint">
-    Cadastre um cartão para iniciar o trial de 7 dias do Prospecção. A cobrança de R$ 19/mês só começa após o período de teste.
+    Cadastre um cartão para iniciar o trial de 7 dias do Prospecção. A cobrança de R$ 19,90/mês só começa após o período de teste.
   </div>
 }
 
@@ -31,7 +31,10 @@
             <span class="card-item__brand">{{ rotuloBandeira(card.brand) }}</span>
             <strong>•••• {{ card.lastFourDigits }}</strong>
             @if (isCartaoPadrao(card.id)) {
-              <span class="card-item__badge">Renovação automática</span>
+              <span class="card-item__badge">Cartão padrão</span>
+            }
+            @if (mostrarRenovacaoAutomatica(card.id)) {
+              <span class="card-item__badge card-item__badge--renew">Renovação automática</span>
             }
             <span class="card-item__meta">
               {{ card.expirationMonth }}/{{ card.expirationYear }}

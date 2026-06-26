@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, throwError } from 'rxjs';
@@ -6,12 +6,14 @@ import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { AuthResponse, ChangePasswordRequest, LoginRequest, RegisterRequest, User } from '../models/auth.model';
 import { AuthStorage } from './auth-storage';
+import { AnalyticsService } from './analytics.service';
 import { getJwtExpirationMs, isJwtExpired } from '../utils/jwt.util';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
   private readonly apiBase = `${environment.apiUrl}/auth`;
+  private readonly analytics = inject(AnalyticsService);
 
   readonly currentUser = signal<User | null>(AuthStorage.recuperarUsuario());
 
@@ -105,6 +107,7 @@ export class AuthService {
     this.cancelarAgendamento();
     AuthStorage.limpar();
     this.currentUser.set(null);
+    this.analytics.clearUser();
   }
 
   logoutPorExpiracao(): void {
@@ -153,6 +156,10 @@ export class AuthService {
     }
     if (token) {
       this.agendarLogoutPorExpiracao();
+      const storedUser = AuthStorage.recuperarUsuario();
+      if (storedUser) {
+        this.analytics.setUser(storedUser.id, storedUser.plan);
+      }
     }
 
     if (typeof document !== 'undefined') {
@@ -199,6 +206,7 @@ export class AuthService {
     AuthStorage.salvarToken(response.token, environment.apiUrl);
     AuthStorage.salvarUsuario(response.user);
     this.currentUser.set(response.user);
+    this.analytics.setUser(response.user.id, response.user.plan);
     this.agendarLogoutPorExpiracao();
   }
 

@@ -114,7 +114,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
         const ext = format === 'xlsx' ? 'xlsx' : 'csv';
         this.cnpjImportService.baixarBlob(blob, `lupa_insights_prospeccao_${timestamp}.${ext}`);
-        this.analytics.track('export', { format, jobId: id });
+        this.analytics.trackExport(format, id);
       },
       error: (msg: string) => this.erro.set(msg)
     });
@@ -131,7 +131,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
     this.cnpjImportService.salvarLista(this.jobId(), nome).subscribe({
       next: () => {
         this.salvandoLista.set(false);
-        this.analytics.track('save_list', { jobId: this.jobId(), nome });
+        this.analytics.trackSaveList(this.jobId(), nome);
         this.nomeLista.set('');
         this.erro.set('');
       },
@@ -149,7 +149,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
     this.reprocessando.set(true);
     this.cnpjImportService.reprocessar(this.jobId()).subscribe({
       next: (job) => {
-        this.analytics.track('reprocess', { jobIdOrigem: this.jobId(), jobIdNovo: job.jobId });
+        this.analytics.trackReprocess(this.jobId(), job.jobId);
         this.reprocessando.set(false);
         this.router.navigate(['/consulta', job.jobId]);
       },

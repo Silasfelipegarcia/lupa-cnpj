@@ -9,13 +9,9 @@
     </p>
     @if (usageResumo(); as uso) {
       <p class="usage-banner">
-        <span>{{ uso.batch }}</span>
+        <span>{{ uso.imports }}</span>
         <span>·</span>
         <span>{{ uso.direct }}</span>
-        @if (uso.imports) {
-          <span>·</span>
-          <span>{{ uso.imports }}</span>
-        }
         <a routerLink="/conta/plano" class="usage-link">Ver plano</a>
       </p>
     } @else if (authService.isMaster()) {

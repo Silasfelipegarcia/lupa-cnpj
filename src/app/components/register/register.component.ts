@@ -70,6 +70,7 @@ export class RegisterComponent {
     }
 
     this.enviando.set(true);
+    this.analytics.trackSignUpStart();
 
     this.authService.register({
       nome: this.nome.trim(),
@@ -78,10 +79,14 @@ export class RegisterComponent {
       password: this.password
     }).subscribe({
       next: () => {
-        this.analytics.track('register');
+        const user = this.authService.currentUser();
+        if (user) {
+          this.analytics.trackSignUp(user.id, user.plan);
+        }
         this.redirecionarAposCadastro();
       },
       error: (msg: string) => {
+        this.analytics.trackSignUpError(msg.toLowerCase().replace(/\s+/g, '_').slice(0, 40));
         this.erro.set(msg);
         this.enviando.set(false);
       }

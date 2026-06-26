@@ -8,12 +8,12 @@ import { RouterLink } from '@angular/router';
   template: `
     @if (onNavigate) {
       <button type="button" class="brand" (click)="onNavigate()" [attr.aria-label]="ariaLabel">
-        <img class="brand-icon" src="favicon.svg" width="36" height="36" alt="" />
+        <img class="brand-icon" src="favicon.svg" width="36" height="36" alt="Lupa Insights" />
         <span class="brand-name">Lupa Insights</span>
       </button>
     } @else {
       <a class="brand" [routerLink]="link" [attr.aria-label]="ariaLabel">
-        <img class="brand-icon" src="favicon.svg" width="36" height="36" alt="" />
+        <img class="brand-icon" src="favicon.svg" width="36" height="36" alt="Lupa Insights" />
         <span class="brand-name">Lupa Insights</span>
       </a>
     }

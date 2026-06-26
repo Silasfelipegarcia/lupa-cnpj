@@ -9,7 +9,7 @@
         Testar Prospecção 7 dias grátis (cadastre o cartão)
       }
     </button>
-    <p class="trial-hint">Sem cobrança agora. Após 7 dias, R$ 19/mês no cartão salvo (cancele quando quiser).</p>
+    <p class="trial-hint">Sem cobrança agora. Após 7 dias, R$ 19,90/mês no cartão salvo (cancele quando quiser).</p>
   }
 
   @if (authService.isAuthenticated() && !pagamentosConfigurados()) {
@@ -103,8 +103,8 @@
           </ul>
         } @else {
           <ul class="plan-features">
-            <li>Até <strong>{{ item.maxRowsPerFile | number }}</strong> empresas por arquivo</li>
-            <li>Planilha: <strong>{{ item.batchSearchesPerDay }}</strong></li>
+            <li>Até <strong>{{ item.maxRowsPerFile | number }}</strong> empresas por planilha</li>
+            <li>Planilhas/dia: <strong>{{ item.batchSearchesPerDay }}</strong></li>
             <li>CNPJ único: <strong>{{ item.directCnpjPerDay }}</strong></li>
           </ul>
         }

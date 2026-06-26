@@ -6,6 +6,7 @@ import { GuestCnpjPreviewService } from '../../services/guest-cnpj-preview.servi
 import { buildCnpjResultFields } from '../../utils/cnpj-result-fields';
 import { CnpjPreviewCampo, CnpjPreviewQuota, CnpjPreviewResult } from '../../models/cnpj-preview.model';
 import { AnalyticsService } from '../../services/analytics.service';
+import { LANDING_FAQ } from '../../seo/structured-data';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 
 @Component({
@@ -27,7 +28,7 @@ export class LandingComponent implements OnInit {
 
   readonly stats = [
     { value: '1', label: 'consulta completa grátis', sub: 'sem cadastro' },
-    { value: '10', label: 'empresas/dia no Free', sub: 'planilha' },
+    { value: '1', label: 'planilha/dia no Free', sub: 'até 5 linhas' },
     { value: 'Excel', label: 'export no Prospecção', sub: 'pronto pro CRM' }
   ];
 
@@ -82,6 +83,8 @@ export class LandingComponent implements OnInit {
     before: ['Planilha suja com nomes errados', 'Consulta manual empresa por empresa', 'Lista cheia de inaptas', 'Copy-paste para o CRM'],
     after: ['Dados oficiais em lote', 'Filtro só empresas ATIVAS', 'Telefone, e-mail e CNAE', 'Export Excel em 1 clique']
   };
+
+  readonly faq = LANDING_FAQ;
 
   readonly fields = [
     'CNPJ', 'Razão social', 'Nome fantasia', 'Situação cadastral',
@@ -143,7 +146,7 @@ export class LandingComponent implements OnInit {
     this.guestPreviewService.consultar(digits).subscribe({
       next: (result) => {
         this.resultado.set(result);
-        this.analytics.track('guest_preview_success', { cnpj: digits });
+        this.analytics.trackGuestPreview(digits);
         this.quota.set({
           consultasUsadas: result.consultasUsadas,
           consultasLimite: result.consultasLimite,

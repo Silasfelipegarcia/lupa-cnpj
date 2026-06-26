@@ -39,20 +39,17 @@ export class CnpjImportComponent implements OnInit {
     if (!usage || usage.master) {
       return null;
     }
-    const batchLimite = usage.maxBatchSearchesPerDay;
-    const directLimite = usage.maxDirectCnpjPerDay;
     const importLimite = usage.maxImportJobsPerDay;
+    const importsHoje = usage.importJobsToday ?? 0;
+    const directLimite = usage.maxDirectCnpjPerDay;
 
     return {
-      batch: batchLimite == null
-        ? `${usage.batchSearchesToday} empresas em planilha hoje (ilimitado)`
-        : `${usage.batchSearchesToday} de ${batchLimite} empresas em planilha hoje`,
+      imports: importLimite == null
+        ? `${importsHoje} planilhas hoje (ilimitado)`
+        : `${importsHoje} de ${importLimite} planilhas hoje`,
       direct: directLimite == null
         ? `${usage.directCnpjToday} CNPJs avulsos hoje (ilimitado)`
-        : `${usage.directCnpjToday} de ${directLimite} CNPJs únicos hoje`,
-      imports: importLimite == null
-        ? null
-        : `${usage.importJobsToday ?? 0} de ${importLimite} importação(ões) hoje`
+        : `${usage.directCnpjToday} de ${directLimite} CNPJs únicos hoje`
     };
   });
 
@@ -261,7 +258,7 @@ export class CnpjImportComponent implements OnInit {
 
     this.cnpjImportService.iniciarImportacao(arquivo).subscribe({
       next: (job) => {
-        this.analytics.track('first_import', { jobId: job.jobId, arquivo: arquivo.name });
+        this.analytics.trackFirstImport(job.jobId, arquivo.name);
         this.authService.refreshMe().subscribe({ error: () => {} });
         this.router.navigate(['/consulta', job.jobId]);
       },

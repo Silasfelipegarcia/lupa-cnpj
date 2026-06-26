@@ -1,0 +1,4 @@
+/
+/planos
+/cadastro
+/login

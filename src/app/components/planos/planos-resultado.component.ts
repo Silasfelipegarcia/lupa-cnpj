@@ -3,6 +3,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AppHeaderComponent } from '../app-header/app-header.component';
 import { AuthService } from '../../services/auth.service';
 import { PaymentService } from '../../services/payment.service';
+import { AnalyticsService } from '../../services/analytics.service';
+import { SubscriptionPlan } from '../../models/auth.model';
 import { CheckoutSyncRequest, CHECKOUT_ORDER_STORAGE_KEY } from '../../models/payment.model';
 import { environment } from '../../../environments/environment';
 import { Subscription } from 'rxjs';
@@ -71,6 +73,7 @@ export class PlanosResultadoComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly paymentService = inject(PaymentService);
+  private readonly analytics = inject(AnalyticsService);
 
   private syncSub?: Subscription;
 
@@ -108,7 +111,7 @@ export class PlanosResultadoComponent implements OnInit, OnDestroy {
       next: (result) => {
         sessionStorage.removeItem(CHECKOUT_ORDER_STORAGE_KEY);
         this.authService.refreshMe().subscribe({ error: () => {} });
-        this.aplicarResultado(result.status, result.planNome);
+        this.aplicarResultado(result.status, result.planNome, result.orderId);
       },
       error: (msg: string) => {
         this.mensagemStatus = msg;
@@ -120,17 +123,34 @@ export class PlanosResultadoComponent implements OnInit, OnDestroy {
     });
   }
 
-  private aplicarResultado(status: string, planNome: string): void {
+  private aplicarResultado(status: string, planNome: string, orderId?: string): void {
     const aprovado = status?.toUpperCase() === 'APPROVED';
     this.tipo = aprovado ? 'sucesso' : 'pendente';
-    if (aprovado) {
+    const plan = this.authService.currentUser()?.plan ?? this.inferirPlano(planNome);
+
+    if (aprovado && plan && plan !== 'FREE') {
+      this.analytics.trackPurchase(planNome, plan, orderId);
       this.mensagemStatus = `Plano ${planNome} ativado com sucesso! Você já pode usar os novos limites.`;
       return;
     }
     if (status?.toUpperCase() === 'PENDING') {
+      if (plan && plan !== 'FREE') {
+        this.analytics.trackPurchasePending(plan, orderId);
+      }
       this.mensagemStatus = 'Pagamento pendente no Mercado Pago. Atualizaremos assim que for confirmado.';
       return;
     }
     this.mensagemStatus = `Status do pagamento: ${status}. Confira em Conta → Plano.`;
+  }
+
+  private inferirPlano(planNome: string): SubscriptionPlan | undefined {
+    const nome = planNome.toLowerCase();
+    if (nome.includes('growth')) {
+      return 'PRO_PLUS';
+    }
+    if (nome.includes('prospec')) {
+      return 'PREMIUM';
+    }
+    return undefined;
   }
 }

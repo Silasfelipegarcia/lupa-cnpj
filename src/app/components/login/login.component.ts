@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CnpjImportService } from '../../services/cnpj-import.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 
 @Component({
@@ -24,7 +25,8 @@ export class LoginComponent implements OnInit {
     private authService: AuthService,
     private cnpjImportService: CnpjImportService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private analytics: AnalyticsService
   ) {}
 
   ngOnInit(): void {
@@ -44,12 +46,23 @@ export class LoginComponent implements OnInit {
     this.enviando.set(true);
 
     this.authService.login({ email: this.email.trim(), password: this.password }).subscribe({
-      next: () => this.redirecionarAposLogin(),
+      next: () => {
+        const user = this.authService.currentUser();
+        if (user) {
+          this.analytics.trackLogin(user.id, user.plan);
+        }
+        this.redirecionarAposLogin();
+      },
       error: (msg: string) => {
+        this.analytics.trackLoginError(this.sanitizeError(msg));
         this.erro.set(msg);
         this.enviando.set(false);
       }
     });
+  }
+
+  private sanitizeError(msg: string): string {
+    return msg.toLowerCase().replace(/\s+/g, '_').slice(0, 40);
   }
 
   private redirecionarAposLogin(): void {

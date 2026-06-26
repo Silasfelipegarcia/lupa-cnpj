@@ -1,5 +1,5 @@
 {
-  "buildCommand": "node scripts/set-api-url.js && npm run build",
+  "buildCommand": "node scripts/set-api-url.js && node scripts/generate-sitemap.js && ng build",
   "outputDirectory": "dist/frontend/browser",
   "framework": null,
   "headers": [

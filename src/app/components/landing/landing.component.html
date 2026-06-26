@@ -5,6 +5,7 @@
       <a href="#como-funciona" class="nav-link">Como funciona</a>
       <a href="#experimente" class="nav-link">Experimente</a>
       <a href="#recursos" class="nav-link">Recursos</a>
+      <a href="#faq" class="nav-link">FAQ</a>
       <a routerLink="/planos" class="nav-link">Planos</a>
       @if (authService.isAuthenticated()) {
         <a routerLink="/app" class="btn btn-primary">Acessar painel</a>
@@ -28,8 +29,8 @@
       </h1>
 
       <p class="hero-lead">
-        Pare de perder tempo com planilha manual e consultas avulsas.
-        Enriqueça centenas de empresas com dados cadastrais oficiais, filtre as ativas e exporte para o CRM em minutos.
+        Consulta CNPJ em lote e enriquecimento de planilhas com telefone, e-mail e dados cadastrais oficiais.
+        Pare de perder tempo com consultas avulsas — filtre empresas ativas e exporte para o CRM em minutos.
       </p>
 
       <div class="hero-actions">
@@ -173,7 +174,7 @@
             <div class="preview-alert preview-alert-limit">
               Você já usou sua consulta gratuita neste dispositivo.
               <a routerLink="/cadastro" class="preview-cta-link">Crie sua conta grátis</a>
-              e consulte até <strong>15 CNPJs/dia</strong> + <strong>10 empresas em planilha/dia</strong>.
+              e consulte até <strong>3 CNPJs/dia</strong> + <strong>1 planilha de até 5 linhas</strong>.
             </div>
           }
 
@@ -196,8 +197,8 @@
               <div class="preview-upsell">
                 <p class="preview-upsell-title">Imagine isso para 50, 100 ou 500 empresas de uma vez</p>
                 <ul class="preview-upsell-list">
-                  <li>Até <strong>{{ r.cadastroLimiteCnpjDia ?? 15 }} CNPJs únicos/dia</strong> no Free</li>
-                  <li>Até <strong>{{ r.cadastroLimitePlanilha ?? 10 }} empresas em planilha/dia</strong></li>
+                  <li>Até <strong>{{ r.cadastroLimiteCnpjDia ?? 3 }} CNPJs únicos/dia</strong> no Free</li>
+                  <li>Até <strong>{{ r.cadastroLimiteLoteDia ?? 1 }} planilha/dia</strong> ({{ r.cadastroLimitePlanilha ?? 5 }} linhas cada)</li>
                   <li>Upgrade para Excel, razão social e filtro de ativas</li>
                 </ul>
                 <div class="preview-upsell-actions">
@@ -210,7 +211,7 @@
         </div>
 
         <aside class="preview-aside">
-          <h4>O que muda com o Lupa Insights</h4>
+          <h3>O que muda com o Lupa Insights</h3>
           <div class="compare">
             <div class="compare-col compare-col--before">
               <span class="compare-title">Sem o Lupa Insights</span>
@@ -297,6 +298,22 @@
     </div>
   </section>
 
+  <section id="faq" class="section section-alt">
+    <div class="section-head">
+      <span class="section-tag">Perguntas frequentes</span>
+      <h2>Dúvidas sobre consulta e enriquecimento de CNPJ</h2>
+      <p class="section-lead">Respostas rápidas para quem quer qualificar listas B2B com dados oficiais.</p>
+    </div>
+    <div class="faq-list">
+      @for (item of faq; track item.question) {
+        <details class="faq-item">
+          <summary>{{ item.question }}</summary>
+          <p>{{ item.answer }}</p>
+        </details>
+      }
+    </div>
+  </section>
+
   <section class="cta">
     <div class="cta-inner">
       <h2>Sua próxima campanha começa com uma lista limpa</h2>
@@ -315,6 +332,12 @@
 
   <footer class="footer">
     <app-brand link="/" ariaLabel="Lupa Insights" />
-    <p>Dados cadastrais oficiais · {{ ano }} Lupa Insights</p>
+    <nav class="footer-nav" aria-label="Links do site">
+      <a routerLink="/planos">Planos</a>
+      <a routerLink="/cadastro">Criar conta</a>
+      <a routerLink="/login">Entrar</a>
+      <a href="mailto:contato&#64;lupainsights.com.br">contato&#64;lupainsights.com.br</a>
+    </nav>
+    <p>Consulta CNPJ em lote · Dados cadastrais oficiais · {{ ano }} Lupa Insights</p>
   </footer>
 </div>

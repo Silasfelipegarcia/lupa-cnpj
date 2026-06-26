@@ -123,6 +123,14 @@ export class ContaCobrancaComponent implements OnInit {
     return this.authService.currentUser()?.subscription?.defaultCardId === cardId;
   }
 
+  mostrarRenovacaoAutomatica(cardId: string): boolean {
+    const sub = this.authService.currentUser()?.subscription;
+    if (!sub?.autoRenew || sub.status !== 'ACTIVE') {
+      return false;
+    }
+    return this.isCartaoPadrao(cardId);
+  }
+
   renovacaoAtiva(): boolean {
     const sub = this.authService.currentUser()?.subscription;
     return !!sub?.autoRenew && sub.status === 'ACTIVE';

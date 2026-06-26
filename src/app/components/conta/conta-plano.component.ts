@@ -34,8 +34,12 @@ export class ContaPlanoComponent implements OnInit {
     if (!u || u.master) {
       return 'Ilimitado';
     }
-    const limite = u.maxBatchSearchesPerDay ?? 0;
-    return `${u.batchSearchesToday} de ${limite} empresas em planilha hoje`;
+    const limite = u.maxImportJobsPerDay;
+    const hoje = u.importJobsToday ?? 0;
+    if (limite == null) {
+      return `${hoje} planilhas hoje (ilimitado)`;
+    }
+    return `${hoje} de ${limite} planilhas hoje`;
   }
 
   usoCnpj(): string {
@@ -49,11 +53,12 @@ export class ContaPlanoComponent implements OnInit {
     return `${u.directCnpjToday} de ${u.maxDirectCnpjPerDay} CNPJs únicos hoje`;
   }
 
-  percentual(atual: number, max: number | null): number {
+  percentual(atual: number | undefined, max: number | null | undefined): number {
+    const value = atual ?? 0;
     if (max == null || max <= 0) {
       return 0;
     }
-    return Math.min(100, Math.round((atual / max) * 100));
+    return Math.min(100, Math.round((value / max) * 100));
   }
 
   formatarData(iso?: string): string {

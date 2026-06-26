@@ -14,22 +14,63 @@ import { ContaCobrancaComponent } from './components/conta/conta-cobranca.compon
 import { authGuard } from './guards/auth.guard';
 import { guestGuard } from './guards/guest.guard';
 import { planosPublicGuard } from './guards/planos-public.guard';
+import { ROUTE_SEO } from './seo/seo-defaults';
+import { ROUTE_ANALYTICS } from './models/analytics.model';
 
 export const routes: Routes = [
-  { path: '', component: LandingComponent },
-  { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
-  { path: 'cadastro', component: RegisterComponent, canActivate: [guestGuard] },
-  { path: 'app', component: CnpjImportComponent, canActivate: [authGuard] },
-  { path: 'consulta/:jobId', component: ConsultaDetalheComponent, canActivate: [authGuard] },
-  { path: 'historico', component: HistoricoComponent, canActivate: [authGuard] },
-  { path: 'historico/:jobId', component: ConsultaDetalheComponent, canActivate: [authGuard] },
-  { path: 'planos', component: PlanosComponent, canActivate: [planosPublicGuard] },
-  { path: 'planos/sucesso', component: PlanosResultadoComponent },
-  { path: 'planos/pendente', component: PlanosResultadoComponent },
+  { path: '', component: LandingComponent, data: { seo: ROUTE_SEO[''], analytics: ROUTE_ANALYTICS[''] } },
+  {
+    path: 'login',
+    component: LoginComponent,
+    canActivate: [guestGuard],
+    data: { seo: ROUTE_SEO['login'], analytics: ROUTE_ANALYTICS['login'] }
+  },
+  {
+    path: 'cadastro',
+    component: RegisterComponent,
+    canActivate: [guestGuard],
+    data: { seo: ROUTE_SEO['cadastro'], analytics: ROUTE_ANALYTICS['cadastro'] }
+  },
+  {
+    path: 'app',
+    component: CnpjImportComponent,
+    canActivate: [authGuard],
+    data: { seo: ROUTE_SEO['app'], analytics: ROUTE_ANALYTICS['app'] }
+  },
+  {
+    path: 'consulta/:jobId',
+    component: ConsultaDetalheComponent,
+    canActivate: [authGuard],
+    data: { seo: ROUTE_SEO['consulta'] }
+  },
+  { path: 'historico', component: HistoricoComponent, canActivate: [authGuard], data: { seo: ROUTE_SEO['historico'], analytics: ROUTE_ANALYTICS['historico'] } },
+  {
+    path: 'historico/:jobId',
+    component: ConsultaDetalheComponent,
+    canActivate: [authGuard],
+    data: { seo: ROUTE_SEO['consulta'] }
+  },
+  {
+    path: 'planos',
+    component: PlanosComponent,
+    canActivate: [planosPublicGuard],
+    data: { seo: ROUTE_SEO['planos'], analytics: ROUTE_ANALYTICS['planos'] }
+  },
+  {
+    path: 'planos/sucesso',
+    component: PlanosResultadoComponent,
+    data: { seo: ROUTE_SEO['planos/sucesso'], analytics: ROUTE_ANALYTICS['planos/sucesso'] }
+  },
+  {
+    path: 'planos/pendente',
+    component: PlanosResultadoComponent,
+    data: { seo: ROUTE_SEO['planos/pendente'], analytics: ROUTE_ANALYTICS['planos/pendente'] }
+  },
   {
     path: 'conta',
     component: ContaShellComponent,
     canActivate: [authGuard],
+    data: { seo: ROUTE_SEO['conta'], analytics: ROUTE_ANALYTICS['conta'] },
     children: [
       { path: '', redirectTo: 'perfil', pathMatch: 'full' },
       { path: 'perfil', component: ContaPerfilComponent },

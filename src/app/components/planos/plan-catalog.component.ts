@@ -193,8 +193,8 @@ export class PlanCatalogComponent implements OnInit {
     this.planService.iniciarTrial().subscribe({
       next: () => {
         this.authService.refreshMe().subscribe({ error: () => {} });
-        this.analytics.track('trial_start');
-        this.mensagem.set('Trial de 7 dias no Prospecção ativado! Cobrança de R$ 19/mês só após o período.');
+        this.analytics.trackTrialStart('PREMIUM');
+        this.mensagem.set('Trial de 7 dias no Prospecção ativado! Cobrança de R$ 19,90/mês só após o período.');
         this.processando.set(null);
       },
       error: (msg: string) => {
@@ -227,7 +227,7 @@ export class PlanCatalogComponent implements OnInit {
     this.processando.set(plan);
     this.erro.set('');
     this.mensagem.set('');
-    this.analytics.track('upgrade', { plan });
+    this.analytics.trackBeginCheckout(plan);
 
     if (this.cartoes().length > 0) {
       const cardId = this.cartaoSelecionado();
@@ -263,8 +263,16 @@ export class PlanCatalogComponent implements OnInit {
         this.authService.refreshMe().subscribe({ error: () => {} });
         this.cvv.set('');
         if (result.status === 'APPROVED') {
+          const quote = this.cotacao(plan);
+          this.analytics.trackPurchase(
+            result.planNome,
+            plan,
+            result.orderId,
+            quote?.amountCents ?? quote?.fullPriceCents
+          );
           this.mensagem.set(`Plano ${result.planNome} ativado com sucesso!`);
         } else {
+          this.analytics.trackPurchasePending(plan, result.orderId);
           this.mensagem.set(`Pagamento ${result.statusLabel.toLowerCase()}. Aguarde a confirmação.`);
         }
         this.processando.set(null);
@@ -276,6 +284,7 @@ export class PlanCatalogComponent implements OnInit {
           this.iniciarCheckout(plan);
           return;
         }
+        this.analytics.trackPurchaseError(msg.toLowerCase().replace(/\s+/g, '_').slice(0, 40), plan);
         this.erro.set(msg);
         this.processando.set(null);
         this.mensagem.set('');
@@ -296,6 +305,7 @@ export class PlanCatalogComponent implements OnInit {
     this.planService.iniciarCheckout(plan, idempotencyKey).subscribe({
       next: (checkout) => {
         sessionStorage.setItem(CHECKOUT_ORDER_STORAGE_KEY, checkout.orderId);
+        this.analytics.trackCheckoutRedirect(plan, checkout.orderId);
         const url = this.urlCheckoutMercadoPago(checkout);
         if (!url) {
           this.erro.set('Checkout indisponível. Tente mais tarde.');
