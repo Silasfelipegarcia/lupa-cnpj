@@ -41,8 +41,10 @@ export class AnalyticsService {
 
     window.dataLayer = window.dataLayer || [];
     if (!window.gtag) {
-      window.gtag = function gtag(...args: unknown[]): void {
-        window.dataLayer.push(args);
+      // Deve usar `arguments` (padrão Google). `push([...args])` quebra o processamento do gtag.js.
+      window.gtag = function gtag() {
+        // eslint-disable-next-line prefer-rest-params
+        window.dataLayer.push(arguments);
       };
     }
 
@@ -62,7 +64,14 @@ export class AnalyticsService {
     });
     this.initialized = true;
 
-    this.loadGtagScript().catch((error) => {
+    this.loadGtagScript().then(() => {
+      window.gtag('consent', 'update', {
+        analytics_storage: 'granted',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied'
+      });
+    }).catch((error) => {
       if (!environment.production) {
         console.warn('[analytics] falha ao carregar gtag', error);
       }
