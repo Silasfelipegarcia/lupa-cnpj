@@ -1,11 +1,12 @@
 import { Component, ElementRef, HostListener, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
 
 @Component({
   selector: 'app-account-menu',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, AnalyticsCtaDirective],
   template: `
     <div class="account-menu" #root>
       <button
@@ -30,12 +31,16 @@ import { AuthService } from '../../services/auth.service';
             </span>
           </div>
           <nav class="account-dropdown-nav">
-            <a routerLink="/conta/perfil" role="menuitem" (click)="fechar()">Dados da conta</a>
-            <a routerLink="/conta/plano" role="menuitem" (click)="fechar()">Plano e uso</a>
-            <a routerLink="/conta/cobranca" role="menuitem" (click)="fechar()">Cobrança</a>
+            <a routerLink="/conta/perfil" role="menuitem" (click)="fechar()"
+               appAnalyticsCta="conta_perfil" appAnalyticsCtaLocation="account_menu">Dados da conta</a>
+            <a routerLink="/conta/plano" role="menuitem" (click)="fechar()"
+               appAnalyticsCta="conta_plano" appAnalyticsCtaLocation="account_menu">Plano e uso</a>
+            <a routerLink="/conta/cobranca" role="menuitem" (click)="fechar()"
+               appAnalyticsCta="conta_cobranca" appAnalyticsCtaLocation="account_menu">Cobrança</a>
           </nav>
           @if (mostrarUpgrade()) {
-            <a routerLink="/conta/plano" class="account-dropdown-upgrade" (click)="fechar()">Fazer upgrade</a>
+            <a routerLink="/conta/plano" class="account-dropdown-upgrade" (click)="fechar()"
+               appAnalyticsCta="fazer_upgrade" appAnalyticsCtaLocation="account_menu">Fazer upgrade</a>
           }
           <button type="button" class="account-dropdown-logout" (click)="sair()">Sair</button>
         </div>
@@ -238,7 +243,7 @@ export class AccountMenuComponent {
 
   sair(): void {
     this.fechar();
-    this.authService.logout();
+    this.authService.logout('manual');
     this.router.navigate(['/']);
   }
 

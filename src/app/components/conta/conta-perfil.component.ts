@@ -2,16 +2,19 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { AnalyticsService } from '../../services/analytics.service';
+import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
 
 @Component({
   selector: 'app-conta-perfil',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, AnalyticsCtaDirective],
   templateUrl: './conta-perfil.component.html',
   styleUrl: './conta-perfil.component.scss'
 })
 export class ContaPerfilComponent implements OnInit {
   readonly authService = inject(AuthService);
+  private readonly analytics = inject(AnalyticsService);
 
   senhaAtual = '';
   senhaNova = '';
@@ -52,14 +55,17 @@ export class ContaPerfilComponent implements OnInit {
 
     if (!this.senhaAtual.trim()) {
       this.erroSenha.set('Informe a senha atual.');
+      this.analytics.trackPasswordChangeError('validation_current_required');
       return;
     }
     if (this.senhaNova.length < 8) {
       this.erroSenha.set('A nova senha deve ter no mínimo 8 caracteres.');
+      this.analytics.trackPasswordChangeError('validation_password_short');
       return;
     }
     if (this.senhaNova !== this.confirmarSenha) {
       this.erroSenha.set('A confirmação não coincide com a nova senha.');
+      this.analytics.trackPasswordChangeError('validation_password_mismatch');
       return;
     }
 
@@ -74,10 +80,12 @@ export class ContaPerfilComponent implements OnInit {
         this.confirmarSenha = '';
         this.mensagemSenha.set('Senha alterada com sucesso.');
         this.salvandoSenha.set(false);
+        this.analytics.trackPasswordChange();
       },
       error: (msg: string) => {
         this.erroSenha.set(msg);
         this.salvandoSenha.set(false);
+        this.analytics.trackPasswordChangeError(msg);
       }
     });
   }

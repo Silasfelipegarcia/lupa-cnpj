@@ -12,7 +12,7 @@
         ← Nova consulta
       }
     </button>
-    <app-brand [onNavigate]="irParaNovaConsulta" />
+    <app-brand [onNavigate]="irParaNovaConsulta" analyticsCtaName="nova_consulta" analyticsLocation="consulta_header" />
     <h1 class="page-title">Acompanhamento da consulta</h1>
     @if (job()) {
       <p class="subtitle">
@@ -96,7 +96,7 @@
               <input
                 type="checkbox"
                 [checked]="somenteAtivos()"
-                (change)="somenteAtivos.set($any($event.target).checked)"
+                (change)="somenteAtivos.set($any($event.target).checked); onFiltroAlterado()"
                 [disabled]="!config().filtroSomenteAtivos"
               />
               Só empresas ATIVAS
@@ -107,18 +107,18 @@
             @if (config().filtrosAvancados) {
               <label class="filter-field">
                 UF
-                <input type="text" maxlength="2" [ngModel]="filtroUf()" (ngModelChange)="filtroUf.set($event)" placeholder="SP" />
+                <input type="text" maxlength="2" [ngModel]="filtroUf()" (ngModelChange)="filtroUf.set($event); onFiltroAlterado()" placeholder="SP" />
               </label>
               <label class="filter-field">
                 CNAE
-                <input type="text" [ngModel]="filtroCnae()" (ngModelChange)="filtroCnae.set($event)" placeholder="6201" />
+                <input type="text" [ngModel]="filtroCnae()" (ngModelChange)="filtroCnae.set($event); onFiltroAlterado()" placeholder="6201" />
               </label>
               <label class="filter-check">
-                <input type="checkbox" [checked]="comTelefone()" (change)="comTelefone.set($any($event.target).checked)" />
+                <input type="checkbox" [checked]="comTelefone()" (change)="comTelefone.set($any($event.target).checked); onFiltroAlterado()" />
                 Com telefone
               </label>
               <label class="filter-check">
-                <input type="checkbox" [checked]="comEmail()" (change)="comEmail.set($any($event.target).checked)" />
+                <input type="checkbox" [checked]="comEmail()" (change)="comEmail.set($any($event.target).checked); onFiltroAlterado()" />
                 Com e-mail
               </label>
             }
@@ -131,7 +131,7 @@
           @if (config().exportExcel) {
             <button class="btn btn-secondary" (click)="baixar('xlsx')">Baixar Excel</button>
           } @else {
-            <a routerLink="/conta/plano" class="btn btn-outline">Excel no plano Prospecção</a>
+            <a routerLink="/conta/plano" class="btn btn-outline" appAnalyticsCta="upgrade_excel" appAnalyticsCtaLocation="consulta_export">Excel no plano Prospecção</a>
           }
         </div>
 

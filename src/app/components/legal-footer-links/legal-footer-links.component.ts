@@ -1,15 +1,16 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
 
 @Component({
   selector: 'app-legal-footer-links',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, AnalyticsCtaDirective],
   template: `
     <nav class="legal-footer-nav" aria-label="Documentos legais">
-      <a routerLink="/privacidade">Privacidade</a>
-      <a routerLink="/cookies">Cookies</a>
-      <a routerLink="/termos">Termos de Uso</a>
+      <a routerLink="/privacidade" appAnalyticsCta="privacidade" appAnalyticsCtaLocation="legal_footer">Privacidade</a>
+      <a routerLink="/cookies" appAnalyticsCta="cookies" appAnalyticsCtaLocation="legal_footer">Cookies</a>
+      <a routerLink="/termos" appAnalyticsCta="termos" appAnalyticsCtaLocation="legal_footer">Termos de Uso</a>
     </nav>
   `,
   styles: [`

@@ -4,6 +4,7 @@ import { AppHeaderComponent } from '../app-header/app-header.component';
 import { AuthService } from '../../services/auth.service';
 import { PaymentService } from '../../services/payment.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
 import { SubscriptionPlan } from '../../models/auth.model';
 import { CheckoutSyncRequest, CHECKOUT_ORDER_STORAGE_KEY } from '../../models/payment.model';
 import { environment } from '../../../environments/environment';
@@ -12,7 +13,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-planos-resultado',
   standalone: true,
-  imports: [RouterLink, AppHeaderComponent],
+  imports: [RouterLink, AppHeaderComponent, AnalyticsCtaDirective],
   template: `
     <div class="app-page">
       <div class="app-container app-container--lg">
@@ -29,8 +30,8 @@ import { Subscription } from 'rxjs';
             <p class="aviso-local">{{ avisoLocal }}</p>
           }
           <div class="actions">
-            <a routerLink="/app" class="btn btn-primary">Ir para o painel</a>
-            <a routerLink="/conta/plano" class="btn btn-outline">Ver planos</a>
+            <a routerLink="/app" class="btn btn-primary" appAnalyticsCta="ir_painel" appAnalyticsCtaLocation="payment_result">Ir para o painel</a>
+            <a routerLink="/conta/plano" class="btn btn-outline" appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="payment_result">Ver planos</a>
           </div>
         </main>
       </div>
@@ -114,6 +115,7 @@ export class PlanosResultadoComponent implements OnInit, OnDestroy {
         this.aplicarResultado(result.status, result.planNome, result.orderId);
       },
       error: (msg: string) => {
+        this.analytics.trackPurchaseSyncError(msg);
         this.mensagemStatus = msg;
         this.avisoLocal = environment.production
           ? 'Se você acabou de pagar, aguarde alguns segundos e recarregue esta página.'

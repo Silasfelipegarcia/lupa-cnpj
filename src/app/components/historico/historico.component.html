@@ -21,7 +21,7 @@
       <h2>Listas salvas</h2>
       <div class="lista lista--saved">
         @for (lista of listasSalvas(); track lista.jobId) {
-          <article class="card item item--saved" (click)="verDetalhes(lista.jobId, 'CONCLUIDO')">
+          <article class="card item item--saved" (click)="verDetalhes(lista.jobId, 'CONCLUIDO', 'saved_list')">
             <h3>{{ lista.nomeLista }}</h3>
             <p>{{ lista.arquivo }} · {{ lista.total }} empresas · {{ formatarData(lista.createdAt) }}</p>
           </article>
@@ -35,7 +35,7 @@
   } @else if (consultasFiltradas().length === 0) {
     <div class="card empty">
       <p>Nenhuma consulta encontrada.</p>
-      <a routerLink="/app" class="btn btn-primary">Nova importação</a>
+      <a routerLink="/app" class="btn btn-primary" appAnalyticsCta="nova_importacao" appAnalyticsCtaLocation="historico_empty">Nova importação</a>
     </div>
   } @else {
     <div class="lista">

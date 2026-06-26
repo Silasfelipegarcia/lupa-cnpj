@@ -27,6 +27,14 @@ export class CookieConsentService {
     return this.subject.value;
   }
 
+  /** Releitura do localStorage após hidratação do browser (SSR). */
+  syncFromStorage(): void {
+    const loaded = this.load();
+    if (JSON.stringify(loaded) !== JSON.stringify(this.subject.value)) {
+      this.subject.next(loaded);
+    }
+  }
+
   acceptAll(): void {
     this.persist({ essential: true, analytics: true });
   }

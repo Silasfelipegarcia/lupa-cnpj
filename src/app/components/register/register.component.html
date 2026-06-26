@@ -43,9 +43,9 @@
         <input type="checkbox" name="aceitoTermos" [(ngModel)]="aceitoTermos" required />
         <span>
           Li e aceito os
-          <a routerLink="/termos">Termos de Uso</a>
+          <a routerLink="/termos" appAnalyticsCta="termos" appAnalyticsCtaLocation="signup_form">Termos de Uso</a>
           e a
-          <a routerLink="/privacidade">Política de Privacidade</a>.
+          <a routerLink="/privacidade" appAnalyticsCta="privacidade" appAnalyticsCtaLocation="signup_form">Política de Privacidade</a>.
         </span>
       </label>
 
@@ -63,8 +63,8 @@
     }
 
     <p class="footer-link">
-      Já tem conta? <a routerLink="/login">Entrar</a>
-      · <a routerLink="/">Sobre o Lupa Insights</a>
+      Já tem conta? <a routerLink="/login" appAnalyticsCta="entrar" appAnalyticsCtaLocation="signup_footer">Entrar</a>
+      · <a routerLink="/" appAnalyticsCta="sobre" appAnalyticsCtaLocation="signup_footer">Sobre o Lupa Insights</a>
     </p>
     <app-legal-footer-links />
   </div>

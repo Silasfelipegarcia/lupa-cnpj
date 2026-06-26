@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { PaymentService } from '../../services/payment.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { PaymentHistoryItem, SavedCard } from '../../models/payment.model';
 import { CardRegisterComponent } from '../payment/card-register.component';
 
@@ -16,6 +17,7 @@ import { CardRegisterComponent } from '../payment/card-register.component';
 export class ContaCobrancaComponent implements OnInit {
   private readonly paymentService = inject(PaymentService);
   private readonly route = inject(ActivatedRoute);
+  private readonly analytics = inject(AnalyticsService);
   readonly authService = inject(AuthService);
 
   carregando = signal(true);
@@ -28,8 +30,16 @@ export class ContaCobrancaComponent implements OnInit {
 
   ngOnInit(): void {
     this.avisoTrial.set(this.route.snapshot.queryParamMap.get('trial') === '1');
+    if (this.avisoTrial()) {
+      this.analytics.trackTrialCardPromptView();
+    }
     this.authService.refreshMe().subscribe({ error: () => {} });
     this.recarregar();
+  }
+
+  abrirFormularioCartao(): void {
+    this.mostrarFormulario.set(true);
+    this.analytics.trackBeginCardRegister();
   }
 
   recarregar(): void {
@@ -64,6 +74,7 @@ export class ContaCobrancaComponent implements OnInit {
       return [card, ...filtrada];
     });
     this.mostrarFormulario.set(false);
+    this.analytics.trackCardSaved();
     this.authService.refreshMe().subscribe({ error: () => {} });
   }
 
@@ -85,10 +96,12 @@ export class ContaCobrancaComponent implements OnInit {
       next: () => {
         this.cartoes.update((lista) => lista.filter((c) => c.id !== cardId));
         this.removendo.set(null);
+        this.analytics.trackCardRemoved();
       },
       error: (msg: string) => {
         this.erro.set(msg);
         this.removendo.set(null);
+        this.analytics.trackCardRemovedError(msg);
       }
     });
   }

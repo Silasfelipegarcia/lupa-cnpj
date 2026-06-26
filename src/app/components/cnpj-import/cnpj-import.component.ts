@@ -7,6 +7,8 @@ import { BrowserNotificationService } from '../../services/browser-notification.
 import { ImportJobMonitorService } from '../../services/import-job-monitor.service';
 import { AuthService } from '../../services/auth.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
+import { sanitizeAnalyticsError } from '../../utils/analytics-error.util';
 import { ImportJobResponse, CnpjResultadoItem } from '../../models/import-job.model';
 import { environment } from '../../../environments/environment';
 import { buildCnpjResultFields, CnpjResultField } from '../../utils/cnpj-result-fields';
@@ -18,7 +20,7 @@ const LEGACY_ONBOARDING_KEY = 'lupa_onboarding_visto';
 @Component({
   selector: 'app-cnpj-import',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, AppHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterLink, AppHeaderComponent, AnalyticsCtaDirective],
   templateUrl: './cnpj-import.component.html',
   styleUrl: './cnpj-import.component.scss'
 })
@@ -108,11 +110,13 @@ export class CnpjImportComponent implements OnInit {
   fecharOnboarding(): void {
     localStorage.setItem(ONBOARDING_KEY, '1');
     this.mostrarOnboarding.set(false);
+    this.analytics.trackOnboardingDismissed();
   }
 
   continuarJobAtivo(): void {
     const job = this.jobAtivo();
     if (job) {
+      this.analytics.trackResumeJob(job.jobId, 'import_dashboard');
       this.router.navigate(['/consulta', job.jobId]);
     }
   }
@@ -128,6 +132,7 @@ export class CnpjImportComponent implements OnInit {
 
     this.cnpjImportService.cancelarImportacao(job.jobId).subscribe({
       next: () => {
+        this.analytics.trackCancelImport(job.jobId, 'import_dashboard');
         this.jobAtivo.set(null);
         this.arquivoSelecionado.set(null);
         this.cancelando.set(false);
@@ -137,6 +142,7 @@ export class CnpjImportComponent implements OnInit {
       error: (erro: string) => {
         this.cancelando.set(false);
         this.mensagem.set(erro);
+        this.analytics.trackCancelImportError(job.jobId, erro, 'import_dashboard');
       }
     });
   }
@@ -159,6 +165,7 @@ export class CnpjImportComponent implements OnInit {
       this.arquivoSelecionado.set(null);
       input.value = '';
       this.mensagem.set(`O arquivo excede o limite de ${this.maxFileSizeMb} MB.`);
+      this.analytics.trackImportValidationError('file_too_large');
       return;
     }
 
@@ -174,8 +181,12 @@ export class CnpjImportComponent implements OnInit {
       next: (blob) => {
         this.cnpjImportService.baixarBlob(blob, 'lupa-insights-modelo.xlsx');
         this.mensagem.set('Modelo Excel baixado. Preencha CNPJ e/ou razão social e importe.');
+        this.analytics.trackDownloadTemplate();
       },
-      error: (erro: string) => this.mensagem.set(erro)
+      error: (erro: string) => {
+        this.mensagem.set(erro);
+        this.analytics.trackImportValidationError(erro);
+      }
     });
   }
 
@@ -187,12 +198,14 @@ export class CnpjImportComponent implements OnInit {
     const arquivo = this.arquivoSelecionado();
     if (!arquivo) {
       this.mensagem.set('Selecione um arquivo antes de continuar.');
+      this.analytics.trackImportValidationError('no_file_selected');
       return;
     }
 
     const nome = arquivo.name.toLowerCase();
     if (!nome.endsWith('.csv') && !nome.endsWith('.xlsx') && !nome.endsWith('.xls')) {
       this.mensagem.set('O arquivo deve estar no formato CSV ou Excel (.xlsx).');
+      this.analytics.trackImportValidationError('invalid_file_type');
       return;
     }
 
@@ -227,6 +240,7 @@ export class CnpjImportComponent implements OnInit {
     const digits = this.cnpjAvulso.replace(/\D/g, '');
     if (digits.length !== 14) {
       this.erroAvulso.set('Informe um CNPJ válido com 14 dígitos.');
+      this.analytics.trackCnpjDirectLookupError('validation_cnpj_invalid');
       return;
     }
 
@@ -238,11 +252,13 @@ export class CnpjImportComponent implements OnInit {
       next: (result) => {
         this.resultadoAvulso.set(result);
         this.consultandoAvulso.set(false);
+        this.analytics.trackCnpjDirectLookup(digits.length);
         this.authService.refreshMe().subscribe({ error: () => {} });
       },
       error: (msg: string) => {
         this.erroAvulso.set(msg);
         this.consultandoAvulso.set(false);
+        this.analytics.trackCnpjDirectLookupError(msg);
       }
     });
   }
@@ -265,6 +281,7 @@ export class CnpjImportComponent implements OnInit {
       error: (erro: string) => {
         this.enviando.set(false);
         this.mensagem.set(erro);
+        this.analytics.trackImportError(sanitizeAnalyticsError(erro));
       }
     });
   }

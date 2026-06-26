@@ -6,12 +6,12 @@
       <a href="#experimente" class="nav-link">Experimente</a>
       <a href="#recursos" class="nav-link">Recursos</a>
       <a href="#faq" class="nav-link">FAQ</a>
-      <a routerLink="/planos" class="nav-link">Planos</a>
+      <a routerLink="/planos" class="nav-link" appAnalyticsCta="planos" appAnalyticsCtaLocation="topbar">Planos</a>
       @if (authService.isAuthenticated()) {
-        <a routerLink="/app" class="btn btn-primary">Acessar painel</a>
+        <a routerLink="/app" class="btn btn-primary" appAnalyticsCta="acessar_painel" appAnalyticsCtaLocation="topbar">Acessar painel</a>
       } @else {
-        <a routerLink="/login" class="nav-link">Entrar</a>
-        <a routerLink="/cadastro" class="btn btn-primary">Começar grátis</a>
+        <a routerLink="/login" class="nav-link" appAnalyticsCta="entrar" appAnalyticsCtaLocation="topbar">Entrar</a>
+        <a routerLink="/cadastro" class="btn btn-primary" appAnalyticsCta="comecar_gratis" appAnalyticsCtaLocation="topbar">Começar grátis</a>
       }
     </nav>
   </header>
@@ -35,11 +35,13 @@
 
       <div class="hero-actions">
         @if (authService.isAuthenticated()) {
-          <a routerLink="/app" class="btn btn-primary btn-lg">Ir para o painel</a>
-          <a routerLink="/historico" class="btn btn-outline btn-lg">Ver histórico</a>
+          <a routerLink="/app" class="btn btn-primary btn-lg" appAnalyticsCta="ir_painel" appAnalyticsCtaLocation="hero">Ir para o painel</a>
+          <a routerLink="/historico" class="btn btn-outline btn-lg" appAnalyticsCta="ver_historico" appAnalyticsCtaLocation="hero">Ver histórico</a>
         } @else {
-          <a routerLink="/cadastro" class="btn btn-primary btn-lg">Criar conta gratuita</a>
-          <button type="button" class="btn btn-outline btn-lg" (click)="scrollTo('experimente')">
+          <a routerLink="/cadastro" class="btn btn-primary btn-lg" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="hero">Criar conta gratuita</a>
+          <button type="button" class="btn btn-outline btn-lg"
+                  appAnalyticsCta="testar_cnpj" appAnalyticsCtaLocation="hero"
+                  (click)="scrollTo('experimente')">
             Testar 1 CNPJ grátis
           </button>
         }
@@ -173,7 +175,7 @@
           @if (quota()?.limiteAtingido) {
             <div class="preview-alert preview-alert-limit">
               Você já usou sua consulta gratuita neste dispositivo.
-              <a routerLink="/cadastro" class="preview-cta-link">Crie sua conta grátis</a>
+              <a routerLink="/cadastro" class="preview-cta-link" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="preview_limite">Crie sua conta grátis</a>
               e consulte até <strong>3 CNPJs/dia</strong> + <strong>1 planilha de até 5 linhas</strong>.
             </div>
           }
@@ -202,8 +204,8 @@
                   <li>Upgrade para Excel, razão social e filtro de ativas</li>
                 </ul>
                 <div class="preview-upsell-actions">
-                  <a routerLink="/cadastro" class="btn btn-primary">Criar conta grátis</a>
-                  <a routerLink="/planos" class="btn btn-outline btn-sm">Ver planos</a>
+                  <a routerLink="/cadastro" class="btn btn-primary" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="preview_upsell">Criar conta grátis</a>
+                  <a routerLink="/planos" class="btn btn-outline btn-sm" appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="preview_upsell">Ver planos</a>
                 </div>
               </div>
             </div>
@@ -320,10 +322,10 @@
       <p>Importe, enriqueça e exporte — sem depender de TI ou copy-paste.</p>
       <div class="cta-actions">
         @if (authService.isAuthenticated()) {
-          <a routerLink="/app" class="btn btn-primary btn-lg">Nova consulta</a>
+          <a routerLink="/app" class="btn btn-primary btn-lg" appAnalyticsCta="nova_consulta" appAnalyticsCtaLocation="cta_final">Nova consulta</a>
         } @else {
-          <a routerLink="/cadastro" class="btn btn-primary btn-lg">Começar grátis</a>
-          <a routerLink="/planos" class="btn btn-outline btn-lg">Ver planos</a>
+          <a routerLink="/cadastro" class="btn btn-primary btn-lg" appAnalyticsCta="comecar_gratis" appAnalyticsCtaLocation="cta_final">Começar grátis</a>
+          <a routerLink="/planos" class="btn btn-outline btn-lg" appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="cta_final">Ver planos</a>
         }
       </div>
       <p class="cta-note">Free para sempre · Upgrade quando precisar de volume</p>
@@ -333,10 +335,10 @@
   <footer class="footer">
     <app-brand link="/" ariaLabel="Lupa Insights" />
     <nav class="footer-nav" aria-label="Links do site">
-      <a routerLink="/planos">Planos</a>
-      <a routerLink="/cadastro">Criar conta</a>
-      <a routerLink="/login">Entrar</a>
-      <a href="mailto:contato&#64;lupainsights.com.br">contato&#64;lupainsights.com.br</a>
+      <a routerLink="/planos" appAnalyticsCta="planos" appAnalyticsCtaLocation="footer">Planos</a>
+      <a routerLink="/cadastro" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="footer">Criar conta</a>
+      <a routerLink="/login" appAnalyticsCta="entrar" appAnalyticsCtaLocation="footer">Entrar</a>
+      <a href="mailto:contato&#64;lupainsights.com.br" appAnalyticsCta="contato_email" appAnalyticsCtaLocation="footer">contato&#64;lupainsights.com.br</a>
     </nav>
     <app-legal-footer-links />
     <p>Consulta CNPJ em lote · Dados cadastrais oficiais · {{ ano }} Lupa Insights</p>

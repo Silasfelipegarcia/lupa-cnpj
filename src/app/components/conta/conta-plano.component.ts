@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { PaymentService } from '../../services/payment.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { PlanCatalogComponent } from '../planos/plan-catalog.component';
 import { SubscriptionInfo } from '../../models/auth.model';
 
@@ -15,6 +16,7 @@ import { SubscriptionInfo } from '../../models/auth.model';
 export class ContaPlanoComponent implements OnInit {
   readonly authService = inject(AuthService);
   private readonly paymentService = inject(PaymentService);
+  private readonly analytics = inject(AnalyticsService);
 
   processandoAssinatura = signal(false);
   erroAssinatura = signal('');
@@ -89,11 +91,13 @@ export class ContaPlanoComponent implements OnInit {
         this.confirmarCancelamento.set(false);
         this.mensagemAssinatura.set('Renovação cancelada. Seu acesso continua até o fim do período pago.');
         this.processandoAssinatura.set(false);
+        this.analytics.trackSubscriptionCancel();
         this.authService.refreshMe().subscribe({ error: () => {} });
       },
       error: (msg: string) => {
         this.erroAssinatura.set(msg);
         this.processandoAssinatura.set(false);
+        this.analytics.trackSubscriptionError(msg, 'cancel');
       }
     });
   }
@@ -108,11 +112,13 @@ export class ContaPlanoComponent implements OnInit {
       next: () => {
         this.mensagemAssinatura.set('Renovação automática reativada.');
         this.processandoAssinatura.set(false);
+        this.analytics.trackSubscriptionReactivate();
         this.authService.refreshMe().subscribe({ error: () => {} });
       },
       error: (msg: string) => {
         this.erroAssinatura.set(msg);
         this.processandoAssinatura.set(false);
+        this.analytics.trackSubscriptionError(msg, 'reactivate');
       }
     });
   }

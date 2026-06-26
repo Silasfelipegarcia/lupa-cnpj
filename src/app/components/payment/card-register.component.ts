@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { loadMercadoPago } from '@mercadopago/sdk-js';
 import { PaymentService } from '../../services/payment.service';
 import { AuthService } from '../../services/auth.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { SavedCard } from '../../models/payment.model';
 import type { MercadoPagoInstance } from '../../types/mercadopago';
 
@@ -19,6 +20,7 @@ export class CardRegisterComponent implements OnInit {
 
   private readonly paymentService = inject(PaymentService);
   private readonly authService = inject(AuthService);
+  private readonly analytics = inject(AnalyticsService);
 
   carregando = signal(true);
   salvando = signal(false);
@@ -68,6 +70,7 @@ export class CardRegisterComponent implements OnInit {
 
     if (digits.length < 13 || !month || !year || this.securityCode.length < 3) {
       this.erro.set('Preencha todos os campos do cartão corretamente.');
+      this.analytics.trackCardRegisterError('validation_incomplete');
       return;
     }
 
@@ -102,12 +105,14 @@ export class CardRegisterComponent implements OnInit {
         error: (msg: string) => {
           this.erro.set(msg);
           this.salvando.set(false);
+          this.analytics.trackCardRegisterError(msg);
         }
       });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Erro ao tokenizar cartão';
       this.erro.set(msg);
       this.salvando.set(false);
+      this.analytics.trackCardRegisterError(msg);
     }
   }
 

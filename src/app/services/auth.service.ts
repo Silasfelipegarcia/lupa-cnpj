@@ -5,6 +5,7 @@ import { Observable, tap, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { AuthResponse, ChangePasswordRequest, LoginRequest, RegisterRequest, User } from '../models/auth.model';
+import { LogoutReason } from '../models/analytics.model';
 import { AuthStorage } from './auth-storage';
 import { AnalyticsService } from './analytics.service';
 import { getJwtExpirationMs, isJwtExpired } from '../utils/jwt.util';
@@ -103,7 +104,10 @@ export class AuthService {
     return user?.planNome || 'Free';
   }
 
-  logout(): void {
+  logout(reason?: LogoutReason): void {
+    if (reason) {
+      this.analytics.trackLogout(reason);
+    }
     this.cancelarAgendamento();
     AuthStorage.limpar();
     this.currentUser.set(null);
@@ -114,14 +118,14 @@ export class AuthService {
     if (!this.getToken()) {
       return;
     }
-    this.logout();
+    this.logout('session_expired');
     this.router.navigate(['/login'], {
       queryParams: { sessaoExpirada: '1' }
     });
   }
 
   logoutPorAmbienteDiferente(): void {
-    this.logout();
+    this.logout('environment_mismatch');
     this.router.navigate(['/login'], {
       queryParams: { ambiente: '1' }
     });

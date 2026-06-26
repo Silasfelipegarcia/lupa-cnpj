@@ -5,13 +5,15 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CnpjImportService } from '../../services/cnpj-import.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
+import { sanitizeAnalyticsError } from '../../utils/analytics-error.util';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 import { LegalFooterLinksComponent } from '../legal-footer-links/legal-footer-links.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, AppBrandComponent, LegalFooterLinksComponent],
+  imports: [CommonModule, FormsModule, RouterLink, AppBrandComponent, LegalFooterLinksComponent, AnalyticsCtaDirective],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
@@ -33,6 +35,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     if (this.route.snapshot.queryParamMap.get('sessaoExpirada') === '1') {
       this.erro.set('Sua sessão expirou. Faça login novamente para continuar.');
+      this.analytics.trackSessionExpiredView();
     } else if (this.route.snapshot.queryParamMap.get('ambiente') === '1') {
       this.erro.set('Você trocou de ambiente (local ↔ produção). Faça login novamente nesta API.');
     }
@@ -45,6 +48,7 @@ export class LoginComponent implements OnInit {
 
     this.erro.set('');
     this.enviando.set(true);
+    this.analytics.trackLoginFormStart();
 
     this.authService.login({ email: this.email.trim(), password: this.password }).subscribe({
       next: () => {
@@ -55,15 +59,11 @@ export class LoginComponent implements OnInit {
         this.redirecionarAposLogin();
       },
       error: (msg: string) => {
-        this.analytics.trackLoginError(this.sanitizeError(msg));
+        this.analytics.trackLoginError(sanitizeAnalyticsError(msg));
         this.erro.set(msg);
         this.enviando.set(false);
       }
     });
-  }
-
-  private sanitizeError(msg: string): string {
-    return msg.toLowerCase().replace(/\s+/g, '_').slice(0, 40);
   }
 
   private redirecionarAposLogin(): void {

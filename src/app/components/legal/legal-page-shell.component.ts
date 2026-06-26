@@ -2,16 +2,17 @@ import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 import { LegalFooterLinksComponent } from '../legal-footer-links/legal-footer-links.component';
+import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
 
 @Component({
   selector: 'app-legal-page-shell',
   standalone: true,
-  imports: [RouterLink, AppBrandComponent, LegalFooterLinksComponent],
+  imports: [RouterLink, AppBrandComponent, LegalFooterLinksComponent, AnalyticsCtaDirective],
   template: `
     <div class="legal-page">
       <header class="legal-topbar">
-        <app-brand link="/" ariaLabel="Lupa Insights — início" />
-        <a routerLink="/" class="legal-back">← Voltar ao site</a>
+        <app-brand link="/" ariaLabel="Lupa Insights — início" analyticsLocation="legal" />
+        <a routerLink="/" class="legal-back" appAnalyticsCta="voltar_site" appAnalyticsCtaLocation="legal">← Voltar ao site</a>
       </header>
 
       <main class="legal-main">

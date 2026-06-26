@@ -6,6 +6,7 @@ import { GuestCnpjPreviewService } from '../../services/guest-cnpj-preview.servi
 import { buildCnpjResultFields } from '../../utils/cnpj-result-fields';
 import { CnpjPreviewCampo, CnpjPreviewQuota, CnpjPreviewResult } from '../../models/cnpj-preview.model';
 import { AnalyticsService } from '../../services/analytics.service';
+import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
 import { LANDING_FAQ } from '../../seo/structured-data';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 import { LegalFooterLinksComponent } from '../legal-footer-links/legal-footer-links.component';
@@ -13,7 +14,7 @@ import { LegalFooterLinksComponent } from '../legal-footer-links/legal-footer-li
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [RouterLink, AppBrandComponent, LegalFooterLinksComponent, FormsModule],
+  imports: [RouterLink, AppBrandComponent, LegalFooterLinksComponent, FormsModule, AnalyticsCtaDirective],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss'
 })
@@ -132,11 +133,13 @@ export class LandingComponent implements OnInit {
     const digits = this.cnpjInput.replace(/\D/g, '');
     if (digits.length !== 14) {
       this.erroPreview.set('Informe um CNPJ válido com 14 dígitos.');
+      this.analytics.trackGuestPreviewError('validation_cnpj_invalid');
       return;
     }
 
     if (this.quota()?.limiteAtingido) {
       this.erroPreview.set('Você usou sua consulta gratuita. Crie uma conta para continuar.');
+      this.analytics.trackGuestPreviewError('quota_limit_reached');
       return;
     }
 
@@ -159,6 +162,7 @@ export class LandingComponent implements OnInit {
       error: (msg: string) => {
         this.erroPreview.set(msg);
         this.consultando.set(false);
+        this.analytics.trackGuestPreviewError(msg);
         this.carregarQuota();
       }
     });

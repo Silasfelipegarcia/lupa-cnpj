@@ -60,12 +60,18 @@
   flex-shrink: 0;
 }
 
+.cookie-banner .btn {
+  font-size: 0.82rem;
+  padding: 0.5rem 1rem;
+}
+
 .cookie-banner .btn-outline {
-  border-color: rgba(255, 255, 255, 0.35);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #f9fafb;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.16);
     border-color: #fff;
     color: #fff;
   }
@@ -73,5 +79,12 @@
 
 .cookie-banner .btn-primary {
   background: var(--primary);
+  border: 1px solid var(--primary);
   color: #fff;
+
+  &:hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: #fff;
+  }
 }

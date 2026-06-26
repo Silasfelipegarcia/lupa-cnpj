@@ -6,11 +6,13 @@ import {
   AnalyticsEventName,
   AnalyticsEventParams,
   FunnelId,
+  LogoutReason,
   RouteAnalyticsConfig
 } from '../models/analytics.model';
 import { SubscriptionPlan } from '../models/auth.model';
 import { AnalyticsFlowService } from './analytics-flow.service';
 import { CookieConsentService } from './cookie-consent.service';
+import { sanitizeAnalyticsError } from '../utils/analytics-error.util';
 
 const PLAN_LABELS: Record<SubscriptionPlan, string> = {
   FREE: 'free',
@@ -51,15 +53,16 @@ export class AnalyticsService {
       ad_personalization: 'denied'
     });
 
-    this.loadGtagScript().then(() => {
-      window.gtag('js', new Date());
-      window.gtag('config', this.measurementId, {
-        send_page_view: false,
-        anonymize_ip: true,
-        cookie_flags: this.gtagCookieFlags()
-      });
-      this.initialized = true;
-    }).catch((error) => {
+    // js + config devem rodar antes dos eventos (padrão Google); o script carrega em paralelo.
+    window.gtag('js', new Date());
+    window.gtag('config', this.measurementId, {
+      send_page_view: false,
+      anonymize_ip: true,
+      cookie_flags: this.gtagCookieFlags()
+    });
+    this.initialized = true;
+
+    this.loadGtagScript().catch((error) => {
       if (!environment.production) {
         console.warn('[analytics] falha ao carregar gtag', error);
       }
@@ -133,95 +136,193 @@ export class AnalyticsService {
   }
 
   trackGuestPreview(cnpjDigits: string): void {
-    this.send('guest_cnpj_preview', {
-      funnel_id: 'acquisition',
-      funnel_step: 2,
-      funnel_step_name: 'guest_cnpj_preview',
+    this.funnelEvent('guest_cnpj_preview', 'acquisition', 2, 'guest_cnpj_preview', {
       cnpj_length: cnpjDigits.length
     });
   }
 
-  trackSignUpStart(): void {
-    this.send('signup_form_start', {
-      funnel_id: 'acquisition',
-      funnel_step: 3,
-      funnel_step_name: 'signup_form_submit'
+  trackGuestPreviewError(errorCode: string): void {
+    this.funnelEvent('guest_cnpj_preview_error', 'acquisition', 2, 'guest_cnpj_preview', {
+      error_code: sanitizeAnalyticsError(errorCode)
     });
+  }
+
+  trackSignUpStart(): void {
+    this.funnelEvent('signup_form_start', 'acquisition', 3, 'signup_form_submit');
   }
 
   trackSignUp(userId: string, plan?: SubscriptionPlan): void {
     this.setUser(userId, plan);
-    this.send('sign_up', {
-      funnel_id: 'acquisition',
-      funnel_step: 4,
-      funnel_step_name: 'signup_complete',
-      method: 'email'
-    });
+    this.funnelEvent('sign_up', 'acquisition', 4, 'signup_complete', { method: 'email' });
   }
 
   trackSignUpError(errorCode: string): void {
-    this.send('sign_up_error', {
-      funnel_id: 'acquisition',
-      funnel_step: 3,
-      funnel_step_name: 'signup_form_submit',
-      error_code: errorCode
+    this.funnelEvent('sign_up_error', 'acquisition', 3, 'signup_form_submit', {
+      error_code: sanitizeAnalyticsError(errorCode)
     });
+  }
+
+  trackLoginFormStart(): void {
+    this.funnelEvent('login_form_start', 'acquisition', 2, 'login_form_submit');
   }
 
   trackLogin(userId: string, plan?: SubscriptionPlan): void {
     this.setUser(userId, plan);
-    this.send('login', {
-      funnel_id: 'acquisition',
-      funnel_step: 4,
-      funnel_step_name: 'login_complete',
-      method: 'email'
-    });
+    this.funnelEvent('login', 'acquisition', 4, 'login_complete', { method: 'email' });
   }
 
   trackLoginError(errorCode: string): void {
-    this.send('login_error', {
-      funnel_id: 'acquisition',
-      funnel_step: 2,
-      funnel_step_name: 'login_form_submit',
-      error_code: errorCode
+    this.funnelEvent('login_error', 'acquisition', 2, 'login_form_submit', {
+      error_code: sanitizeAnalyticsError(errorCode)
     });
   }
 
+  trackSessionExpiredView(): void {
+    this.funnelEvent('session_expired_view', 'retention', 1, 'session_expired_view');
+  }
+
+  trackLogout(reason: LogoutReason): void {
+    this.send('logout', {
+      funnel_id: 'retention',
+      funnel_step: 3,
+      funnel_step_name: 'logout',
+      logout_reason: reason
+    });
+  }
+
+  trackConsentGranted(): void {
+    this.send('consent_granted', {
+      funnel_id: 'acquisition',
+      funnel_step: 0,
+      funnel_step_name: 'consent_banner',
+      consent_analytics: true
+    });
+  }
+
+  trackConsentRejected(): void {
+    this.send('consent_rejected', {
+      funnel_id: 'acquisition',
+      funnel_step: 0,
+      funnel_step_name: 'consent_banner',
+      consent_analytics: false
+    });
+  }
+
+  trackConsentPreferencesSaved(analyticsEnabled: boolean): void {
+    this.send('consent_preferences_saved', {
+      funnel_id: 'acquisition',
+      funnel_step: 0,
+      funnel_step_name: 'consent_preferences',
+      consent_analytics: analyticsEnabled
+    });
+  }
+
+  trackConsentPreferencesOpen(): void {
+    this.send('consent_preferences_open', {
+      funnel_id: 'acquisition',
+      funnel_step: 0,
+      funnel_step_name: 'consent_preferences'
+    });
+  }
+
+  trackOnboardingDismissed(): void {
+    this.funnelEvent('onboarding_dismissed', 'activation', 1, 'onboarding_dismissed');
+  }
+
   trackFirstImport(jobId: string, fileName: string): void {
-    this.send('first_import', {
-      funnel_id: 'activation',
-      funnel_step: 2,
-      funnel_step_name: 'first_import_complete',
+    this.funnelEvent('first_import', 'activation', 2, 'import_complete', {
       job_id: jobId,
       file_name: fileName
     });
   }
 
-  trackExport(format: string, jobId: string): void {
-    this.send('export_results', {
-      funnel_id: 'activation',
-      funnel_step: 3,
-      funnel_step_name: 'export_complete',
+  trackImportError(errorCode: string): void {
+    this.funnelEvent('import_error', 'activation', 2, 'import_failed', {
+      error_code: sanitizeAnalyticsError(errorCode)
+    });
+  }
+
+  trackImportValidationError(errorCode: string): void {
+    this.funnelEvent('import_validation_error', 'activation', 2, 'import_validation_failed', {
+      error_code: sanitizeAnalyticsError(errorCode)
+    });
+  }
+
+  trackDownloadTemplate(): void {
+    this.funnelEvent('download_template', 'activation', 1, 'download_template');
+  }
+
+  trackResumeJob(jobId: string, source: string): void {
+    this.funnelEvent('resume_job', 'activation', 2, 'resume_job', {
+      job_id: jobId,
+      source
+    });
+  }
+
+  trackCancelImport(jobId: string, source: string): void {
+    this.funnelEvent('cancel_import', 'activation', 2, 'cancel_import', {
+      job_id: jobId,
+      source
+    });
+  }
+
+  trackCancelImportError(jobId: string, errorCode: string, source: string): void {
+    this.funnelEvent('cancel_import_error', 'activation', 2, 'cancel_import_failed', {
+      job_id: jobId,
+      source,
+      error_code: sanitizeAnalyticsError(errorCode)
+    });
+  }
+
+  trackCnpjDirectLookup(cnpjLength: number): void {
+    this.funnelEvent('cnpj_direct_lookup', 'activation', 2, 'cnpj_direct_lookup', {
+      cnpj_length: cnpjLength
+    });
+  }
+
+  trackCnpjDirectLookupError(errorCode: string): void {
+    this.funnelEvent('cnpj_direct_lookup_error', 'activation', 2, 'cnpj_direct_lookup_failed', {
+      error_code: sanitizeAnalyticsError(errorCode)
+    });
+  }
+
+  trackNotificationPermissionRequest(granted: boolean): void {
+    this.funnelEvent('notification_permission_request', 'activation', 2, 'notification_permission', {
+      permission_granted: granted
+    });
+  }
+
+  trackApplyFilters(jobId: string, filterCount: number): void {
+    this.funnelEvent('apply_filters', 'activation', 3, 'apply_filters', {
+      job_id: jobId,
+      filter_count: filterCount
+    });
+  }
+
+  trackExport(format: string, jobId: string, filterCount = 0): void {
+    this.funnelEvent('export_results', 'activation', 3, 'export_complete', {
       export_format: format,
-      job_id: jobId
+      job_id: jobId,
+      filter_count: filterCount
+    });
+  }
+
+  trackExportError(jobId: string, errorCode: string): void {
+    this.funnelEvent('export_error', 'activation', 3, 'export_failed', {
+      job_id: jobId,
+      error_code: sanitizeAnalyticsError(errorCode)
     });
   }
 
   trackBeginCheckout(plan: SubscriptionPlan): void {
-    this.send('begin_checkout', {
-      funnel_id: 'monetization',
-      funnel_step: 2,
-      funnel_step_name: 'plan_selected',
+    this.funnelEvent('begin_checkout', 'monetization', 2, 'plan_selected', {
       plan_code: plan,
       plan_tier: PLAN_LABELS[plan]
     });
   }
 
   trackCheckoutRedirect(plan: SubscriptionPlan, orderId: string): void {
-    this.send('checkout_redirect', {
-      funnel_id: 'monetization',
-      funnel_step: 3,
-      funnel_step_name: 'mercadopago_redirect',
+    this.funnelEvent('checkout_redirect', 'monetization', 3, 'mercadopago_redirect', {
       plan_code: plan,
       plan_tier: PLAN_LABELS[plan],
       transaction_id: orderId
@@ -229,13 +330,20 @@ export class AnalyticsService {
   }
 
   trackTrialStart(plan: SubscriptionPlan = 'PREMIUM'): void {
-    this.send('start_trial', {
-      funnel_id: 'monetization',
-      funnel_step: 3,
-      funnel_step_name: 'trial_started',
+    this.funnelEvent('start_trial', 'monetization', 3, 'trial_started', {
       plan_code: plan,
       plan_tier: PLAN_LABELS[plan]
     });
+  }
+
+  trackTrialError(errorCode: string): void {
+    this.funnelEvent('trial_error', 'monetization', 3, 'trial_failed', {
+      error_code: sanitizeAnalyticsError(errorCode)
+    });
+  }
+
+  trackTrialCardPromptView(): void {
+    this.funnelEvent('trial_card_prompt_view', 'monetization', 3, 'trial_card_prompt');
   }
 
   trackPurchase(planNome: string, plan: SubscriptionPlan, transactionId?: string, valueCents?: number): void {
@@ -269,33 +377,106 @@ export class AnalyticsService {
   }
 
   trackPurchaseError(errorCode: string, plan?: SubscriptionPlan): void {
-    this.send('purchase_error', {
-      funnel_id: 'monetization',
-      funnel_step: 4,
-      funnel_step_name: 'payment_failed',
+    this.funnelEvent('purchase_error', 'monetization', 4, 'payment_failed', {
       plan_code: plan,
       plan_tier: plan ? PLAN_LABELS[plan] : undefined,
-      error_code: errorCode
+      error_code: sanitizeAnalyticsError(errorCode)
+    });
+  }
+
+  trackPurchaseSyncError(errorCode: string): void {
+    this.funnelEvent('purchase_sync_error', 'monetization', 5, 'payment_sync_failed', {
+      error_code: sanitizeAnalyticsError(errorCode)
+    });
+  }
+
+  trackBeginCardRegister(): void {
+    this.funnelEvent('begin_card_register', 'monetization', 3, 'card_register_start');
+  }
+
+  trackCardSaved(): void {
+    this.funnelEvent('card_saved', 'monetization', 3, 'card_saved');
+  }
+
+  trackCardRegisterError(errorCode: string): void {
+    this.funnelEvent('card_register_error', 'monetization', 3, 'card_register_failed', {
+      error_code: sanitizeAnalyticsError(errorCode)
+    });
+  }
+
+  trackCardRemoved(): void {
+    this.funnelEvent('card_removed', 'monetization', 3, 'card_removed');
+  }
+
+  trackCardRemovedError(errorCode: string): void {
+    this.funnelEvent('card_removed_error', 'monetization', 3, 'card_removed_failed', {
+      error_code: sanitizeAnalyticsError(errorCode)
+    });
+  }
+
+  trackSubscriptionCancel(): void {
+    this.funnelEvent('subscription_cancel', 'monetization', 4, 'subscription_cancelled');
+  }
+
+  trackSubscriptionReactivate(): void {
+    this.funnelEvent('subscription_reactivate', 'monetization', 4, 'subscription_reactivated');
+  }
+
+  trackSubscriptionError(errorCode: string, action: string): void {
+    this.funnelEvent('subscription_error', 'monetization', 4, 'subscription_action_failed', {
+      error_code: sanitizeAnalyticsError(errorCode),
+      action
     });
   }
 
   trackSaveList(jobId: string, listName: string): void {
-    this.send('save_list', {
-      funnel_id: 'retention',
-      funnel_step: 2,
-      funnel_step_name: 'list_saved',
+    this.funnelEvent('save_list', 'retention', 2, 'list_saved', {
       job_id: jobId,
       list_name: listName
     });
   }
 
+  trackSaveListError(jobId: string, errorCode: string): void {
+    this.funnelEvent('save_list_error', 'retention', 2, 'list_save_failed', {
+      job_id: jobId,
+      error_code: sanitizeAnalyticsError(errorCode)
+    });
+  }
+
   trackReprocess(sourceJobId: string, newJobId: string): void {
-    this.send('reprocess_list', {
-      funnel_id: 'retention',
-      funnel_step: 2,
-      funnel_step_name: 'list_reprocessed',
+    this.funnelEvent('reprocess_list', 'retention', 2, 'list_reprocessed', {
       job_id: sourceJobId,
       new_job_id: newJobId
+    });
+  }
+
+  trackReprocessError(jobId: string, errorCode: string): void {
+    this.funnelEvent('reprocess_error', 'retention', 2, 'reprocess_failed', {
+      job_id: jobId,
+      error_code: sanitizeAnalyticsError(errorCode)
+    });
+  }
+
+  trackViewJobDetail(jobId: string, source: string): void {
+    this.funnelEvent('view_job_detail', 'retention', 2, 'view_job_detail', {
+      job_id: jobId,
+      source
+    });
+  }
+
+  trackViewSavedList(jobId: string): void {
+    this.funnelEvent('view_saved_list', 'retention', 2, 'view_saved_list', {
+      job_id: jobId
+    });
+  }
+
+  trackPasswordChange(): void {
+    this.funnelEvent('password_change', 'retention', 2, 'password_changed');
+  }
+
+  trackPasswordChangeError(errorCode: string): void {
+    this.funnelEvent('password_change_error', 'retention', 2, 'password_change_failed', {
+      error_code: sanitizeAnalyticsError(errorCode)
     });
   }
 
@@ -304,6 +485,21 @@ export class AnalyticsService {
       cta_name: name,
       cta_location: location,
       flow_id: this.flowService.getFlowId()
+    });
+  }
+
+  private funnelEvent(
+    event: AnalyticsEventName,
+    funnel: FunnelId,
+    step: number,
+    stepName: string,
+    extra: AnalyticsEventParams = {}
+  ): void {
+    this.send(event, {
+      funnel_id: funnel,
+      funnel_step: step,
+      funnel_step_name: stepName,
+      ...extra
     });
   }
 
@@ -368,9 +564,7 @@ export class AnalyticsService {
       properties: JSON.stringify(properties)
     }, { responseType: 'text' }).subscribe({
       error: (error) => {
-        if (!environment.production) {
-          console.warn('[analytics] falha ao enviar evento para API', { event, error });
-        }
+        console.warn('[analytics] falha ao enviar evento para API', { event, error });
       }
     });
   }

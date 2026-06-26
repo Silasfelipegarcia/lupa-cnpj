@@ -29,10 +29,17 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   const isApiCall = isApiUrl(req.url);
   const isPublic = isPublicApi(req.url);
+  const optionalAuth = acceptsOptionalAuth(req.url);
   const token = authService.getToken();
-  const shouldAttachToken = isApiCall && token && (!isPublic || acceptsOptionalAuth(req.url));
 
-  if (shouldAttachToken) {
+  if (isApiCall && token && optionalAuth) {
+    // Analytics é público: nunca bloquear o POST por token inválido/expirado.
+    if (authService.sessaoCompativelComApi() && !isJwtExpired(token)) {
+      req = req.clone({
+        setHeaders: { Authorization: `Bearer ${token}` }
+      });
+    }
+  } else if (isApiCall && token && !isPublic) {
     if (!authService.sessaoCompativelComApi()) {
       authService.logoutPorAmbienteDiferente();
       return throwError(() => new Error('Sessão de outro ambiente'));

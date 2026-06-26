@@ -5,13 +5,15 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CnpjImportService } from '../../services/cnpj-import.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
+import { sanitizeAnalyticsError } from '../../utils/analytics-error.util';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 import { LegalFooterLinksComponent } from '../legal-footer-links/legal-footer-links.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, AppBrandComponent, LegalFooterLinksComponent],
+  imports: [CommonModule, FormsModule, RouterLink, AppBrandComponent, LegalFooterLinksComponent, AnalyticsCtaDirective],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
@@ -57,22 +59,26 @@ export class RegisterComponent {
 
     if (this.password.length < 8) {
       this.erro.set('A senha deve ter no mínimo 8 caracteres.');
+      this.analytics.trackSignUpError('validation_password_short');
       return;
     }
 
     if (this.password !== this.confirmarSenha) {
       this.erro.set('As senhas não coincidem.');
+      this.analytics.trackSignUpError('validation_password_mismatch');
       return;
     }
 
     if (!this.aceitoTermos) {
       this.erro.set('Você precisa aceitar os Termos de Uso e a Política de Privacidade.');
+      this.analytics.trackSignUpError('validation_terms_required');
       return;
     }
 
     const cpfDigits = this.cpf.replace(/\D/g, '');
     if (cpfDigits.length !== 11) {
       this.erro.set('Informe um CPF válido com 11 dígitos.');
+      this.analytics.trackSignUpError('validation_cpf_invalid');
       return;
     }
 
@@ -93,7 +99,7 @@ export class RegisterComponent {
         this.redirecionarAposCadastro();
       },
       error: (msg: string) => {
-        this.analytics.trackSignUpError(msg.toLowerCase().replace(/\s+/g, '_').slice(0, 40));
+        this.analytics.trackSignUpError(sanitizeAnalyticsError(msg));
         this.erro.set(msg);
         this.enviando.set(false);
       }

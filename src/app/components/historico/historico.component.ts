@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CnpjImportService } from '../../services/cnpj-import.service';
 import { ImportJobMonitorService } from '../../services/import-job-monitor.service';
+import { AnalyticsService } from '../../services/analytics.service';
+import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
 import { ImportJobSummary } from '../../models/import-job.model';
 import { ListaSalva } from '../../models/cnpj-config.model';
 import { AppHeaderComponent } from '../app-header/app-header.component';
@@ -11,7 +13,7 @@ import { AppHeaderComponent } from '../app-header/app-header.component';
 @Component({
   selector: 'app-historico',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, AppHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterLink, AppHeaderComponent, AnalyticsCtaDirective],
   templateUrl: './historico.component.html',
   styleUrl: './historico.component.scss'
 })
@@ -30,7 +32,8 @@ export class HistoricoComponent implements OnInit {
   constructor(
     private cnpjImportService: CnpjImportService,
     private router: Router,
-    private jobMonitor: ImportJobMonitorService
+    private jobMonitor: ImportJobMonitorService,
+    private analytics: AnalyticsService
   ) {}
 
   ngOnInit(): void {
@@ -80,7 +83,12 @@ export class HistoricoComponent implements OnInit {
     });
   }
 
-  verDetalhes(jobId: string, status: string): void {
+  verDetalhes(jobId: string, status: string, source = 'history_list'): void {
+    if (source === 'saved_list') {
+      this.analytics.trackViewSavedList(jobId);
+    } else {
+      this.analytics.trackViewJobDetail(jobId, source);
+    }
     if (this.emAndamento(status)) {
       this.router.navigate(['/consulta', jobId]);
       return;
@@ -90,6 +98,7 @@ export class HistoricoComponent implements OnInit {
 
   continuarAcompanhamento(jobId: string, event: Event): void {
     event.stopPropagation();
+    this.analytics.trackResumeJob(jobId, 'history_list');
     this.router.navigate(['/consulta', jobId]);
   }
 
@@ -104,12 +113,14 @@ export class HistoricoComponent implements OnInit {
 
     this.cnpjImportService.cancelarImportacao(jobId).subscribe({
       next: () => {
+        this.analytics.trackCancelImport(jobId, 'history_list');
         this.cancelandoId.set(null);
         this.carregarHistorico();
       },
       error: (msg: string) => {
         this.cancelandoId.set(null);
         this.erro.set(msg);
+        this.analytics.trackCancelImportError(jobId, msg, 'history_list');
       }
     });
   }
@@ -123,11 +134,13 @@ export class HistoricoComponent implements OnInit {
     this.cnpjImportService.reprocessar(jobId).subscribe({
       next: (job) => {
         this.reprocessandoId.set(null);
+        this.analytics.trackReprocess(jobId, job.jobId);
         this.router.navigate(['/consulta', job.jobId]);
       },
       error: (msg: string) => {
         this.reprocessandoId.set(null);
         this.erro.set(msg);
+        this.analytics.trackReprocessError(jobId, msg);
       }
     });
   }
@@ -142,8 +155,12 @@ export class HistoricoComponent implements OnInit {
       next: (blob) => {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
         this.cnpjImportService.baixarBlob(blob, `lupa_insights_prospeccao_${timestamp}.csv`);
+        this.analytics.trackExport('csv', jobId);
       },
-      error: (msg: string) => this.erro.set(msg)
+      error: (msg: string) => {
+        this.erro.set(msg);
+        this.analytics.trackExportError(jobId, msg);
+      }
     });
   }
 

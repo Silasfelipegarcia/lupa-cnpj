@@ -6,9 +6,12 @@
       <aside class="conta-sidebar">
         <h2 class="conta-sidebar-title">Minha conta</h2>
         <nav class="conta-nav">
-          <a routerLink="/conta/perfil" routerLinkActive="active">Dados da conta</a>
-          <a routerLink="/conta/plano" routerLinkActive="active">Plano e uso</a>
-          <a routerLink="/conta/cobranca" routerLinkActive="active">Cobrança</a>
+          <a routerLink="/conta/perfil" routerLinkActive="active"
+             appAnalyticsCta="conta_perfil" appAnalyticsCtaLocation="conta_sidebar">Dados da conta</a>
+          <a routerLink="/conta/plano" routerLinkActive="active"
+             appAnalyticsCta="conta_plano" appAnalyticsCtaLocation="conta_sidebar">Plano e uso</a>
+          <a routerLink="/conta/cobranca" routerLinkActive="active"
+             appAnalyticsCta="conta_cobranca" appAnalyticsCtaLocation="conta_sidebar">Cobrança</a>
         </nav>
       </aside>
       <main class="conta-content">

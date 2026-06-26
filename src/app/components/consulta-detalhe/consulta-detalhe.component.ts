@@ -7,6 +7,7 @@ import { CnpjImportService } from '../../services/cnpj-import.service';
 import { BrowserNotificationService } from '../../services/browser-notification.service';
 import { ImportJobMonitorService } from '../../services/import-job-monitor.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
 import { AuthService } from '../../services/auth.service';
 import { CnpjResultadoItem, ImportJobResponse } from '../../models/import-job.model';
 import { environment } from '../../../environments/environment';
@@ -16,7 +17,7 @@ import { AppHeaderComponent } from '../app-header/app-header.component';
 @Component({
   selector: 'app-consulta-detalhe',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, AppBrandComponent, AppHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterLink, AppBrandComponent, AppHeaderComponent, AnalyticsCtaDirective],
   templateUrl: './consulta-detalhe.component.html',
   styleUrl: './consulta-detalhe.component.scss'
 })
@@ -102,21 +103,30 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
       return;
     }
     this.pedindoNotificacao.set(true);
-    await this.notificationService.solicitarPermissao();
+    const granted = await this.notificationService.solicitarPermissao();
+    this.analytics.trackNotificationPermissionRequest(granted === 'granted');
     this.pedindoNotificacao.set(false);
+  }
+
+  onFiltroAlterado(): void {
+    this.analytics.trackApplyFilters(this.jobId(), this.contarFiltrosAtivos());
   }
 
   baixar(format: 'csv' | 'xlsx'): void {
     const id = this.jobId();
     const filtros = this.montarFiltrosDownload();
+    const filterCount = this.contarFiltrosAtivos();
     this.cnpjImportService.baixarResultado(id, format, filtros).subscribe({
       next: (blob) => {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
         const ext = format === 'xlsx' ? 'xlsx' : 'csv';
         this.cnpjImportService.baixarBlob(blob, `lupa_insights_prospeccao_${timestamp}.${ext}`);
-        this.analytics.trackExport(format, id);
+        this.analytics.trackExport(format, id, filterCount);
       },
-      error: (msg: string) => this.erro.set(msg)
+      error: (msg: string) => {
+        this.erro.set(msg);
+        this.analytics.trackExportError(id, msg);
+      }
     });
   }
 
@@ -124,6 +134,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
     const nome = this.nomeLista().trim();
     if (!nome) {
       this.erro.set('Informe um nome para salvar a lista.');
+      this.analytics.trackSaveListError(this.jobId(), 'validation_empty_name');
       return;
     }
 
@@ -138,6 +149,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
       error: (msg: string) => {
         this.salvandoLista.set(false);
         this.erro.set(msg);
+        this.analytics.trackSaveListError(this.jobId(), msg);
       }
     });
   }
@@ -156,6 +168,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
       error: (msg: string) => {
         this.reprocessando.set(false);
         this.erro.set(msg);
+        this.analytics.trackReprocessError(this.jobId(), msg);
       }
     });
   }
@@ -203,15 +216,27 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
 
     this.cnpjImportService.cancelarImportacao(id).subscribe({
       next: () => {
+        this.analytics.trackCancelImport(id, 'consulta_detail');
         this.cancelando.set(false);
         this.router.navigate(['/app']);
       },
       error: (msg: string) => {
         this.cancelando.set(false);
         this.erro.set(msg);
+        this.analytics.trackCancelImportError(id, msg, 'consulta_detail');
         this.iniciarAcompanhamento(id);
       }
     });
+  }
+
+  private contarFiltrosAtivos(): number {
+    let count = 0;
+    if (this.somenteAtivos()) count++;
+    if (this.filtroUf().trim()) count++;
+    if (this.filtroCnae().trim()) count++;
+    if (this.comTelefone()) count++;
+    if (this.comEmail()) count++;
+    return count;
   }
 
   private montarFiltrosDownload() {

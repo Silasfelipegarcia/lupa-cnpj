@@ -44,14 +44,14 @@ export const routes: Routes = [
     path: 'consulta/:jobId',
     component: ConsultaDetalheComponent,
     canActivate: [authGuard],
-    data: { seo: ROUTE_SEO['consulta'] }
+    data: { seo: ROUTE_SEO['consulta'], analytics: ROUTE_ANALYTICS['consulta/:jobId'] }
   },
   { path: 'historico', component: HistoricoComponent, canActivate: [authGuard], data: { seo: ROUTE_SEO['historico'], analytics: ROUTE_ANALYTICS['historico'] } },
   {
     path: 'historico/:jobId',
     component: ConsultaDetalheComponent,
     canActivate: [authGuard],
-    data: { seo: ROUTE_SEO['consulta'] }
+    data: { seo: ROUTE_SEO['consulta'], analytics: ROUTE_ANALYTICS['historico/:jobId'] }
   },
   {
     path: 'planos',
@@ -76,25 +76,25 @@ export const routes: Routes = [
     data: { seo: ROUTE_SEO['conta'], analytics: ROUTE_ANALYTICS['conta'] },
     children: [
       { path: '', redirectTo: 'perfil', pathMatch: 'full' },
-      { path: 'perfil', component: ContaPerfilComponent },
-      { path: 'plano', component: ContaPlanoComponent },
-      { path: 'cobranca', component: ContaCobrancaComponent }
+      { path: 'perfil', component: ContaPerfilComponent, data: { analytics: ROUTE_ANALYTICS['conta/perfil'] } },
+      { path: 'plano', component: ContaPlanoComponent, data: { analytics: ROUTE_ANALYTICS['conta/plano'] } },
+      { path: 'cobranca', component: ContaCobrancaComponent, data: { analytics: ROUTE_ANALYTICS['conta/cobranca'] } }
     ]
   },
   {
     path: 'privacidade',
     component: PrivacidadeComponent,
-    data: { seo: ROUTE_SEO['privacidade'] }
+    data: { seo: ROUTE_SEO['privacidade'], analytics: ROUTE_ANALYTICS['privacidade'] }
   },
   {
     path: 'cookies',
     component: CookiesComponent,
-    data: { seo: ROUTE_SEO['cookies'] }
+    data: { seo: ROUTE_SEO['cookies'], analytics: ROUTE_ANALYTICS['cookies'] }
   },
   {
     path: 'termos',
     component: TermosComponent,
-    data: { seo: ROUTE_SEO['termos'] }
+    data: { seo: ROUTE_SEO['termos'], analytics: ROUTE_ANALYTICS['termos'] }
   },
   { path: '**', redirectTo: '' }
 ];

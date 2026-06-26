@@ -6,13 +6,15 @@ import { AuthService } from '../../services/auth.service';
 import { PlanService } from '../../services/plan.service';
 import { PaymentService } from '../../services/payment.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
+import { sanitizeAnalyticsError } from '../../utils/analytics-error.util';
 import { PlanCatalogItem, SubscriptionPlan, CheckoutResponse } from '../../models/auth.model';
 import { PlanQuote, SavedCard, CHECKOUT_ORDER_STORAGE_KEY } from '../../models/payment.model';
 
 @Component({
   selector: 'app-plan-catalog',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, AnalyticsCtaDirective],
   templateUrl: './plan-catalog.component.html',
   styleUrl: './plan-catalog.component.scss'
 })
@@ -173,6 +175,7 @@ export class PlanCatalogComponent implements OnInit {
 
   iniciarTrial(): void {
     if (!this.authService.isAuthenticated()) {
+      this.analytics.trackCtaClick('login_to_trial', 'plan_catalog');
       this.router.navigate(['/login'], { queryParams: { redirect: '/conta/plano' } });
       return;
     }
@@ -183,6 +186,7 @@ export class PlanCatalogComponent implements OnInit {
     if (this.cartoes().length === 0) {
       this.mensagem.set('');
       this.erro.set('');
+      this.analytics.trackCtaClick('trial_add_card', 'plan_catalog');
       this.router.navigate(['/conta/cobranca'], {
         queryParams: { redirect: '/conta/plano', trial: '1' }
       });
@@ -200,12 +204,14 @@ export class PlanCatalogComponent implements OnInit {
       error: (msg: string) => {
         this.erro.set(msg);
         this.processando.set(null);
+        this.analytics.trackTrialError(msg);
       }
     });
   }
 
   assinar(plan: SubscriptionPlan): void {
     if (!this.authService.isAuthenticated()) {
+      this.analytics.trackCtaClick('login_to_subscribe', 'plan_catalog');
       this.router.navigate(['/login'], { queryParams: { redirect: '/planos' } });
       return;
     }
@@ -284,7 +290,7 @@ export class PlanCatalogComponent implements OnInit {
           this.iniciarCheckout(plan);
           return;
         }
-        this.analytics.trackPurchaseError(msg.toLowerCase().replace(/\s+/g, '_').slice(0, 40), plan);
+        this.analytics.trackPurchaseError(sanitizeAnalyticsError(msg), plan);
         this.erro.set(msg);
         this.processando.set(null);
         this.mensagem.set('');
@@ -321,6 +327,7 @@ export class PlanCatalogComponent implements OnInit {
         window.location.href = url;
       },
       error: (msg: string) => {
+        this.analytics.trackPurchaseError(sanitizeAnalyticsError(msg), plan);
         this.erro.set(msg);
         this.processando.set(null);
         this.mensagem.set('');

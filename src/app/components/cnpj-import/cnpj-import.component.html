@@ -12,7 +12,7 @@
         <span>{{ uso.imports }}</span>
         <span>·</span>
         <span>{{ uso.direct }}</span>
-        <a routerLink="/conta/plano" class="usage-link">Ver plano</a>
+        <a routerLink="/conta/plano" class="usage-link" appAnalyticsCta="ver_plano" appAnalyticsCtaLocation="import_dashboard">Ver plano</a>
       </p>
     } @else if (authService.isMaster()) {
       <p class="usage-banner usage-banner--master">Conta Master — limites ilimitados</p>
@@ -89,7 +89,7 @@
         @if (dadosLimitados()) {
           <p class="upgrade-hint section-hint">
             Telefone, e-mail e endereço completos no plano Prospecção —
-            <a routerLink="/conta/plano">teste 7 dias grátis</a>.
+            <a routerLink="/conta/plano" appAnalyticsCta="trial_gratis" appAnalyticsCtaLocation="import_dashboard">teste 7 dias grátis</a>.
           </p>
         }
         @if (r.statusConsulta === 'SUCESSO') {
@@ -113,7 +113,7 @@
     @if (!config().pesquisaRazaoSocialHabilitada) {
       <p class="section-hint upgrade-hint">
         Busca por razão social disponível no plano Prospecção —
-        <a routerLink="/conta/plano">fazer upgrade</a>.
+        <a routerLink="/conta/plano" appAnalyticsCta="fazer_upgrade" appAnalyticsCtaLocation="import_dashboard">fazer upgrade</a>.
       </p>
     }
 
