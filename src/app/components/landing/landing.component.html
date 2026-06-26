@@ -9,7 +9,7 @@
       <a href="#recursos" class="nav-link">Recursos</a>
       <a href="#faq" class="nav-link">FAQ</a>
       <a routerLink="/planos" class="nav-link" appAnalyticsCta="planos" appAnalyticsCtaLocation="topbar">Planos</a>
-      <span class="topbar-auth" ngSkipHydration>
+      <span class="topbar-auth">
         @if (isLoggedIn()) {
           <a routerLink="/app" class="btn btn-primary" appAnalyticsCta="acessar_painel" appAnalyticsCtaLocation="topbar">Acessar painel</a>
         } @else {
@@ -37,7 +37,7 @@
         Pare de perder tempo com consultas avulsas — filtre empresas ativas e exporte para o CRM em minutos.
       </p>
 
-      <div class="hero-actions" ngSkipHydration>
+      <div class="hero-actions">
         @if (isLoggedIn()) {
           <a routerLink="/app" class="btn btn-primary btn-lg" appAnalyticsCta="ir_painel" appAnalyticsCtaLocation="hero">Ir para o painel</a>
           <a routerLink="/historico" class="btn btn-outline btn-lg" appAnalyticsCta="ver_historico" appAnalyticsCtaLocation="hero">Ver histórico</a>
@@ -124,7 +124,7 @@
   </section>
 
   @if (!isLoggedIn()) {
-    <section id="experimente" class="section section-preview" ngSkipHydration>
+    <section id="experimente" class="section section-preview">
       <div class="section-head">
         <span class="section-tag">Degustação grátis</span>
         <h2>Veja o produto funcionando — sem cadastro</h2>
@@ -324,7 +324,7 @@
     <div class="cta-inner">
       <h2>Sua próxima campanha começa com uma lista limpa</h2>
       <p>Importe, enriqueça e exporte — sem depender de TI ou copy-paste.</p>
-      <div class="cta-actions" ngSkipHydration>
+      <div class="cta-actions">
         @if (isLoggedIn()) {
           <a routerLink="/app" class="btn btn-primary btn-lg" appAnalyticsCta="nova_consulta" appAnalyticsCtaLocation="cta_final">Nova consulta</a>
           <a routerLink="/historico" class="btn btn-outline btn-lg" appAnalyticsCta="ver_historico" appAnalyticsCtaLocation="cta_final">Ver histórico</a>
@@ -341,7 +341,7 @@
 
   <footer class="footer">
     <app-brand link="/" ariaLabel="Lupa Insights" />
-    <nav class="footer-nav" aria-label="Links do site" ngSkipHydration>
+    <nav class="footer-nav" aria-label="Links do site">
       <a routerLink="/planos" appAnalyticsCta="planos" appAnalyticsCtaLocation="footer">Planos</a>
       @if (isLoggedIn()) {
         <a routerLink="/app" appAnalyticsCta="acessar_painel" appAnalyticsCtaLocation="footer">Acessar painel</a>

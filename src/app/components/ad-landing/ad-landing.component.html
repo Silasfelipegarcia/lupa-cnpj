@@ -12,7 +12,7 @@
             Ir para o painel
           </a>
         } @else {
-          <form class="lp-form" (ngSubmit)="consultarCnpj()" ngSkipHydration>
+          <form class="lp-form" (ngSubmit)="consultarCnpj()">
             <label class="sr-only" for="cnpj-input">CNPJ da empresa</label>
             <input
               id="cnpj-input"
@@ -177,7 +177,7 @@
     </section>
 
     @if (!isLoggedIn()) {
-      <div class="lp-sticky" ngSkipHydration>
+      <div class="lp-sticky">
         <button type="button" class="btn btn-primary lp-btn" (click)="scrollToForm()">
           {{ config.previewButton }}
         </button>

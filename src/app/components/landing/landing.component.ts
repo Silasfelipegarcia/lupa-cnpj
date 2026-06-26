@@ -16,7 +16,8 @@ import { LegalFooterLinksComponent } from '../legal-footer-links/legal-footer-li
   standalone: true,
   imports: [RouterLink, AppBrandComponent, LegalFooterLinksComponent, FormsModule, AnalyticsCtaDirective],
   templateUrl: './landing.component.html',
-  styleUrl: './landing.component.scss'
+  styleUrl: './landing.component.scss',
+  host: { ngSkipHydration: 'true' }
 })
 export class LandingComponent implements OnInit {
   readonly authService = inject(AuthService);

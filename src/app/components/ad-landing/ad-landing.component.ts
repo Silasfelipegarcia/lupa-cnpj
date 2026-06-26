@@ -15,7 +15,8 @@ import { AD_LANDING_CONFIGS, AdLandingConfig } from './ad-landing.config';
   standalone: true,
   imports: [RouterLink, LegalFooterLinksComponent, FormsModule, AnalyticsCtaDirective],
   templateUrl: './ad-landing.component.html',
-  styleUrl: './ad-landing.component.scss'
+  styleUrl: './ad-landing.component.scss',
+  host: { ngSkipHydration: 'true' }
 })
 export class AdLandingComponent implements OnInit {
   readonly authService = inject(AuthService);
