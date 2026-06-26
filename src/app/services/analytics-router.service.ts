@@ -20,15 +20,13 @@ export class AnalyticsRouterService {
     }
 
     this.consentService.consent$.subscribe(() => {
-      if (this.consentService.hasAnalyticsConsent()) {
-        this.trackCurrentPage();
-      }
+      this.scheduleTrack();
     });
 
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe(() => {
-      this.trackCurrentPage();
+      this.scheduleTrack();
     });
   }
 
@@ -43,6 +41,13 @@ export class AnalyticsRouterService {
     const path = url.split('?')[0].split('#')[0] || '/';
 
     this.analytics.pageView(path, title, routeConfig ?? undefined);
+  }
+
+  private scheduleTrack(): void {
+    if (!this.consentService.hasAnalyticsConsent()) {
+      return;
+    }
+    queueMicrotask(() => this.trackCurrentPage());
   }
 
   private resolveRouteAnalytics(url: string): RouteAnalyticsConfig | null {

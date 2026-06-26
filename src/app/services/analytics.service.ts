@@ -44,15 +44,26 @@ export class AnalyticsService {
       };
     }
 
+    window.gtag('consent', 'default', {
+      analytics_storage: 'granted',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied'
+    });
+
     this.loadGtagScript().then(() => {
       window.gtag('js', new Date());
       window.gtag('config', this.measurementId, {
         send_page_view: false,
         anonymize_ip: true,
-        cookie_flags: 'SameSite=None;Secure'
+        cookie_flags: this.gtagCookieFlags()
       });
       this.initialized = true;
-    }).catch(() => {});
+    }).catch((error) => {
+      if (!environment.production) {
+        console.warn('[analytics] falha ao carregar gtag', error);
+      }
+    });
   }
 
   initIfConsented(): void {
@@ -327,6 +338,9 @@ export class AnalyticsService {
     }
     if (!this.initialized) {
       this.init();
+      if (!window.gtag) {
+        return;
+      }
     }
 
     const gaParams = this.toGa4Params(params) as Record<string, unknown>;
@@ -341,6 +355,10 @@ export class AnalyticsService {
   }
 
   private sendToBackend(event: AnalyticsEventName, params: AnalyticsEventParams): void {
+    if (!this.isBrowser) {
+      return;
+    }
+
     const properties = Object.fromEntries(
       Object.entries(params).filter(([, value]) => value !== undefined && value !== '')
     );
@@ -348,7 +366,13 @@ export class AnalyticsService {
     this.http.post(this.apiUrl, {
       event,
       properties: JSON.stringify(properties)
-    }, { responseType: 'text' }).subscribe({ error: () => {} });
+    }, { responseType: 'text' }).subscribe({
+      error: (error) => {
+        if (!environment.production) {
+          console.warn('[analytics] falha ao enviar evento para API', { event, error });
+        }
+      }
+    });
   }
 
   private sendToGa4(event: AnalyticsEventName, params: AnalyticsEventParams): void {
@@ -358,6 +382,9 @@ export class AnalyticsService {
 
     if (!this.initialized) {
       this.init();
+      if (!window.gtag) {
+        return;
+      }
     }
 
     const gaParams = this.toGa4Params(params);
@@ -391,8 +418,12 @@ export class AnalyticsService {
       script.async = true;
       script.src = `https://www.googletagmanager.com/gtag/js?id=${this.measurementId}`;
       script.onload = () => resolve();
-      script.onerror = () => reject();
+      script.onerror = () => reject(new Error('gtag script failed to load'));
       document.head.appendChild(script);
     });
+  }
+
+  private gtagCookieFlags(): string {
+    return window.location.protocol === 'https:' ? 'SameSite=None;Secure' : 'SameSite=Lax';
   }
 }

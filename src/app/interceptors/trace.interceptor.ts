@@ -1,8 +1,8 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { environment } from '../../environments/environment';
+import { isApiUrl } from '../utils/api-url.util';
 
 export const traceInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.startsWith(environment.apiUrl)) {
+  if (!isApiUrl(req.url)) {
     return next(req);
   }
 

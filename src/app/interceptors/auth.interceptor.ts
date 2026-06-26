@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { environment } from '../../environments/environment';
+import { isApiUrl } from '../utils/api-url.util';
 import { isJwtExpired } from '../utils/jwt.util';
 
 const PUBLIC_API_SEGMENTS = [
@@ -14,18 +14,25 @@ const PUBLIC_API_SEGMENTS = [
   '/analytics/event'
 ];
 
+const OPTIONAL_AUTH_API_SEGMENTS = ['/analytics/event'];
+
 function isPublicApi(url: string): boolean {
   return PUBLIC_API_SEGMENTS.some((segment) => url.includes(segment));
+}
+
+function acceptsOptionalAuth(url: string): boolean {
+  return OPTIONAL_AUTH_API_SEGMENTS.some((segment) => url.includes(segment));
 }
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
 
-  const isApiCall = req.url.startsWith(environment.apiUrl);
+  const isApiCall = isApiUrl(req.url);
   const isPublic = isPublicApi(req.url);
   const token = authService.getToken();
+  const shouldAttachToken = isApiCall && token && (!isPublic || acceptsOptionalAuth(req.url));
 
-  if (isApiCall && token && !isPublic) {
+  if (shouldAttachToken) {
     if (!authService.sessaoCompativelComApi()) {
       authService.logoutPorAmbienteDiferente();
       return throwError(() => new Error('Sessão de outro ambiente'));
