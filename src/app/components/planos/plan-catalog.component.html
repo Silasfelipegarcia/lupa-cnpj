@@ -6,9 +6,10 @@
       @if (processando() === 'trial') {
         Ativando trial...
       } @else {
-        Experimentar Prospecção grátis por 7 dias
+        Testar Prospecção 7 dias grátis (cadastre o cartão)
       }
     </button>
+    <p class="trial-hint">Sem cobrança agora. Após 7 dias, R$ 19/mês no cartão salvo (cancele quando quiser).</p>
   }
 
   @if (authService.isAuthenticated() && !pagamentosConfigurados()) {

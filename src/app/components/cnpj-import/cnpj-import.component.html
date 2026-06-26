@@ -12,6 +12,10 @@
         <span>{{ uso.batch }}</span>
         <span>·</span>
         <span>{{ uso.direct }}</span>
+        @if (uso.imports) {
+          <span>·</span>
+          <span>{{ uso.imports }}</span>
+        }
         <a routerLink="/conta/plano" class="usage-link">Ver plano</a>
       </p>
     } @else if (authService.isMaster()) {
@@ -83,9 +87,15 @@
     @if (resultadoAvulso(); as r) {
       <div class="direct-result">
         <div class="direct-result-header">
-          <span class="result-label">Consulta completa</span>
+          <span class="result-label">{{ dadosLimitados() ? 'Prévia do plano Free' : 'Consulta completa' }}</span>
           <span class="mono">{{ r.cnpj }}</span>
         </div>
+        @if (dadosLimitados()) {
+          <p class="upgrade-hint section-hint">
+            Telefone, e-mail e endereço completos no plano Prospecção —
+            <a routerLink="/conta/plano">teste 7 dias grátis</a>.
+          </p>
+        }
         @if (r.statusConsulta === 'SUCESSO') {
           <div class="result-grid">
             @for (campo of camposResultadoAvulso(r); track campo.label) {

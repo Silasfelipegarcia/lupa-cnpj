@@ -3,6 +3,12 @@
   <p class="page-subtitle">Cartões salvos, pagamentos e histórico da sua assinatura.</p>
 </header>
 
+@if (avisoTrial()) {
+  <div class="alert alert-info billing-trial-hint">
+    Cadastre um cartão para iniciar o trial de 7 dias do Prospecção. A cobrança de R$ 19/mês só começa após o período de teste.
+  </div>
+}
+
 <section class="card cards-section">
   <div class="section-head">
     <h2>Cartões de crédito</h2>

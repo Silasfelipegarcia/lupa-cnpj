@@ -29,6 +29,9 @@ export interface PlanUsage {
   filtrosAvancados?: boolean;
   dedupeHabilitado?: boolean;
   trialDisponivel?: boolean;
+  dadosLimitados?: boolean;
+  maxImportJobsPerDay?: number | null;
+  importJobsToday?: number;
 }
 
 export interface User {

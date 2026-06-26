@@ -158,20 +158,22 @@ import { AuthService } from '../../services/auth.service';
       }
     }
 
-    .account-dropdown-upgrade {
+    a.account-dropdown-upgrade {
       display: block;
       margin: 0.5rem 0.35rem 0.25rem;
       padding: 0.55rem 0.85rem;
       border-radius: var(--radius-full);
       background: var(--primary);
-      color: #fff;
+      color: var(--text-inverse);
       font-size: 0.85rem;
       font-weight: 600;
       text-align: center;
       text-decoration: none;
 
-      &:hover {
+      &:hover,
+      &:focus-visible {
         background: var(--primary-hover);
+        color: var(--text-inverse);
         text-decoration: none;
       }
     }

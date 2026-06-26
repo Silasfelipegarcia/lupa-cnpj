@@ -25,10 +25,12 @@ const LEGACY_ONBOARDING_KEY = 'lupa_onboarding_visto';
 export class CnpjImportComponent implements OnInit {
 
   readonly maxFileSizeMb = environment.limits.maxFileSizeMb;
+  readonly planoFree = computed(() => this.authService.currentUser()?.plan === 'FREE');
+  readonly dadosLimitados = computed(() => !!this.authService.currentUser()?.usage?.dadosLimitados);
 
   readonly maxRowsPerFile = computed(() => {
     const usage = this.authService.currentUser()?.usage;
-    return usage?.maxRowsPerFile ?? 10;
+    return usage?.maxRowsPerFile ?? 5;
   });
 
   readonly usageResumo = computed(() => {
@@ -39,6 +41,7 @@ export class CnpjImportComponent implements OnInit {
     }
     const batchLimite = usage.maxBatchSearchesPerDay;
     const directLimite = usage.maxDirectCnpjPerDay;
+    const importLimite = usage.maxImportJobsPerDay;
 
     return {
       batch: batchLimite == null
@@ -46,7 +49,10 @@ export class CnpjImportComponent implements OnInit {
         : `${usage.batchSearchesToday} de ${batchLimite} empresas em planilha hoje`,
       direct: directLimite == null
         ? `${usage.directCnpjToday} CNPJs avulsos hoje (ilimitado)`
-        : `${usage.directCnpjToday} de ${directLimite} CNPJs únicos hoje`
+        : `${usage.directCnpjToday} de ${directLimite} CNPJs únicos hoje`,
+      imports: importLimite == null
+        ? null
+        : `${usage.importJobsToday ?? 0} de ${importLimite} importação(ões) hoje`
     };
   });
 

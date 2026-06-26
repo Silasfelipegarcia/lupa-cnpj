@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { PaymentService } from '../../services/payment.service';
 import { PaymentHistoryItem, SavedCard } from '../../models/payment.model';
@@ -14,16 +15,19 @@ import { CardRegisterComponent } from '../payment/card-register.component';
 })
 export class ContaCobrancaComponent implements OnInit {
   private readonly paymentService = inject(PaymentService);
+  private readonly route = inject(ActivatedRoute);
   readonly authService = inject(AuthService);
 
   carregando = signal(true);
   historico = signal<PaymentHistoryItem[]>([]);
   cartoes = signal<SavedCard[]>([]);
   erro = signal('');
+  avisoTrial = signal(false);
   mostrarFormulario = signal(false);
   removendo = signal<string | null>(null);
 
   ngOnInit(): void {
+    this.avisoTrial.set(this.route.snapshot.queryParamMap.get('trial') === '1');
     this.authService.refreshMe().subscribe({ error: () => {} });
     this.recarregar();
   }

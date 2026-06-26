@@ -180,12 +180,21 @@ export class PlanCatalogComponent implements OnInit {
       return;
     }
 
+    if (this.cartoes().length === 0) {
+      this.mensagem.set('');
+      this.erro.set('');
+      this.router.navigate(['/conta/cobranca'], {
+        queryParams: { redirect: '/conta/plano', trial: '1' }
+      });
+      return;
+    }
+
     this.processando.set('trial');
     this.planService.iniciarTrial().subscribe({
       next: () => {
         this.authService.refreshMe().subscribe({ error: () => {} });
         this.analytics.track('trial_start');
-        this.mensagem.set('Trial de 7 dias no plano Prospecção ativado!');
+        this.mensagem.set('Trial de 7 dias no Prospecção ativado! Cobrança de R$ 19/mês só após o período.');
         this.processando.set(null);
       },
       error: (msg: string) => {
