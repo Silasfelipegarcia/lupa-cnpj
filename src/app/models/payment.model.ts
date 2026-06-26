@@ -19,6 +19,23 @@ export interface SavedCard {
   expirationMonth: string;
   expirationYear: string;
   holderName: string;
+  defaultCard?: boolean;
+}
+
+export const CHECKOUT_ORDER_STORAGE_KEY = 'lupa_checkout_order';
+
+export interface CheckoutSyncResponse {
+  status: string;
+  statusLabel: string;
+  planNome: string;
+  orderId: string;
+}
+
+export interface CheckoutSyncRequest {
+  paymentId?: string;
+  externalReference?: string;
+  preferenceId?: string;
+  orderId?: string;
 }
 
 export interface ChargePlanRequest {

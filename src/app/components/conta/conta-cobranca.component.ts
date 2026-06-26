@@ -35,6 +35,7 @@ export class ContaCobrancaComponent implements OnInit {
     this.paymentService.listarCartoes().subscribe({
       next: (cards) => {
         this.cartoes.set(cards);
+        this.authService.refreshMe().subscribe({ error: () => {} });
         this.paymentService.listarHistorico().subscribe({
           next: (items) => {
             this.historico.set(items);
@@ -59,6 +60,7 @@ export class ContaCobrancaComponent implements OnInit {
       return [card, ...filtrada];
     });
     this.mostrarFormulario.set(false);
+    this.authService.refreshMe().subscribe({ error: () => {} });
   }
 
   removerCartao(cardId: string): void {
@@ -110,6 +112,10 @@ export class ContaCobrancaComponent implements OnInit {
   }
 
   isCartaoPadrao(cardId: string): boolean {
+    const card = this.cartoes().find((c) => c.id === cardId);
+    if (card?.defaultCard) {
+      return true;
+    }
     return this.authService.currentUser()?.subscription?.defaultCardId === cardId;
   }
 

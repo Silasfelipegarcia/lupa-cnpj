@@ -11,17 +11,18 @@
 }
 
 .payment-prefs {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem 1.75rem;
 
   h3 {
-    margin: 0 0 0.85rem;
-    font-size: 1rem;
+    margin: 0 0 1rem;
+    font-size: 1.05rem;
     font-weight: 700;
   }
 
   &__row {
     display: flex;
-    gap: 0.75rem;
+    gap: 1.25rem;
     flex-wrap: wrap;
     align-items: flex-end;
   }
@@ -31,6 +32,11 @@
     font-size: 0.85rem;
     color: var(--text-secondary);
     line-height: 1.5;
+
+    &--sandbox {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
   }
 
   .field {
@@ -47,9 +53,19 @@
     }
 
     &--cvv {
-      max-width: 100px;
-      flex: 0 0 100px;
+      max-width: 120px;
+      flex: 0 0 120px;
     }
+  }
+
+  input {
+    font-family: var(--font);
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-card);
+    font-size: 1rem;
+    letter-spacing: 0.08em;
   }
 
   select {
@@ -61,14 +77,24 @@
   }
 }
 
+.payment-feedback {
+  margin-bottom: 1rem;
+}
+
 .plans-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-grid);
-  margin-bottom: var(--space-grid);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  align-items: stretch;
 
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(3, 1fr);
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem;
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -76,11 +102,13 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 1rem;
+  height: 100%;
+  min-height: 28rem;
   background: var(--surface-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 1.75rem 1.5rem;
+  padding: 2rem 1.75rem;
   box-shadow: var(--shadow-sm);
   transition: box-shadow 0.15s, border-color 0.15s;
 
@@ -99,7 +127,7 @@
 
   h2 {
     margin: 0;
-    font-size: 1.15rem;
+    font-size: 1.2rem;
     font-weight: 700;
   }
 }
@@ -157,14 +185,15 @@
   padding: 0;
   list-style: none;
   color: var(--text-secondary);
-  font-size: 0.88rem;
-  line-height: 1.65;
+  font-size: 0.9rem;
+  line-height: 1.6;
   flex: 1;
+  min-height: 11rem;
 
   li {
     position: relative;
-    padding-left: 1.35rem;
-    margin-bottom: 0.35rem;
+    padding-left: 1.4rem;
+    margin-bottom: 0.45rem;
 
     &::before {
       content: '✓';
@@ -179,8 +208,16 @@
 
 .plan-actions {
   margin-top: auto;
-  padding-top: 1rem;
+  padding-top: 1.25rem;
   border-top: 1px solid var(--border);
+
+  .btn,
+  .plan-badge {
+    min-height: 2.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .plan-badge {

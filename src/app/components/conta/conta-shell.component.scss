@@ -2,12 +2,16 @@
   display: block;
 }
 
+.conta-container {
+  padding-bottom: 3.5rem;
+}
+
 .conta-layout {
   display: grid;
   gap: 2rem;
 
   @media (min-width: 768px) {
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 200px 1fr;
     align-items: start;
   }
 }

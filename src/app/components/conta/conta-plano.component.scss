@@ -47,12 +47,18 @@
 }
 
 .catalog-section {
-  margin-top: 2rem;
+  margin-top: 2.5rem;
+
+  @media (min-width: 768px) {
+    margin-left: calc(-1 * (200px + 2rem));
+    width: calc(100% + 200px + 2rem);
+    max-width: var(--container-xl);
+  }
 }
 
 .catalog-title {
-  margin: 0 0 1.25rem;
-  font-size: 1.1rem;
+  margin: 0 0 1.5rem;
+  font-size: 1.15rem;
   font-weight: 700;
 }
 

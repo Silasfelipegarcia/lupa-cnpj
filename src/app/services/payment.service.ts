@@ -4,6 +4,8 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import {
+  CheckoutSyncRequest,
+  CheckoutSyncResponse,
   ChargePlanRequest,
   ChargePlanResponse,
   PaymentConfig,
@@ -79,6 +81,12 @@ export class PaymentService {
 
   reativarAssinatura(): Observable<SubscriptionStatusResponse> {
     return this.http.post<SubscriptionStatusResponse>(`${this.apiBase}/payments/subscription/reactivate`, {}).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  sincronizarCheckout(body: CheckoutSyncRequest): Observable<CheckoutSyncResponse> {
+    return this.http.post<CheckoutSyncResponse>(`${this.apiBase}/payments/checkout/sync`, body).pipe(
       catchError(this.tratarErro)
     );
   }

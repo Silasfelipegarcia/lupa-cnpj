@@ -2,8 +2,9 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AppHeaderComponent } from '../app-header/app-header.component';
 import { AuthService } from '../../services/auth.service';
-import { Subscription, timer } from 'rxjs';
-import { switchMap, take } from 'rxjs/operators';
+import { PaymentService } from '../../services/payment.service';
+import { CheckoutSyncRequest, CHECKOUT_ORDER_STORAGE_KEY } from '../../models/payment.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-planos-resultado',
@@ -20,6 +21,9 @@ import { switchMap, take } from 'rxjs/operators';
           } @else {
             <h1>Pagamento pendente</h1>
             <p>{{ mensagemStatus }}</p>
+          }
+          @if (avisoLocal) {
+            <p class="aviso-local">{{ avisoLocal }}</p>
           }
           <div class="actions">
             <a routerLink="/app" class="btn btn-primary">Ir para o painel</a>
@@ -45,6 +49,13 @@ import { switchMap, take } from 'rxjs/operators';
       line-height: 1.6;
       margin: 0 0 1.5rem;
     }
+    .aviso-local {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      max-width: 32rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
     .actions {
       display: flex;
       gap: 0.75rem;
@@ -57,44 +68,64 @@ export class PlanosResultadoComponent implements OnInit, OnDestroy {
 
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
+  private readonly paymentService = inject(PaymentService);
 
-  private refreshSub?: Subscription;
+  private syncSub?: Subscription;
 
   tipo: 'sucesso' | 'pendente' = 'pendente';
-  mensagemStatus = 'Seu plano será atualizado em instantes. Você já pode voltar ao painel.';
+  mensagemStatus = 'Sincronizando pagamento com o Mercado Pago...';
+  avisoLocal = '';
 
   ngOnInit(): void {
     const path = this.route.snapshot.routeConfig?.path ?? '';
     this.tipo = path.includes('sucesso') ? 'sucesso' : 'pendente';
 
-    if (this.tipo === 'pendente') {
-      this.mensagemStatus = 'Estamos aguardando a confirmação do Mercado Pago. Atualizando seu plano...';
+    if (!this.authService.isAuthenticated()) {
+      this.mensagemStatus = 'Faça login para atualizar seu plano.';
+      return;
     }
 
-    if (this.authService.isAuthenticated()) {
-      this.atualizarPlanoComRetry();
-    }
+    this.sincronizarPagamento();
   }
 
   ngOnDestroy(): void {
-    this.refreshSub?.unsubscribe();
+    this.syncSub?.unsubscribe();
   }
 
-  private atualizarPlanoComRetry(): void {
-    const planoInicial = this.authService.currentUser()?.plan;
+  private sincronizarPagamento(): void {
+    const params = this.route.snapshot.queryParamMap;
+    const body: CheckoutSyncRequest = {
+      paymentId: params.get('payment_id') ?? params.get('collection_id') ?? undefined,
+      externalReference: params.get('external_reference') ?? undefined,
+      preferenceId: params.get('preference_id') ?? undefined,
+      orderId: sessionStorage.getItem(CHECKOUT_ORDER_STORAGE_KEY) ?? undefined
+    };
 
-    this.refreshSub = timer(0, 3000).pipe(
-      take(4),
-      switchMap(() => this.authService.refreshMe())
-    ).subscribe({
-      next: () => {
-        const planoAtual = this.authService.currentUser()?.plan;
-        if (planoAtual && planoAtual !== 'FREE' && planoAtual !== planoInicial) {
-          this.tipo = 'sucesso';
-          this.mensagemStatus = 'Plano ativado com sucesso! Você já pode usar os novos limites.';
-        }
+    this.syncSub = this.paymentService.sincronizarCheckout(body).subscribe({
+      next: (result) => {
+        sessionStorage.removeItem(CHECKOUT_ORDER_STORAGE_KEY);
+        this.authService.refreshMe().subscribe({ error: () => {} });
+        this.aplicarResultado(result.status, result.planNome);
       },
-      error: () => {}
+      error: (msg: string) => {
+        this.mensagemStatus = msg;
+        this.avisoLocal = 'Se você acabou de pagar no Mercado Pago, aguarde alguns segundos e recarregue esta página.';
+        this.authService.refreshMe().subscribe({ error: () => {} });
+      }
     });
+  }
+
+  private aplicarResultado(status: string, planNome: string): void {
+    const aprovado = status?.toUpperCase() === 'APPROVED';
+    this.tipo = aprovado ? 'sucesso' : 'pendente';
+    if (aprovado) {
+      this.mensagemStatus = `Plano ${planNome} ativado com sucesso! Você já pode usar os novos limites.`;
+      return;
+    }
+    if (status?.toUpperCase() === 'PENDING') {
+      this.mensagemStatus = 'Pagamento pendente no Mercado Pago. Atualizaremos assim que for confirmado.';
+      return;
+    }
+    this.mensagemStatus = `Status do pagamento: ${status}. Confira em Conta → Plano.`;
   }
 }

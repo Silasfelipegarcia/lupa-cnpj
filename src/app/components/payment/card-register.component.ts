@@ -4,17 +4,7 @@ import { loadMercadoPago } from '@mercadopago/sdk-js';
 import { PaymentService } from '../../services/payment.service';
 import { AuthService } from '../../services/auth.service';
 import { SavedCard } from '../../models/payment.model';
-
-declare global {
-  interface Window {
-    MercadoPago: new (publicKey: string, options?: { locale?: string }) => {
-      createCardToken: (data: Record<string, string>) => Promise<{ id?: string }>;
-      fields?: {
-        createCardToken: (data: Record<string, string>) => Promise<{ id?: string }>;
-      };
-    };
-  }
-}
+import type { MercadoPagoInstance } from '../../types/mercadopago';
 
 @Component({
   selector: 'app-card-register',
@@ -40,7 +30,7 @@ export class CardRegisterComponent implements OnInit {
   expiration = '';
   securityCode = '';
 
-  private mp: { createCardToken: (data: Record<string, string>) => Promise<{ id?: string }> } | null = null;
+  private mp: MercadoPagoInstance | null = null;
 
   ngOnInit(): void {
     this.paymentService.obterConfig().subscribe({

@@ -18,11 +18,6 @@
   </p>
 
   @if (cartoes().length > 0) {
-    @if (renovacaoAtiva() && !authService.currentUser()?.subscription?.defaultCardId) {
-      <div class="alert alert-error">
-        Cadastre um cartão para a renovação automática da assinatura.
-      </div>
-    }
     <ul class="card-list">
       @for (card of cartoes(); track card.id) {
         <li class="card-item">
@@ -55,6 +50,11 @@
       }
     </ul>
   } @else if (!mostrarFormulario()) {
+    @if (renovacaoAtiva()) {
+      <div class="alert alert-error">
+        Cadastre um cartão para a renovação automática da assinatura.
+      </div>
+    }
     <p class="empty">Nenhum cartão cadastrado. Adicione um para assinar planos sem sair do app.</p>
   }
 

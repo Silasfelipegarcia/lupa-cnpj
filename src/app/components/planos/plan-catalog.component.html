@@ -17,6 +17,13 @@
     </div>
   }
 
+  @if (mensagem()) {
+    <div class="alert alert-info payment-feedback">{{ mensagem() }}</div>
+  }
+  @if (erro()) {
+    <div class="alert alert-error payment-feedback">{{ erro() }}</div>
+  }
+
   @if (authService.isAuthenticated()) {
     <section class="payment-prefs card">
       <h3>Forma de pagamento</h3>
@@ -32,18 +39,26 @@
               }
             </select>
           </label>
-          <label class="field field--cvv">
+          <div class="field field--cvv">
             <span>CVV</span>
             <input
               type="password"
               inputmode="numeric"
+              autocomplete="cc-csc"
               maxlength="4"
               placeholder="123"
-              [(ngModel)]="cvv"
+              [value]="cvv()"
+              (input)="onCvvInput($event)"
             />
-          </label>
+          </div>
         </div>
-        <p class="payment-prefs__hint">Informe o CVV e clique em Assinar para pagar com o cartão salvo.</p>
+        @if (sandboxMercadoPago()) {
+          <p class="payment-prefs__hint payment-prefs__hint--sandbox">
+            Sandbox: informe o CVV e tente com o cartão salvo. Se falhar, abrimos o checkout Mercado Pago automaticamente.
+          </p>
+        } @else {
+          <p class="payment-prefs__hint">Digite o CVV e clique no plano para pagar com o cartão salvo.</p>
+        }
       } @else {
         <p class="payment-prefs__hint">
           <a routerLink="/conta/cobranca">Cadastre um cartão</a> para assinar sem sair do app, ou use o checkout Mercado Pago.
@@ -109,7 +124,7 @@
             >
               @if (processando() === item.plan) {
                 Processando...
-              } @else if (cartoes().length > 0 && cvv.length >= 3) {
+              } @else if (cartoes().length > 0) {
                 @if (cotacao(item.plan!)?.upgrade) {
                   Upgrade com cartão salvo
                 } @else {
@@ -152,13 +167,6 @@
       </div>
     </article>
   }
-}
-
-@if (mensagem()) {
-  <div class="alert alert-info">{{ mensagem() }}</div>
-}
-@if (erro()) {
-  <div class="alert alert-error">{{ erro() }}</div>
 }
 
 <p class="footer-note">
