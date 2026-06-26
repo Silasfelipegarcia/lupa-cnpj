@@ -1,0 +1,104 @@
+<header class="admin-page-header">
+  <div>
+    <h1>Usuários</h1>
+    <p class="page-subtitle">{{ formatNumber(totalElementos()) }} contas cadastradas.</p>
+  </div>
+</header>
+
+<section class="card admin-filters">
+  <div class="admin-filters__row">
+    <label class="admin-field">
+      <span>Buscar</span>
+      <input
+        type="search"
+        [ngModel]="busca()"
+        (ngModelChange)="busca.set($event)"
+        (keyup.enter)="aplicarFiltros()"
+        placeholder="Nome ou e-mail"
+      />
+    </label>
+    <label class="admin-field">
+      <span>Plano</span>
+      <select [ngModel]="planoFiltro()" (ngModelChange)="planoFiltro.set($event); aplicarFiltros()">
+        @for (plano of planos; track plano.value) {
+          <option [ngValue]="plano.value">{{ plano.label }}</option>
+        }
+      </select>
+    </label>
+    <button type="button" class="btn btn-primary" (click)="aplicarFiltros()">Filtrar</button>
+  </div>
+</section>
+
+@if (carregando()) {
+  <p class="admin-state">Carregando usuários…</p>
+} @else if (erro()) {
+  <div class="admin-alert admin-alert--error">
+    <p>{{ erro() }}</p>
+    <button type="button" class="btn btn-outline btn-sm" (click)="carregar()">Tentar novamente</button>
+  </div>
+} @else {
+  <section class="card admin-table-card">
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Usuário</th>
+            <th>Plano</th>
+            <th>Imports</th>
+            <th>Processadas</th>
+            <th>Receita</th>
+            <th>Uso hoje</th>
+            <th>Cadastro</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of usuarios(); track user.id) {
+            <tr>
+              <td>
+                <strong>{{ user.nome }}</strong>
+                <span class="admin-table-sub">{{ user.email }}</span>
+                @if (user.role === 'ADMIN') {
+                  <span class="admin-badge">Admin</span>
+                }
+                @if (!user.enabled) {
+                  <span class="admin-badge admin-badge--muted">Inativo</span>
+                }
+              </td>
+              <td>{{ planLabel(user.plan) }}</td>
+              <td>{{ formatNumber(user.importJobsCount) }}</td>
+              <td>{{ formatNumber(user.rowsProcessed) }}</td>
+              <td>{{ formatBrlFromCents(user.revenueCents) }}</td>
+              <td>{{ formatNumber(user.usageToday.total) }}</td>
+              <td>{{ formatAdminDate(user.createdAt) }}</td>
+              <td>
+                <a [routerLink]="['/admin/usuarios', user.id]" class="btn btn-outline btn-sm">Detalhes</a>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="admin-empty">Nenhum usuário encontrado.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPaginas() > 1) {
+      <div class="admin-pagination">
+        <button type="button" class="btn btn-outline btn-sm" (click)="paginaAnterior()" [disabled]="pagina() === 0">
+          Anterior
+        </button>
+        <span>Página {{ pagina() + 1 }} de {{ totalPaginas() }}</span>
+        <button
+          type="button"
+          class="btn btn-outline btn-sm"
+          (click)="proximaPagina()"
+          [disabled]="pagina() >= totalPaginas() - 1"
+        >
+          Próxima
+        </button>
+      </div>
+    }
+  </section>
+}

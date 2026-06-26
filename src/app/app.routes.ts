@@ -14,7 +14,12 @@ import { ContaShellComponent } from './components/conta/conta-shell.component';
 import { ContaPlanoComponent } from './components/conta/conta-plano.component';
 import { ContaPerfilComponent } from './components/conta/conta-perfil.component';
 import { ContaCobrancaComponent } from './components/conta/conta-cobranca.component';
+import { AdminShellComponent } from './components/admin/admin-shell.component';
+import { AdminOverviewComponent } from './components/admin/admin-overview.component';
+import { AdminUsersComponent } from './components/admin/admin-users.component';
+import { AdminUserDetailComponent } from './components/admin/admin-user-detail.component';
 import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
 import { guestGuard } from './guards/guest.guard';
 import { planosPublicGuard } from './guards/planos-public.guard';
 import { ROUTE_SEO } from './seo/seo-defaults';
@@ -79,6 +84,16 @@ export const routes: Routes = [
       { path: 'perfil', component: ContaPerfilComponent, data: { analytics: ROUTE_ANALYTICS['conta/perfil'] } },
       { path: 'plano', component: ContaPlanoComponent, data: { analytics: ROUTE_ANALYTICS['conta/plano'] } },
       { path: 'cobranca', component: ContaCobrancaComponent, data: { analytics: ROUTE_ANALYTICS['conta/cobranca'] } }
+    ]
+  },
+  {
+    path: 'admin',
+    component: AdminShellComponent,
+    canActivate: [adminGuard],
+    children: [
+      { path: '', component: AdminOverviewComponent },
+      { path: 'usuarios', component: AdminUsersComponent },
+      { path: 'usuarios/:id', component: AdminUserDetailComponent }
     ]
   },
   {

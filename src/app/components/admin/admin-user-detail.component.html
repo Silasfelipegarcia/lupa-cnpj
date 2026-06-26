@@ -1,0 +1,161 @@
+<a routerLink="/admin/usuarios" class="admin-back-inline">← Voltar para usuários</a>
+
+@if (carregando()) {
+  <p class="admin-state">Carregando detalhes…</p>
+} @else if (erro()) {
+  <div class="admin-alert admin-alert--error">
+    <p>{{ erro() }}</p>
+  </div>
+} @else if (usuario()) {
+  @let user = usuario()!;
+  <header class="admin-page-header">
+    <div>
+      <h1>{{ user.nome }}</h1>
+      <p class="page-subtitle">{{ user.email }}</p>
+    </div>
+    <div class="admin-detail-badges">
+      <span class="plan-badge">{{ planLabel(user.plan) }}</span>
+      @if (user.role === 'ADMIN') {
+        <span class="plan-badge plan-badge--master">Admin</span>
+      }
+      @if (!user.enabled) {
+        <span class="admin-badge admin-badge--muted">Inativo</span>
+      }
+    </div>
+  </header>
+
+  <section class="admin-stats-grid">
+    <article class="admin-stat-card">
+      <span class="admin-stat-label">Receita</span>
+      <strong class="admin-stat-value">{{ formatBrlFromCents(user.revenueCents) }}</strong>
+    </article>
+    <article class="admin-stat-card">
+      <span class="admin-stat-label">Imports</span>
+      <strong class="admin-stat-value">{{ formatNumber(user.importJobsCount) }}</strong>
+    </article>
+    <article class="admin-stat-card">
+      <span class="admin-stat-label">Linhas processadas</span>
+      <strong class="admin-stat-value">{{ formatNumber(user.rowsProcessed) }}</strong>
+      <span class="admin-stat-meta">{{ formatNumber(user.rowsSuccess) }} ok · {{ formatNumber(user.rowsErrors) }} erros</span>
+    </article>
+    <article class="admin-stat-card">
+      <span class="admin-stat-label">Uso (30 dias)</span>
+      <strong class="admin-stat-value">{{ formatNumber(user.usageLast30Days.total) }}</strong>
+      <span class="admin-stat-meta">{{ formatNumber(user.usageLifetime.total) }} no total</span>
+    </article>
+  </section>
+
+  <div class="admin-detail-grid">
+    <section class="card">
+      <h2>Assinatura</h2>
+      <dl class="admin-detail-list">
+        <div><dt>Cadastro</dt><dd>{{ formatAdminDateTime(user.createdAt) }}</dd></div>
+        <div><dt>Trial utilizado</dt><dd>{{ user.trialUtilizado ? 'Sim' : 'Não' }}</dd></div>
+        <div><dt>Trial até</dt><dd>{{ formatAdminDate(user.trialAte) }}</dd></div>
+        <div><dt>Plano válido até</dt><dd>{{ formatAdminDate(user.planValidUntil) }}</dd></div>
+        <div><dt>Cancelado em</dt><dd>{{ formatAdminDate(user.planCancelledAt) }}</dd></div>
+        <div><dt>Renovação automática</dt><dd>{{ user.autoRenew ? 'Sim' : 'Não' }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="card">
+      <h2>Uso diário (30 dias)</h2>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Lote</th>
+              <th>CNPJ direto</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (day of user.dailyUsage; track day.date) {
+              <tr>
+                <td>{{ formatAdminDate(day.date) }}</td>
+                <td>{{ formatNumber(day.batchSearches) }}</td>
+                <td>{{ formatNumber(day.directCnpjLookups) }}</td>
+                <td>{{ formatNumber(day.batchSearches + day.directCnpjLookups) }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="admin-empty">Sem uso registrado no período.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <section class="card admin-table-card">
+    <h2>Imports recentes</h2>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Arquivo</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Processadas</th>
+            <th>Sucesso</th>
+            <th>Erros</th>
+            <th>Criado em</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (job of user.recentImports; track job.id) {
+            <tr>
+              <td>{{ job.arquivo }}</td>
+              <td>{{ job.status }}</td>
+              <td>{{ formatNumber(job.total) }}</td>
+              <td>{{ formatNumber(job.processados) }}</td>
+              <td>{{ formatNumber(job.sucesso) }}</td>
+              <td>{{ formatNumber(job.erros) }}</td>
+              <td>{{ formatAdminDateTime(job.createdAt) }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="admin-empty">Nenhum import encontrado.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card admin-table-card">
+    <h2>Pagamentos</h2>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Plano</th>
+            <th>Status</th>
+            <th>Valor</th>
+            <th>Criado em</th>
+            <th>Pago em</th>
+            <th>Renovação</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (payment of user.payments; track payment.id) {
+            <tr>
+              <td>{{ planLabel(payment.plan) }}</td>
+              <td>{{ payment.status }}</td>
+              <td>{{ formatBrlFromCents(payment.amountCents) }}</td>
+              <td>{{ formatAdminDateTime(payment.createdAt) }}</td>
+              <td>{{ formatAdminDateTime(payment.paidAt) }}</td>
+              <td>{{ payment.renewal ? 'Sim' : 'Não' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="admin-empty">Nenhum pagamento encontrado.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

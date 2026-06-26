@@ -37,6 +37,9 @@ import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive'
                appAnalyticsCta="conta_plano" appAnalyticsCtaLocation="account_menu">Plano e uso</a>
             <a routerLink="/conta/cobranca" role="menuitem" (click)="fechar()"
                appAnalyticsCta="conta_cobranca" appAnalyticsCtaLocation="account_menu">Cobrança</a>
+            @if (isAdmin()) {
+              <a routerLink="/admin" role="menuitem" (click)="fechar()">Painel admin</a>
+            }
           </nav>
           @if (mostrarUpgrade()) {
             <a routerLink="/conta/plano" class="account-dropdown-upgrade" (click)="fechar()"
@@ -231,6 +234,10 @@ export class AccountMenuComponent {
   mostrarUpgrade(): boolean {
     const user = this.authService.currentUser();
     return !this.authService.isMaster() && user?.plan !== 'PRO_PLUS';
+  }
+
+  isAdmin(): boolean {
+    return this.authService.currentUser()?.role === 'ADMIN';
   }
 
   toggle(): void {

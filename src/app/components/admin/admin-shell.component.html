@@ -1,0 +1,22 @@
+<div class="app-page">
+  <div class="app-container app-container--xl admin-container">
+    <app-header />
+
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <p class="admin-sidebar-eyebrow">Administração</p>
+        <h2 class="admin-sidebar-title">Painel do produto</h2>
+        <nav class="admin-nav">
+          <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            Visão geral
+          </a>
+          <a routerLink="/admin/usuarios" routerLinkActive="active">Usuários</a>
+        </nav>
+        <a routerLink="/app" class="admin-back-link">← Voltar ao produto</a>
+      </aside>
+      <main class="admin-content">
+        <router-outlet />
+      </main>
+    </div>
+  </div>
+</div>

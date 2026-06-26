@@ -1,0 +1,94 @@
+<header class="admin-page-header">
+  <div>
+    <h1>Visão geral</h1>
+    <p class="page-subtitle">Métricas do produto, receita e processamento.</p>
+  </div>
+  <div class="period-selector" role="group" aria-label="Período">
+    @for (days of periodOptions; track days) {
+      <button
+        type="button"
+        class="btn btn-sm"
+        [class.btn-primary]="periodDays() === days"
+        [class.btn-outline]="periodDays() !== days"
+        (click)="alterarPeriodo(days)"
+      >
+        {{ days }} dias
+      </button>
+    }
+  </div>
+</header>
+
+@if (carregando()) {
+  <p class="admin-state">Carregando métricas…</p>
+} @else if (erro()) {
+  <div class="admin-alert admin-alert--error">
+    <p>{{ erro() }}</p>
+    <button type="button" class="btn btn-outline btn-sm" (click)="carregar()">Tentar novamente</button>
+  </div>
+} @else if (overview()) {
+  @let data = overview()!;
+  <section class="admin-stats-grid">
+    <article class="admin-stat-card">
+      <span class="admin-stat-label">Usuários</span>
+      <strong class="admin-stat-value">{{ formatNumber(data.totalUsers) }}</strong>
+      <span class="admin-stat-meta">+{{ formatNumber(data.newUsersInPeriod) }} nos últimos {{ data.periodDays }} dias</span>
+    </article>
+    <article class="admin-stat-card">
+      <span class="admin-stat-label">Assinaturas ativas</span>
+      <strong class="admin-stat-value">{{ formatNumber(data.activePaidSubscriptions) }}</strong>
+      <span class="admin-stat-meta">{{ formatNumber(data.activeTrials) }} trials ativos</span>
+    </article>
+    <article class="admin-stat-card">
+      <span class="admin-stat-label">Receita total</span>
+      <strong class="admin-stat-value">{{ formatBrlFromCents(data.totalRevenueCents) }}</strong>
+      <span class="admin-stat-meta">{{ formatBrlFromCents(data.revenueInPeriodCents) }} no período</span>
+    </article>
+    <article class="admin-stat-card">
+      <span class="admin-stat-label">Pagamentos no período</span>
+      <strong class="admin-stat-value">{{ formatNumber(data.approvedPaymentsInPeriod) }}</strong>
+      <span class="admin-stat-meta">{{ formatNumber(data.pendingPayments) }} pendentes</span>
+    </article>
+    <article class="admin-stat-card">
+      <span class="admin-stat-label">Imports</span>
+      <strong class="admin-stat-value">{{ formatNumber(data.totalImportJobs) }}</strong>
+      <span class="admin-stat-meta">{{ formatNumber(data.activeImportJobs) }} em andamento</span>
+    </article>
+    <article class="admin-stat-card">
+      <span class="admin-stat-label">Linhas processadas</span>
+      <strong class="admin-stat-value">{{ formatNumber(data.totalRowsProcessed) }}</strong>
+      <span class="admin-stat-meta">{{ formatNumber(data.totalRowsSuccess) }} ok · {{ formatNumber(data.totalRowsErrors) }} erros</span>
+    </article>
+    <article class="admin-stat-card">
+      <span class="admin-stat-label">Uso hoje</span>
+      <strong class="admin-stat-value">{{ formatNumber(data.usageToday.total) }}</strong>
+      <span class="admin-stat-meta">{{ formatNumber(data.usageToday.batchSearches) }} lote · {{ formatNumber(data.usageToday.directCnpjLookups) }} direto</span>
+    </article>
+    <article class="admin-stat-card">
+      <span class="admin-stat-label">Uso no período</span>
+      <strong class="admin-stat-value">{{ formatNumber(data.usageInPeriod.total) }}</strong>
+      <span class="admin-stat-meta">{{ formatNumber(data.usageInPeriod.batchSearches) }} lote · {{ formatNumber(data.usageInPeriod.directCnpjLookups) }} direto</span>
+    </article>
+  </section>
+
+  <section class="card admin-table-card">
+    <h2>Usuários por plano</h2>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Plano</th>
+            <th>Usuários</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of data.usersByPlan; track item.plan) {
+            <tr>
+              <td>{{ planLabel(item.plan) }}</td>
+              <td>{{ formatNumber(item.count) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
