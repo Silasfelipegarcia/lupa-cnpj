@@ -1,13 +1,14 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, of, tap, throwError } from 'rxjs';
+import { catchError, finalize, shareReplay } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { AuthResponse, ChangePasswordRequest, LoginRequest, RegisterRequest, User } from '../models/auth.model';
 import { LogoutReason } from '../models/analytics.model';
 import { AuthStorage } from './auth-storage';
 import { AnalyticsService } from './analytics.service';
+import { ImportDataStore } from './import-data-store.service';
 import { getJwtExpirationMs, isJwtExpired } from '../utils/jwt.util';
 
 @Injectable({ providedIn: 'root' })
@@ -15,11 +16,15 @@ export class AuthService {
 
   private readonly apiBase = `${environment.apiUrl}/auth`;
   private readonly analytics = inject(AnalyticsService);
+  private readonly importDataStore = inject(ImportDataStore);
 
   readonly currentUser = signal<User | null>(AuthStorage.recuperarUsuario());
 
   private expiryTimer?: ReturnType<typeof setTimeout>;
   private visibilityListener?: () => void;
+  private refreshInFlight?: Observable<User>;
+  private lastRefreshAt = 0;
+  private static readonly MIN_REFRESH_MS = 30_000;
 
   constructor(
     private http: HttpClient,
@@ -85,8 +90,25 @@ export class AuthService {
     );
   }
 
-  refreshMe(): Observable<User> {
-    return this.carregarPerfil();
+  refreshMe(force = false): Observable<User> {
+    const now = Date.now();
+    if (!force && this.refreshInFlight) {
+      return this.refreshInFlight;
+    }
+    if (!force && now - this.lastRefreshAt < AuthService.MIN_REFRESH_MS && this.currentUser()) {
+      return of(this.currentUser()!);
+    }
+
+    this.refreshInFlight = this.carregarPerfil().pipe(
+      tap(() => {
+        this.lastRefreshAt = Date.now();
+      }),
+      finalize(() => {
+        this.refreshInFlight = undefined;
+      }),
+      shareReplay(1)
+    );
+    return this.refreshInFlight;
   }
 
   alterarSenha(request: ChangePasswordRequest): Observable<void> {
@@ -111,6 +133,8 @@ export class AuthService {
     this.cancelarAgendamento();
     AuthStorage.limpar();
     this.currentUser.set(null);
+    this.lastRefreshAt = 0;
+    this.importDataStore.invalidate('all');
     this.analytics.clearUser();
   }
 

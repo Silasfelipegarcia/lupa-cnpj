@@ -196,7 +196,7 @@ export class PlanCatalogComponent implements OnInit {
     this.processando.set('trial');
     this.planService.iniciarTrial().subscribe({
       next: () => {
-        this.authService.refreshMe().subscribe({ error: () => {} });
+        this.authService.refreshMe(true).subscribe({ error: () => {} });
         this.analytics.trackTrialStart('PREMIUM');
         this.mensagem.set('Trial de 7 dias no Prospecção ativado! Cobrança de R$ 19,90/mês só após o período.');
         this.processando.set(null);
@@ -266,7 +266,7 @@ export class PlanCatalogComponent implements OnInit {
       securityCode: cvv
     }, idempotencyKey).subscribe({
       next: (result) => {
-        this.authService.refreshMe().subscribe({ error: () => {} });
+        this.authService.refreshMe(true).subscribe({ error: () => {} });
         this.cvv.set('');
         if (result.status === 'APPROVED') {
           const quote = this.cotacao(plan);

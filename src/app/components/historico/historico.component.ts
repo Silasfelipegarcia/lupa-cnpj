@@ -1,8 +1,9 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CnpjImportService } from '../../services/cnpj-import.service';
+import { ImportDataStore } from '../../services/import-data-store.service';
 import { ImportJobMonitorService } from '../../services/import-job-monitor.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
@@ -31,10 +32,23 @@ export class HistoricoComponent implements OnInit {
 
   constructor(
     private cnpjImportService: CnpjImportService,
+    private importDataStore: ImportDataStore,
     private router: Router,
     private jobMonitor: ImportJobMonitorService,
     private analytics: AnalyticsService
-  ) {}
+  ) {
+    effect(() => {
+      const job = this.jobMonitor.jobAtual();
+      if (!job) {
+        return;
+      }
+      this.atualizarItemNaLista(job.jobId, job.status, job.processados, job.percentual);
+      if (this.jobFinalizado(job.status)) {
+        this.importDataStore.invalidate('historico');
+        this.carregarHistorico(true);
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.carregarHistorico();
@@ -56,16 +70,16 @@ export class HistoricoComponent implements OnInit {
     this.consultasFiltradas.set(items.filter((item) => item.arquivo.toLowerCase().includes(termo)));
   }
 
-  carregarHistorico(): void {
+  carregarHistorico(force = false): void {
     this.carregando.set(true);
-    this.cnpjImportService.obterHistorico().subscribe({
+    this.importDataStore.getHistorico(force).subscribe({
       next: (items) => {
         this.consultas.set(items);
         this.consultasFiltradas.set(items);
         this.aplicarBusca();
         this.carregando.set(false);
         const ativo = items.find((item) => this.emAndamento(item.status));
-        if (ativo) {
+        if (ativo && !this.jobMonitor.estaMonitorando(ativo.jobId)) {
           this.jobMonitor.monitorar(ativo.jobId);
         }
       },
@@ -76,8 +90,8 @@ export class HistoricoComponent implements OnInit {
     });
   }
 
-  carregarListasSalvas(): void {
-    this.cnpjImportService.listarListasSalvas().subscribe({
+  carregarListasSalvas(force = false): void {
+    this.importDataStore.getListasSalvas(force).subscribe({
       next: (listas) => this.listasSalvas.set(listas),
       error: () => {}
     });
@@ -115,7 +129,8 @@ export class HistoricoComponent implements OnInit {
       next: () => {
         this.analytics.trackCancelImport(jobId, 'history_list');
         this.cancelandoId.set(null);
-        this.carregarHistorico();
+        this.importDataStore.invalidate('historico');
+        this.carregarHistorico(true);
       },
       error: (msg: string) => {
         this.cancelandoId.set(null);
@@ -135,6 +150,7 @@ export class HistoricoComponent implements OnInit {
       next: (job) => {
         this.reprocessandoId.set(null);
         this.analytics.trackReprocess(jobId, job.jobId);
+        this.importDataStore.invalidate('historico');
         this.router.navigate(['/consulta', job.jobId]);
       },
       error: (msg: string) => {
@@ -184,5 +200,26 @@ export class HistoricoComponent implements OnInit {
 
   podeBaixar(status: string): boolean {
     return status === 'CONCLUIDO' || status === 'CANCELADO';
+  }
+
+  private atualizarItemNaLista(jobId: string, status: string, processados: number, percentual: number): void {
+    const items = this.consultas();
+    const idx = items.findIndex((item) => item.jobId === jobId);
+    if (idx < 0) {
+      return;
+    }
+    const atualizado = [...items];
+    atualizado[idx] = {
+      ...atualizado[idx],
+      status: status as ImportJobSummary['status'],
+      processados,
+      percentual
+    };
+    this.consultas.set(atualizado);
+    this.aplicarBusca();
+  }
+
+  private jobFinalizado(status: string): boolean {
+    return status === 'CONCLUIDO' || status === 'ERRO' || status === 'CANCELADO';
   }
 }

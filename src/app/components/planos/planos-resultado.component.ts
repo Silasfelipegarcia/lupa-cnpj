@@ -111,7 +111,7 @@ export class PlanosResultadoComponent implements OnInit, OnDestroy {
     this.syncSub = this.paymentService.sincronizarCheckout(body).subscribe({
       next: (result) => {
         sessionStorage.removeItem(CHECKOUT_ORDER_STORAGE_KEY);
-        this.authService.refreshMe().subscribe({ error: () => {} });
+        this.authService.refreshMe(true).subscribe({ error: () => {} });
         this.aplicarResultado(result.status, result.planNome, result.orderId);
       },
       error: (msg: string) => {
@@ -120,7 +120,7 @@ export class PlanosResultadoComponent implements OnInit, OnDestroy {
         this.avisoLocal = environment.production
           ? 'Se você acabou de pagar, aguarde alguns segundos e recarregue esta página.'
           : 'Sandbox local: após pagar no MP, abra /planos/sucesso se não redirecionar sozinho.';
-        this.authService.refreshMe().subscribe({ error: () => {} });
+        this.authService.refreshMe(true).subscribe({ error: () => {} });
       }
     });
   }

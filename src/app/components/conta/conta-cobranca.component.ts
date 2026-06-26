@@ -49,7 +49,7 @@ export class ContaCobrancaComponent implements OnInit {
     this.paymentService.listarCartoes().subscribe({
       next: (cards) => {
         this.cartoes.set(cards);
-        this.authService.refreshMe().subscribe({ error: () => {} });
+        this.authService.refreshMe(true).subscribe({ error: () => {} });
         this.paymentService.listarHistorico().subscribe({
           next: (items) => {
             this.historico.set(items);

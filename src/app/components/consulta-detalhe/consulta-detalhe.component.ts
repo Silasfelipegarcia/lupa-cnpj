@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription, timer, switchMap } from 'rxjs';
 import { CnpjImportService } from '../../services/cnpj-import.service';
+import { ImportDataStore } from '../../services/import-data-store.service';
 import { BrowserNotificationService } from '../../services/browser-notification.service';
 import { ImportJobMonitorService } from '../../services/import-job-monitor.service';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -63,6 +64,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private cnpjImportService: CnpjImportService,
+    private importDataStore: ImportDataStore,
     readonly notificationService: BrowserNotificationService,
     private jobMonitor: ImportJobMonitorService,
     private analytics: AnalyticsService,
@@ -92,7 +94,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
   }
 
   private carregarConfig(): void {
-    this.cnpjImportService.obterConfiguracao().subscribe({
+    this.importDataStore.getConfig().subscribe({
       next: (config) => this.config.set(config),
       error: () => {}
     });
@@ -145,6 +147,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
         this.analytics.trackSaveList(this.jobId(), nome);
         this.nomeLista.set('');
         this.erro.set('');
+        this.importDataStore.invalidate('listas');
       },
       error: (msg: string) => {
         this.salvandoLista.set(false);
@@ -163,6 +166,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
       next: (job) => {
         this.analytics.trackReprocess(this.jobId(), job.jobId);
         this.reprocessando.set(false);
+        this.importDataStore.invalidate('historico');
         this.router.navigate(['/consulta', job.jobId]);
       },
       error: (msg: string) => {
@@ -218,6 +222,7 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
       next: () => {
         this.analytics.trackCancelImport(id, 'consulta_detail');
         this.cancelando.set(false);
+        this.importDataStore.invalidate('historico');
         this.router.navigate(['/app']);
       },
       error: (msg: string) => {
@@ -291,16 +296,54 @@ export class ConsultaDetalheComponent implements OnInit, OnDestroy {
   }
 
   private iniciarPollingHistorico(jobId: string): void {
-    const consulta = () => this.cnpjImportService.obterHistoricoDetalhe(jobId);
-
-    this.pollingSubscription = timer(0, environment.limits.statusPollIntervalMs).pipe(
-      switchMap(consulta)
-    ).subscribe({
-      next: (job) => this.aplicarJob(job),
+    this.cnpjImportService.obterHistoricoDetalhe(jobId).subscribe({
+      next: (job) => {
+        this.aplicarJob(job);
+        if (this.emAndamento()) {
+          this.iniciarPollingStatus(jobId);
+        }
+      },
       error: (msg: string) => {
         this.erro.set(msg);
         this.pararPollingLocal();
       }
+    });
+  }
+
+  private iniciarPollingStatus(jobId: string): void {
+    this.pollingSubscription = timer(0, environment.limits.statusPollIntervalMs).pipe(
+      switchMap(() => this.cnpjImportService.consultarStatus(jobId))
+    ).subscribe({
+      next: (job) => {
+        this.aplicarProgresso(job);
+        if (this.jobFinalizado(job.status)) {
+          this.pararPollingLocal();
+          this.importDataStore.invalidate('historico');
+          this.cnpjImportService.obterHistoricoDetalhe(jobId).subscribe({
+            next: (completo) => this.aplicarJob(completo),
+            error: () => {}
+          });
+        }
+      },
+      error: (msg: string) => {
+        this.erro.set(msg);
+        this.pararPollingLocal();
+      }
+    });
+  }
+
+  private aplicarProgresso(job: ImportJobResponse): void {
+    const atual = this.job();
+    this.job.set({
+      ...(atual ?? job),
+      jobId: job.jobId,
+      status: job.status,
+      processados: job.processados,
+      sucesso: job.sucesso,
+      erros: job.erros,
+      percentual: job.percentual,
+      mensagem: job.mensagem,
+      posicaoFila: job.posicaoFila
     });
   }
 

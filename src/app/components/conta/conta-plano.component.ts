@@ -92,7 +92,7 @@ export class ContaPlanoComponent implements OnInit {
         this.mensagemAssinatura.set('Renovação cancelada. Seu acesso continua até o fim do período pago.');
         this.processandoAssinatura.set(false);
         this.analytics.trackSubscriptionCancel();
-        this.authService.refreshMe().subscribe({ error: () => {} });
+        this.authService.refreshMe(true).subscribe({ error: () => {} });
       },
       error: (msg: string) => {
         this.erroAssinatura.set(msg);
@@ -113,7 +113,7 @@ export class ContaPlanoComponent implements OnInit {
         this.mensagemAssinatura.set('Renovação automática reativada.');
         this.processandoAssinatura.set(false);
         this.analytics.trackSubscriptionReactivate();
-        this.authService.refreshMe().subscribe({ error: () => {} });
+        this.authService.refreshMe(true).subscribe({ error: () => {} });
       },
       error: (msg: string) => {
         this.erroAssinatura.set(msg);
