@@ -7,8 +7,8 @@ export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (authService.temSessaoExpirada()) {
-    authService.logoutPorExpiracao();
-    return false;
+    authService.logout('session_expired');
+    return router.createUrlTree(['/login'], { queryParams: { sessaoExpirada: '1' } });
   }
 
   if (authService.isAuthenticated()) {

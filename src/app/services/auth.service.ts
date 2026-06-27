@@ -34,10 +34,14 @@ export class AuthService {
   });
 
   private expiryTimer?: ReturnType<typeof setTimeout>;
+  private expiryInterval?: ReturnType<typeof setInterval>;
   private visibilityListener?: () => void;
+  private pageshowListener?: (event: PageTransitionEvent) => void;
   private refreshInFlight?: Observable<User>;
   private lastRefreshAt = 0;
+  private expiryLogoutInProgress = false;
   private static readonly MIN_REFRESH_MS = 30_000;
+  private static readonly SESSION_CHECK_MS = 60_000;
 
   constructor(
     private http: HttpClient,
@@ -151,12 +155,18 @@ export class AuthService {
   }
 
   logoutPorExpiracao(): void {
-    if (!this.getToken()) {
+    if (!this.getToken() && !this.currentUser()) {
       return;
     }
+    if (this.expiryLogoutInProgress) {
+      return;
+    }
+    this.expiryLogoutInProgress = true;
     this.logout('session_expired');
-    this.router.navigate(['/login'], {
+    void this.router.navigate(['/login'], {
       queryParams: { sessaoExpirada: '1' }
+    }).finally(() => {
+      this.expiryLogoutInProgress = false;
     });
   }
 
@@ -191,11 +201,12 @@ export class AuthService {
     }
 
     if (token && isJwtExpired(token)) {
-      this.logout();
+      this.logoutPorExpiracao();
       return;
     }
     if (token) {
       this.agendarLogoutPorExpiracao();
+      this.iniciarVerificacaoPeriodica();
       const storedUser = AuthStorage.recuperarUsuario();
       if (storedUser) {
         this.analytics.setUser(storedUser.id, storedUser.plan);
@@ -209,6 +220,34 @@ export class AuthService {
         }
       };
       document.addEventListener('visibilitychange', this.visibilityListener);
+    }
+
+    if (typeof window !== 'undefined') {
+      this.pageshowListener = (event: PageTransitionEvent) => {
+        if (event.persisted && this.getToken()) {
+          this.verificarSessaoAtiva();
+        }
+      };
+      window.addEventListener('pageshow', this.pageshowListener);
+    }
+  }
+
+  private iniciarVerificacaoPeriodica(): void {
+    if (typeof window === 'undefined' || this.expiryInterval !== undefined) {
+      return;
+    }
+
+    this.expiryInterval = setInterval(() => {
+      if (this.getToken() && isJwtExpired(this.getToken()!)) {
+        this.logoutPorExpiracao();
+      }
+    }, AuthService.SESSION_CHECK_MS);
+  }
+
+  private pararVerificacaoPeriodica(): void {
+    if (this.expiryInterval !== undefined) {
+      clearInterval(this.expiryInterval);
+      this.expiryInterval = undefined;
     }
   }
 
@@ -240,6 +279,7 @@ export class AuthService {
       clearTimeout(this.expiryTimer);
       this.expiryTimer = undefined;
     }
+    this.pararVerificacaoPeriodica();
   }
 
   private persistirSessao(response: AuthResponse): void {
@@ -248,6 +288,7 @@ export class AuthService {
     this.currentUser.set(response.user);
     this.analytics.setUser(response.user.id, response.user.plan);
     this.agendarLogoutPorExpiracao();
+    this.iniciarVerificacaoPeriodica();
   }
 
   private tratarErro(error: HttpErrorResponse): Observable<never> {
