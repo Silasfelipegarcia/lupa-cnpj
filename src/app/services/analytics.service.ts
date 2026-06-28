@@ -30,12 +30,18 @@ export class AnalyticsService {
 
   private readonly apiUrl = `${environment.apiUrl}/analytics/event`;
   private readonly measurementId = environment.gaMeasurementId;
+  private readonly googleAdsId = environment.googleAdsId;
   private initialized = false;
   private currentUserId: string | null = null;
   private currentPlanTier: string | null = null;
 
   init(): void {
-    if (!this.isBrowser || !this.measurementId || this.initialized || !this.consentService.hasAnalyticsConsent()) {
+    if (
+      !this.isBrowser
+      || (!this.measurementId && !this.googleAdsId)
+      || this.initialized
+      || !this.consentService.hasAnalyticsConsent()
+    ) {
       return;
     }
 
@@ -57,11 +63,19 @@ export class AnalyticsService {
 
     // js + config devem rodar antes dos eventos (padrão Google); o script carrega em paralelo.
     window.gtag('js', new Date());
-    window.gtag('config', this.measurementId, {
-      send_page_view: false,
-      anonymize_ip: true,
-      cookie_flags: this.gtagCookieFlags()
-    });
+
+    if (this.measurementId) {
+      window.gtag('config', this.measurementId, {
+        send_page_view: false,
+        anonymize_ip: true,
+        cookie_flags: this.gtagCookieFlags()
+      });
+    }
+
+    if (this.googleAdsId) {
+      window.gtag('config', this.googleAdsId);
+    }
+
     this.initialized = true;
 
     this.loadGtagScript().then(() => {
@@ -515,6 +529,30 @@ export class AnalyticsService {
     });
   }
 
+  trackPasswordResetRequest(): void {
+    this.funnelEvent('password_reset_request', 'acquisition', 2, 'password_reset_request');
+  }
+
+  trackPasswordResetRequestSuccess(): void {
+    this.funnelEvent('password_reset_request_success', 'acquisition', 2, 'password_reset_request_sent');
+  }
+
+  trackPasswordResetRequestError(errorCode: string): void {
+    this.funnelEvent('password_reset_request_error', 'acquisition', 2, 'password_reset_request_failed', {
+      error_code: sanitizeAnalyticsError(errorCode)
+    });
+  }
+
+  trackPasswordResetComplete(): void {
+    this.funnelEvent('password_reset_complete', 'acquisition', 2, 'password_reset_complete');
+  }
+
+  trackPasswordResetCompleteError(errorCode: string): void {
+    this.funnelEvent('password_reset_complete_error', 'acquisition', 2, 'password_reset_complete_failed', {
+      error_code: sanitizeAnalyticsError(errorCode)
+    });
+  }
+
   trackCtaClick(name: string, location: string): void {
     this.send('cta_click', {
       cta_name: name,
@@ -641,15 +679,20 @@ export class AnalyticsService {
   }
 
   private loadGtagScript(): Promise<void> {
+    const primaryId = this.measurementId ?? this.googleAdsId;
+    if (!primaryId) {
+      return Promise.resolve();
+    }
+
     return new Promise((resolve, reject) => {
-      if (document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${this.measurementId}"]`)) {
+      if (document.querySelector('script[src*="googletagmanager.com/gtag/js"]')) {
         resolve();
         return;
       }
 
       const script = document.createElement('script');
       script.async = true;
-      script.src = `https://www.googletagmanager.com/gtag/js?id=${this.measurementId}`;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${primaryId}`;
       script.onload = () => resolve();
       script.onerror = () => reject(new Error('gtag script failed to load'));
       document.head.appendChild(script);

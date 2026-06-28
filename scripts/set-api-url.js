@@ -4,6 +4,7 @@ const path = require('path');
 const apiUrl = process.env.API_URL || '/api';
 const siteUrl = (process.env.SITE_URL || 'https://www.lupacnpjs.com.br').replace(/'/g, "\\'");
 const gaMeasurementId = (process.env.GA_MEASUREMENT_ID || 'G-D0DYGXTE04').replace(/'/g, "\\'");
+const googleAdsId = (process.env.GOOGLE_ADS_ID || 'AW-17888645199').replace(/'/g, "\\'");
 const target = path.join(__dirname, '../src/environments/environment.prod.ts');
 
 const content = `export const environment = {
@@ -11,6 +12,7 @@ const content = `export const environment = {
   apiUrl: '${apiUrl.replace(/'/g, "\\'")}',
   siteUrl: '${siteUrl}',
   gaMeasurementId: '${gaMeasurementId}',
+  googleAdsId: '${googleAdsId}',
   limits: {
     maxFileSizeMb: 5,
     maxRowsPerFile: 200,
@@ -20,4 +22,4 @@ const content = `export const environment = {
 `;
 
 fs.writeFileSync(target, content, 'utf8');
-console.log('environment.prod.ts gerado com apiUrl:', apiUrl, 'siteUrl:', siteUrl, 'ga:', gaMeasurementId);
+console.log('environment.prod.ts gerado com apiUrl:', apiUrl, 'siteUrl:', siteUrl, 'ga:', gaMeasurementId, 'ads:', googleAdsId);
