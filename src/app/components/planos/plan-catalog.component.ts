@@ -434,6 +434,10 @@ export class PlanCatalogComponent implements OnInit {
           this.mensagem.set(
             'Sandbox: após pagar, se não voltar sozinho, abra http://localhost:4200/planos/sucesso'
           );
+        } else if (plan === 'ADMIN_TEST') {
+          this.mensagem.set(
+            'Abrindo Mercado Pago… Use aba anônima ou outro e-mail se o botão Pagar ficar desabilitado.'
+          );
         }
         window.location.href = url;
       },

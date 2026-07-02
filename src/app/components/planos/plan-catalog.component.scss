@@ -228,6 +228,11 @@
   border: 1px solid rgba(124, 58, 237, 0.25);
   background: rgba(124, 58, 237, 0.06);
 
+  &--notice {
+    border-color: rgba(234, 179, 8, 0.45);
+    background: rgba(234, 179, 8, 0.08);
+  }
+
   &__label {
     margin: 0 0 0.65rem;
     font-size: 0.82rem;

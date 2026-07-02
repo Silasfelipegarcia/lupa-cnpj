@@ -177,6 +177,16 @@
           </ul>
         }
 
+        @if (item.plan === 'ADMIN_TEST' && authService.isAuthenticated()) {
+          <div class="admin-test-pay admin-test-pay--notice">
+            <p class="admin-test-pay__label">
+              <strong>Importante:</strong> no checkout do Mercado Pago, não use a mesma conta do vendedor.
+              Abra uma <strong>aba anônima</strong>, escolha <strong>Cartão de crédito</strong> (não saldo MP)
+              e preencha o CVV se pedir.
+            </p>
+          </div>
+        }
+
         @if (item.plan === 'ADMIN_TEST' && authService.isAuthenticated() && cartoes().length > 0) {
           <div class="admin-test-pay">
             <p class="admin-test-pay__label">
