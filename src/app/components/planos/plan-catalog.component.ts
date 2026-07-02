@@ -351,9 +351,23 @@ export class PlanCatalogComponent implements OnInit {
           } else {
             this.mensagem.set(`Plano ${result.planNome} ativado! Assinatura anual vigente por 12 meses.`);
           }
+        } else if (result.status === 'REJECTED' || result.status === 'CANCELLED') {
+          this.analytics.trackPurchaseError(result.message || result.statusLabel, plan);
+          const detalhe = result.message || 'Pagamento recusado pelo emissor ou antifraude.';
+          if (plan === 'ADMIN_TEST') {
+            this.erro.set(
+              `${detalhe} Se persistir, remova o cartão salvo e use "Testar R$ 1,00" para pagar no checkout Mercado Pago.`
+            );
+          } else {
+            this.erro.set(detalhe);
+          }
+          this.mensagem.set('');
         } else {
           this.analytics.trackPurchasePending(plan, result.orderId);
-          this.mensagem.set(`Pagamento ${result.statusLabel.toLowerCase()}. Aguarde a confirmação.`);
+          const detalhe = result.message
+            ? `${result.statusLabel}: ${result.message}`
+            : `Pagamento ${result.statusLabel.toLowerCase()}. Aguarde a confirmação.`;
+          this.mensagem.set(detalhe);
         }
         this.processando.set(null);
       },

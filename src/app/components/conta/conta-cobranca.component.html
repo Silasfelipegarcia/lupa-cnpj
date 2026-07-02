@@ -108,6 +108,9 @@
                 <span class="status-badge" [class]="classeStatus(item.status)">
                   {{ item.statusLabel }}
                 </span>
+                @if (item.statusDetail) {
+                  <span class="status-detail">{{ item.statusDetail }}</span>
+                }
               </td>
             </tr>
           }

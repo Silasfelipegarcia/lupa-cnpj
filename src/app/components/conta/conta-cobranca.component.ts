@@ -122,7 +122,7 @@ export class ContaCobrancaComponent implements OnInit {
     if (s === 'APPROVED') {
       return 'status-concluido';
     }
-    if (s === 'PENDING') {
+    if (s === 'PENDING' || s === 'IN_PROCESS') {
       return 'status-processando';
     }
     return 'status-erro';

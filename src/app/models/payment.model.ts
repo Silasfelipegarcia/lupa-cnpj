@@ -11,6 +11,7 @@ export interface PaymentHistoryItem {
   amountLabel: string;
   status: string;
   statusLabel: string;
+  statusDetail?: string;
   createdAt: string;
 }
 
@@ -53,6 +54,7 @@ export interface ChargePlanResponse {
   status: string;
   statusLabel: string;
   planNome: string;
+  message?: string;
 }
 
 export interface SubscriptionStatusResponse {
