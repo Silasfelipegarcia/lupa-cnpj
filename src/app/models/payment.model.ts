@@ -43,6 +43,7 @@ export interface ChargePlanRequest {
   cardId?: string;
   securityCode?: string;
   token?: string;
+  installments?: number;
 }
 
 export interface ChargePlanResponse {
@@ -71,6 +72,10 @@ export interface PlanQuote {
   amountLabel: string;
   fullPriceCents: number;
   fullPriceLabel: string;
+  monthlyPriceCents?: number;
+  annualPriceCents?: number;
+  installments?: number;
+  installmentAmountLabel?: string;
   upgrade: boolean;
   description?: string;
 }

@@ -29,6 +29,9 @@ export interface PlanUsage {
   filtrosAvancados?: boolean;
   dedupeHabilitado?: boolean;
   trialDisponivel?: boolean;
+  emTrial?: boolean;
+  trialDiasRestantes?: number;
+  conversaoTrialPendente?: boolean;
   dadosLimitados?: boolean;
   maxImportJobsPerDay?: number | null;
   importJobsToday?: number;
@@ -108,12 +111,17 @@ export interface PlanCatalogItem {
   directCnpjPerDay: string;
   priceCents: number;
   priceLabel: string;
+  monthlyPriceCents?: number;
+  annualPriceCents?: number;
+  annualPriceLabel?: string;
+  paymentOptionsLabel?: string;
   beneficios?: string[];
   contatoComercial?: boolean;
 }
 
 export interface CheckoutRequest {
   plan: SubscriptionPlan;
+  installments?: number;
 }
 
 export interface CheckoutResponse {

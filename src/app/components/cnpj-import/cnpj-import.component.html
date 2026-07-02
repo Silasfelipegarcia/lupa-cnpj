@@ -19,6 +19,18 @@
     }
   </header>
 
+  @if (emTrial() && conversaoTrialPendente()) {
+    <div class="alert alert-info trial-dashboard-banner">
+      <strong>Trial Prospecção — {{ trialDiasRestantes() }} dia(s) restante(s).</strong>
+      Cadastre um cartão em
+      <a routerLink="/conta/cobranca" [queryParams]="{ redirect: '/app', trial: '1' }"
+         appAnalyticsCta="trial_add_card" appAnalyticsCtaLocation="import_dashboard">
+        Cobrança
+      </a>
+      para continuar após o trial (R$ 118,80/ano ou 12x de R$ 9,90).
+    </div>
+  }
+
   @if (mostrarOnboarding()) {
     <section class="onboarding card">
       <h2>Como funciona em 3 passos</h2>
@@ -88,8 +100,9 @@
         </div>
         @if (dadosLimitados()) {
           <p class="upgrade-hint section-hint">
-            Telefone, e-mail e endereço completos no plano Prospecção —
-            <a routerLink="/conta/plano" appAnalyticsCta="trial_gratis" appAnalyticsCtaLocation="import_dashboard">teste 7 dias grátis</a>.
+            Telefone, e-mail e endereço completos no trial e planos pagos —
+            <a routerLink="/cadastro" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="import_dashboard">crie sua conta</a>
+            e ganhe 7 dias de Prospecção grátis.
           </p>
         }
         @if (r.statusConsulta === 'SUCESSO') {

@@ -61,8 +61,8 @@ export class PaymentService {
     );
   }
 
-  obterCotacao(plan: 'PREMIUM' | 'PRO_PLUS'): Observable<PlanQuote> {
-    return this.http.get<PlanQuote>(`${this.apiBase}/payments/quote`, { params: { plan } }).pipe(
+  obterCotacao(plan: 'PREMIUM' | 'PRO_PLUS', installments = 1): Observable<PlanQuote> {
+    return this.http.get<PlanQuote>(`${this.apiBase}/payments/quote`, { params: { plan, installments: String(installments) } }).pipe(
       catchError(this.tratarErro)
     );
   }

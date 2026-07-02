@@ -1,4 +1,14 @@
 <div class="landing">
+  @if (!isLoggedIn()) {
+    <div class="beta-banner" role="status">
+      <span class="beta-banner__pill">Beta</span>
+      <span class="beta-banner__text">
+        Lançamento beta — preços especiais por tempo limitado. Prospecção <strong>R$ 9,90/mês</strong> · Growth <strong>R$ 29,90/mês</strong> (plano anual)
+      </span>
+      <a routerLink="/planos" class="beta-banner__link" appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="beta_banner">Ver planos</a>
+    </div>
+  }
+
   <header class="topbar">
     <app-brand link="/" ariaLabel="Lupa Insights — página inicial" />
     <nav class="topbar-nav">
@@ -124,6 +134,28 @@
   </section>
 
   @if (!isLoggedIn()) {
+    <section class="section section-pricing-strip" aria-label="Preços beta">
+      <div class="pricing-strip">
+        @for (p of betaPricing; track p.nome) {
+          <article class="pricing-strip__card" [class.pricing-strip__card--featured]="p.destaque">
+            @if (p.destaque) {
+              <span class="pricing-strip__badge">Mais popular</span>
+            }
+            <h3>{{ p.nome }}</h3>
+            <p class="pricing-strip__monthly">{{ p.mensal }}</p>
+            <p class="pricing-strip__annual">{{ p.anual }} · à vista ou 12x</p>
+            <a routerLink="/planos" class="btn btn-sm" [class.btn-primary]="p.destaque" [class.btn-outline]="!p.destaque"
+               appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="pricing_strip">
+              Escolher plano
+            </a>
+          </article>
+        }
+      </div>
+      <p class="pricing-strip__note">Valores de referência mensais. Cobrança anual total ou parcelado em até 12x no cartão.</p>
+    </section>
+  }
+
+  @if (!isLoggedIn()) {
     <section id="experimente" class="section section-preview">
       <div class="section-head">
         <span class="section-tag">Degustação grátis</span>
@@ -180,7 +212,7 @@
             <div class="preview-alert preview-alert-limit">
               Você já usou sua consulta gratuita neste dispositivo.
               <a routerLink="/cadastro" class="preview-cta-link" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="preview_limite">Crie sua conta grátis</a>
-              e consulte até <strong>3 CNPJs/dia</strong> + <strong>1 planilha de até 5 linhas</strong>.
+              e ganhe <strong>7 dias de Prospecção</strong> com Excel, filtros e planilhas em lote.
             </div>
           }
 
@@ -200,16 +232,44 @@
                 }
               </div>
 
+              <div class="preview-signup-cta">
+                <div class="preview-signup-cta__copy">
+                  <span class="preview-signup-cta__eyebrow">Próximo passo</span>
+                  <h4>Gostou? Crie sua conta em 30 segundos</h4>
+                  <p>Salve consultas, importe planilhas e continue de onde parou — grátis para começar.</p>
+                </div>
+                <form class="preview-signup-form" (ngSubmit)="irParaCadastro('preview_signup')">
+                  <label class="preview-signup-field">
+                    <span>Seu e-mail profissional</span>
+                    <input
+                      type="email"
+                      name="signupEmail"
+                      [(ngModel)]="signupEmail"
+                      placeholder="voce@empresa.com.br"
+                      autocomplete="email"
+                      required
+                    />
+                  </label>
+                  <button type="submit" class="btn btn-primary btn-lg preview-signup-btn">
+                    Criar conta grátis →
+                  </button>
+                </form>
+                <p class="preview-signup-hint">7 dias de Prospecção grátis · Sem cartão agora · Upgrade quando precisar</p>
+              </div>
+
               <div class="preview-upsell">
                 <p class="preview-upsell-title">Imagine isso para 50, 100 ou 500 empresas de uma vez</p>
                 <ul class="preview-upsell-list">
-                  <li>Até <strong>{{ r.cadastroLimiteCnpjDia ?? 3 }} CNPJs únicos/dia</strong> no Free</li>
-                  <li>Até <strong>{{ r.cadastroLimiteLoteDia ?? 1 }} planilha/dia</strong> ({{ r.cadastroLimitePlanilha ?? 5 }} linhas cada)</li>
-                  <li>Upgrade para Excel, razão social e filtro de ativas</li>
+                  <li>Até <strong>100 empresas/planilha</strong> no trial de 7 dias</li>
+                  <li><strong>10 planilhas/dia</strong> + Excel e filtro de ativas no trial</li>
+                  <li>Depois do trial, a partir de <strong>R$ 9,90/mês</strong> (plano anual)</li>
                 </ul>
                 <div class="preview-upsell-actions">
-                  <a routerLink="/cadastro" class="btn btn-primary" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="preview_upsell">Criar conta grátis</a>
-                  <a routerLink="/planos" class="btn btn-outline btn-sm" appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="preview_upsell">Ver planos</a>
+                  <button type="button" class="btn btn-outline btn-sm" (click)="scrollTo('experimente')"
+                          appAnalyticsCta="testar_outro_cnpj" appAnalyticsCtaLocation="preview_upsell">
+                    Testar outro CNPJ
+                  </button>
+                  <a routerLink="/planos" class="btn btn-outline btn-sm" appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="preview_upsell">Ver planos beta</a>
                 </div>
               </div>
             </div>
@@ -334,10 +394,19 @@
         }
       </div>
       @if (!isLoggedIn()) {
-        <p class="cta-note">Free para sempre · Upgrade quando precisar de volume</p>
+        <p class="cta-note">7 dias de Prospecção grátis ao criar conta · Sem cartão para começar</p>
       }
     </div>
   </section>
+
+  @if (!isLoggedIn() && resultado()) {
+    <div class="sticky-signup-bar">
+      <p>Vi os dados — agora crie sua conta grátis</p>
+      <button type="button" class="btn btn-primary btn-sm" (click)="irParaCadastro('sticky_bar')">
+        Crie sua conta grátis
+      </button>
+    </div>
+  }
 
   <footer class="footer">
     <app-brand link="/" ariaLabel="Lupa Insights" />

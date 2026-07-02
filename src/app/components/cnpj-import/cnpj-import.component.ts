@@ -27,6 +27,9 @@ const LEGACY_ONBOARDING_KEY = 'lupa_onboarding_visto';
 export class CnpjImportComponent implements OnInit {
 
   readonly maxFileSizeMb = environment.limits.maxFileSizeMb;
+  readonly emTrial = computed(() => !!this.authService.currentUser()?.usage?.emTrial);
+  readonly conversaoTrialPendente = computed(() => !!this.authService.currentUser()?.usage?.conversaoTrialPendente);
+  readonly trialDiasRestantes = computed(() => this.authService.currentUser()?.usage?.trialDiasRestantes ?? 0);
   readonly planoFree = computed(() => this.authService.currentUser()?.plan === 'FREE');
   readonly dadosLimitados = computed(() => !!this.authService.currentUser()?.usage?.dadosLimitados);
 

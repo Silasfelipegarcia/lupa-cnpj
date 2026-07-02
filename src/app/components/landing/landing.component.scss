@@ -10,6 +10,238 @@
   max-width: var(--container-xl);
   margin: 0 auto;
   padding: 0 1.25rem 3rem;
+
+  &:has(.sticky-signup-bar) {
+    padding-bottom: 5.5rem;
+  }
+}
+.beta-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  margin: 0 -0.5rem 0.5rem;
+  padding: 0.65rem 1rem;
+  background: linear-gradient(90deg, #4c1d95 0%, var(--primary) 55%, #7c3aed 100%);
+  color: #fff;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  text-align: center;
+
+  &__pill {
+    padding: 0.15rem 0.55rem;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  &__text strong {
+    font-weight: 700;
+  }
+
+  &__link {
+    color: #fff;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: #f3e8ff;
+    }
+  }
+}
+
+// —— Pricing strip ——
+.section-pricing-strip {
+  padding-top: 0;
+  padding-bottom: 2.5rem;
+}
+
+.pricing-strip {
+  display: grid;
+  gap: 1rem;
+  max-width: 720px;
+  margin: 0 auto;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  &__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1.35rem 1.25rem;
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+
+    h3 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    &--featured {
+      border-color: var(--primary-border);
+      box-shadow: 0 0 0 1px var(--primary-border);
+    }
+
+    .btn {
+      margin-top: 0.65rem;
+      width: 100%;
+    }
+  }
+
+  &__badge {
+    position: absolute;
+    top: -0.55rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.15rem 0.55rem;
+    border-radius: var(--radius-full);
+    background: var(--primary);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__monthly {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -0.02em;
+  }
+
+  &__annual {
+    margin: 0 0 0.25rem;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+  }
+
+  &__note {
+    margin: 1rem auto 0;
+    max-width: 560px;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+}
+
+// —— Preview signup CTA ——
+.preview-signup-cta {
+  margin-top: 1.25rem;
+  padding: 1.35rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+
+  &__eyebrow {
+    display: inline-block;
+    margin-bottom: 0.35rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--primary);
+  }
+
+  h4 {
+    margin: 0 0 0.35rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #4c1d95;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+}
+
+.preview-signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+
+  @media (min-width: 520px) {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+}
+
+.preview-signup-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+
+  input {
+    font-family: var(--font);
+    padding: 0.75rem 0.85rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: #fff;
+    font-size: 1rem;
+  }
+}
+
+.preview-signup-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.preview-signup-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+// —— Sticky signup bar ——
+.sticky-signup-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1.25rem;
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(8px);
+
+  p {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
 }
 
 // —— Topbar ——

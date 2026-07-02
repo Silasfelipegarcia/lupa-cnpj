@@ -26,7 +26,7 @@ export const ROUTE_SEO: Record<string, RouteSeoConfig> = {
   planos: {
     title: 'Planos e preços — Prospecção B2B | Lupa Insights',
     description:
-      'Planos Free, Prospecção (R$ 19,90/mês) e Growth (R$ 49,90/mês). Consulta CNPJ em lote, enriquecimento de planilhas e exportação para CRM.',
+      'Planos Trial 7 dias (grátis), Prospecção (R$ 9,90/mês, plano anual) e Growth (R$ 29,90/mês, plano anual). Consulta CNPJ em lote, enriquecimento de planilhas e exportação para CRM.',
     index: true,
     jsonLd: planosOffersJsonLd()
   },

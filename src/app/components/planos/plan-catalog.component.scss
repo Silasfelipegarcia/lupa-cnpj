@@ -5,18 +5,72 @@
 }
 
 .trial-banner {
-  display: block;
-  margin: 0 auto 0.75rem;
-  max-width: 480px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin: 0 auto 1.25rem;
+  max-width: 720px;
+  padding: 1rem 1.15rem;
+  border-radius: var(--radius-md, 10px);
+  font-size: 0.9rem;
+  line-height: 1.5;
+
+  p {
+    margin: 0;
+    flex: 1 1 16rem;
+  }
+
+  &--active {
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+  }
+
+  &--signup {
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+  }
 }
 
-.trial-hint {
-  margin: 0 auto 1.5rem;
-  max-width: 520px;
-  text-align: center;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
+.installment-picker {
+  margin-bottom: 1.25rem;
+
+  &__label {
+    display: block;
+    margin-bottom: 0.65rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  &__options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.installment-option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  transition: border-color 0.15s, background 0.15s;
+
+  &:has(input:checked) {
+    border-color: var(--primary-border);
+    background: var(--primary-soft);
+  }
+
+  input {
+    accent-color: var(--primary);
+  }
 }
 
 .payment-prefs {

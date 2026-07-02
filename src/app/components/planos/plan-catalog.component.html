@@ -1,15 +1,35 @@
 @if (carregando()) {
   <p class="loading">Carregando planos...</p>
 } @else {
-  @if (trialDisponivel() && !somentePublico()) {
-    <button type="button" class="btn btn-outline trial-banner" (click)="iniciarTrial()" [disabled]="!!processando()">
-      @if (processando() === 'trial') {
-        Ativando trial...
+  @if (emTrial() && !somentePublico()) {
+    <div class="trial-banner trial-banner--active">
+      @if (conversaoTrialPendente()) {
+        <p>
+          <strong>Trial Prospecção — {{ trialDiasRestantes() }} dia(s) restante(s)</strong>
+          Cadastre um cartão para continuar após o trial (R$ 118,80/ano ou 12x de R$ 9,90).
+        </p>
+        <button type="button" class="btn btn-primary btn-sm" (click)="irCadastrarCartao()">
+          Cadastrar cartão
+        </button>
       } @else {
-        Testar Prospecção 7 dias grátis (cadastre o cartão)
+        <p>
+          <strong>Trial ativo — {{ trialDiasRestantes() }} dia(s) restante(s)</strong>
+          Cartão salvo. Cobrança anual só após o trial, se você não cancelar.
+        </p>
       }
-    </button>
-    <p class="trial-hint">Sem cobrança agora. Após 7 dias, R$ 19,90/mês no cartão salvo (cancele quando quiser).</p>
+    </div>
+  }
+
+  @if (!authService.isAuthenticated() && !somentePublico()) {
+    <div class="trial-banner trial-banner--signup">
+      <p>
+        <strong>7 dias de Prospecção grátis</strong> ao criar conta — sem cartão para começar.
+        Depois, a partir de R$ 9,90/mês (plano anual).
+      </p>
+      <a routerLink="/cadastro" class="btn btn-primary btn-sm" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="plan_catalog_trial">
+        Criar conta grátis
+      </a>
+    </div>
   }
 
   @if (authService.isAuthenticated() && !pagamentosConfigurados()) {
@@ -31,6 +51,38 @@
   @if (authService.isAuthenticated()) {
     <section class="payment-prefs card">
       <h3>Forma de pagamento</h3>
+      @if (catalogo().length > 0) {
+        @for (ref of planosPrincipais(); track ref.nome) {
+          @if (ref.plan === 'PREMIUM' && ref.priceCents > 0) {
+            <div class="installment-picker">
+              <span class="installment-picker__label">Plano anual — como prefere pagar?</span>
+              <div class="installment-picker__options">
+                <label class="installment-option">
+                  <input
+                    type="radio"
+                    name="parcelas"
+                    [value]="1"
+                    [checked]="parcelas() === 1"
+                    (change)="onParcelasChange(1)"
+                  />
+                  <span>{{ rotuloParcelaAvista(ref) }}</span>
+                </label>
+                <label class="installment-option">
+                  <input
+                    type="radio"
+                    name="parcelas"
+                    [value]="12"
+                    [checked]="parcelas() === 12"
+                    (change)="onParcelasChange(12)"
+                  />
+                  <span>{{ rotuloParcela12x(ref) }}</span>
+                </label>
+              </div>
+              <p class="payment-prefs__hint">Valores de referência do Prospecção; Growth segue a mesma lógica anual.</p>
+            </div>
+          }
+        }
+      }
       @if (cartoes().length > 0) {
         <div class="payment-prefs__row">
           <label class="field">
@@ -88,7 +140,15 @@
               <span class="plan-price">{{ quote.amountLabel }}</span>
               <span class="plan-price-note">{{ quote.description }}</span>
             } @else {
-              <span class="plan-price">{{ item.priceLabel }}</span>
+              <span class="plan-price">{{ rotuloPrecoPlano(item, quote) }}</span>
+              @if (notaPrecoPlano(item, quote); as nota) {
+                <span class="plan-price-note">{{ nota }}</span>
+              }
+            }
+          } @else if (item.priceCents > 0) {
+            <span class="plan-price">{{ rotuloPrecoPlano(item) }}</span>
+            @if (notaPrecoPlano(item); as nota) {
+              <span class="plan-price-note">{{ nota }}</span>
             }
           } @else {
             <span class="plan-price">{{ item.priceLabel }}</span>
@@ -118,7 +178,15 @@
           } @else if (item.plan && isPlanoAtual(item.plan)) {
             <span class="plan-badge">Seu plano atual</span>
           } @else if (item.plan === 'FREE') {
-            <span class="plan-badge plan-badge--muted">Plano inicial</span>
+            @if (!authService.isAuthenticated()) {
+              <a routerLink="/cadastro" class="btn btn-primary" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="plan_card_trial">
+                Criar conta — 7 dias grátis
+              </a>
+            } @else if (emTrial()) {
+              <span class="plan-badge">Trial ativo</span>
+            } @else {
+              <span class="plan-badge plan-badge--muted">Trial já utilizado</span>
+            }
           } @else if (item.plan && podeAssinar(item)) {
             <button
               type="button"

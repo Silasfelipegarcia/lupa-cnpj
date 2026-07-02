@@ -41,6 +41,7 @@ export class PlanCatalogComponent implements OnInit {
   pagamentosConfigurados = signal(true);
   mpPublicKey = signal('');
   cotacoes = signal<Partial<Record<SubscriptionPlan, PlanQuote>>>({});
+  parcelas = signal(1);
 
   planosPrincipais = computed(() => this.catalogo().filter((i) => !i.contatoComercial));
   planoBusiness = computed(() => this.catalogo().find((i) => i.contatoComercial));
@@ -82,10 +83,50 @@ export class PlanCatalogComponent implements OnInit {
     }
   }
 
+  onParcelasChange(value: number): void {
+    this.parcelas.set(value);
+    if (this.authService.isAuthenticated()) {
+      this.carregarCotacoes();
+    }
+  }
+
+  rotuloParcelaAvista(item: PlanCatalogItem): string {
+    const label = item.annualPriceLabel || item.priceLabel;
+    return `À vista (${label})`;
+  }
+
+  rotuloParcela12x(item: PlanCatalogItem): string {
+    return `12x de ${item.priceLabel}`;
+  }
+
+  rotuloPrecoPlano(item: PlanCatalogItem, quote?: PlanQuote): string {
+    if (quote?.upgrade) {
+      return quote.amountLabel;
+    }
+    if (this.parcelas() === 12 && item.priceCents > 0) {
+      return `12x de ${item.priceLabel}`;
+    }
+    return item.priceLabel;
+  }
+
+  notaPrecoPlano(item: PlanCatalogItem, quote?: PlanQuote): string | null {
+    if (quote?.upgrade) {
+      return quote.description ?? null;
+    }
+    if (item.priceCents <= 0) {
+      return null;
+    }
+    if (this.parcelas() === 12) {
+      return `Total anual ${item.annualPriceLabel} · ${item.paymentOptionsLabel ?? ''}`;
+    }
+    return `${item.annualPriceLabel} · ${item.paymentOptionsLabel ?? 'Cobrança anual'}`;
+  }
+
   private carregarCotacoes(): void {
+    const parcelas = this.parcelas();
     const planos: Array<'PREMIUM' | 'PRO_PLUS'> = ['PREMIUM', 'PRO_PLUS'];
     for (const plan of planos) {
-      this.paymentService.obterCotacao(plan).subscribe({
+      this.paymentService.obterCotacao(plan, parcelas).subscribe({
         next: (quote) => {
           this.cotacoes.update((atual) => ({ ...atual, [plan]: quote }));
         },
@@ -120,6 +161,12 @@ export class PlanCatalogComponent implements OnInit {
     if (quote?.upgrade) {
       return `Upgrade por ${quote.amountLabel}`;
     }
+    if (this.parcelas() === 12) {
+      const item = this.catalogo().find((i) => i.plan === plan);
+      if (item?.priceLabel) {
+        return `Assinar em 12x de ${item.priceLabel}`;
+      }
+    }
     return 'Assinar (checkout)';
   }
 
@@ -143,6 +190,9 @@ export class PlanCatalogComponent implements OnInit {
       return false;
     }
     if (plan === 'FREE') {
+      return !this.emTrial();
+    }
+    if (this.emTrial() && plan === 'PREMIUM') {
       return true;
     }
     const sub = user.subscription;
@@ -169,43 +219,22 @@ export class PlanCatalogComponent implements OnInit {
     return !this.isPlanoAtual(item.plan);
   }
 
-  trialDisponivel(): boolean {
-    return !!this.authService.currentUser()?.usage?.trialDisponivel;
+  emTrial(): boolean {
+    return !!this.authService.currentUser()?.usage?.emTrial;
   }
 
-  iniciarTrial(): void {
-    if (!this.authService.isAuthenticated()) {
-      this.analytics.trackCtaClick('login_to_trial', 'plan_catalog');
-      this.router.navigate(['/login'], { queryParams: { redirect: '/conta/plano' } });
-      return;
-    }
-    if (this.processando()) {
-      return;
-    }
+  conversaoTrialPendente(): boolean {
+    return !!this.authService.currentUser()?.usage?.conversaoTrialPendente;
+  }
 
-    if (this.cartoes().length === 0) {
-      this.mensagem.set('');
-      this.erro.set('');
-      this.analytics.trackCtaClick('trial_add_card', 'plan_catalog');
-      this.router.navigate(['/conta/cobranca'], {
-        queryParams: { redirect: '/conta/plano', trial: '1' }
-      });
-      return;
-    }
+  trialDiasRestantes(): number {
+    return this.authService.currentUser()?.usage?.trialDiasRestantes ?? 0;
+  }
 
-    this.processando.set('trial');
-    this.planService.iniciarTrial().subscribe({
-      next: () => {
-        this.authService.refreshMe(true).subscribe({ error: () => {} });
-        this.analytics.trackTrialStart('PREMIUM');
-        this.mensagem.set('Trial de 7 dias no Prospecção ativado! Cobrança de R$ 19,90/mês só após o período.');
-        this.processando.set(null);
-      },
-      error: (msg: string) => {
-        this.erro.set(msg);
-        this.processando.set(null);
-        this.analytics.trackTrialError(msg);
-      }
+  irCadastrarCartao(): void {
+    this.analytics.trackCtaClick('trial_add_card', 'plan_catalog');
+    this.router.navigate(['/conta/cobranca'], {
+      queryParams: { redirect: '/conta/plano', trial: '1' }
     });
   }
 
@@ -263,7 +292,8 @@ export class PlanCatalogComponent implements OnInit {
     this.paymentService.cobrarPlano({
       plan: plan as 'PREMIUM' | 'PRO_PLUS',
       cardId,
-      securityCode: cvv
+      securityCode: cvv,
+      installments: this.parcelas()
     }, idempotencyKey).subscribe({
       next: (result) => {
         this.authService.refreshMe(true).subscribe({ error: () => {} });
@@ -276,7 +306,7 @@ export class PlanCatalogComponent implements OnInit {
             result.orderId,
             quote?.amountCents ?? quote?.fullPriceCents
           );
-          this.mensagem.set(`Plano ${result.planNome} ativado com sucesso!`);
+          this.mensagem.set(`Plano ${result.planNome} ativado! Assinatura anual vigente por 12 meses.`);
         } else {
           this.analytics.trackPurchasePending(plan, result.orderId);
           this.mensagem.set(`Pagamento ${result.statusLabel.toLowerCase()}. Aguarde a confirmação.`);
@@ -308,7 +338,7 @@ export class PlanCatalogComponent implements OnInit {
 
   private iniciarCheckout(plan: SubscriptionPlan): void {
     const idempotencyKey = crypto.randomUUID();
-    this.planService.iniciarCheckout(plan, idempotencyKey).subscribe({
+    this.planService.iniciarCheckout(plan, idempotencyKey, this.parcelas()).subscribe({
       next: (checkout) => {
         sessionStorage.setItem(CHECKOUT_ORDER_STORAGE_KEY, checkout.orderId);
         this.analytics.trackCheckoutRedirect(plan, checkout.orderId);

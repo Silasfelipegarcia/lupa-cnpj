@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
@@ -30,8 +30,14 @@ export class RegisterComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
     private analytics: AnalyticsService
-  ) {}
+  ) {
+    const emailParam = this.route.snapshot.queryParamMap.get('email');
+    if (emailParam) {
+      this.email = emailParam;
+    }
+  }
 
   onCpfInput(event: Event): void {
     const input = event.target as HTMLInputElement;

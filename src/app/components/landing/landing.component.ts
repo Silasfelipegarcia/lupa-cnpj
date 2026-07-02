@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { GuestCnpjPreviewService } from '../../services/guest-cnpj-preview.service';
 import { buildCnpjResultFields } from '../../utils/cnpj-result-fields';
@@ -25,6 +25,7 @@ export class LandingComponent implements OnInit {
   readonly ano = new Date().getFullYear();
 
   cnpjInput = '';
+  signupEmail = '';
   consultando = signal(false);
   erroPreview = signal('');
   resultado = signal<CnpjPreviewResult | null>(null);
@@ -32,8 +33,8 @@ export class LandingComponent implements OnInit {
 
   readonly stats = [
     { value: '1', label: 'consulta completa grátis', sub: 'sem cadastro' },
-    { value: '1', label: 'planilha/dia no Free', sub: 'até 5 linhas' },
-    { value: 'Excel', label: 'export no Prospecção', sub: 'pronto pro CRM' }
+    { value: '7 dias', label: 'Prospecção grátis', sub: 'ao criar conta' },
+    { value: 'Excel', label: 'export no trial', sub: 'pronto pro CRM' }
   ];
 
   readonly personas = [
@@ -90,6 +91,21 @@ export class LandingComponent implements OnInit {
 
   readonly faq = LANDING_FAQ;
 
+  readonly betaPricing = [
+    {
+      nome: 'Prospecção',
+      mensal: 'R$ 9,90/mês',
+      anual: 'R$ 118,80/ano',
+      destaque: true
+    },
+    {
+      nome: 'Growth',
+      mensal: 'R$ 29,90/mês',
+      anual: 'R$ 358,80/ano',
+      destaque: false
+    }
+  ];
+
   readonly fields = [
     'CNPJ', 'Razão social', 'Nome fantasia', 'Situação cadastral',
     'Telefones', 'E-mail', 'Endereço completo', 'CNAE principal'
@@ -97,7 +113,8 @@ export class LandingComponent implements OnInit {
 
   constructor(
     private guestPreviewService: GuestCnpjPreviewService,
-    private analytics: AnalyticsService
+    private analytics: AnalyticsService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -181,5 +198,15 @@ export class LandingComponent implements OnInit {
 
   camposResultado(r: CnpjPreviewResult): CnpjPreviewCampo[] {
     return buildCnpjResultFields(r);
+  }
+
+  irParaCadastro(origem: string): void {
+    const email = this.signupEmail.trim();
+    this.analytics.trackCtaClick('criar_conta', origem);
+    if (email) {
+      void this.router.navigate(['/cadastro'], { queryParams: { email } });
+      return;
+    }
+    void this.router.navigate(['/cadastro']);
   }
 }

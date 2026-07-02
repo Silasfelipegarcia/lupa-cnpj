@@ -18,8 +18,8 @@ export class PlanService {
     );
   }
 
-  iniciarCheckout(plan: SubscriptionPlan, idempotencyKey?: string): Observable<CheckoutResponse> {
-    const body: CheckoutRequest = { plan };
+  iniciarCheckout(plan: SubscriptionPlan, idempotencyKey?: string, installments = 1): Observable<CheckoutResponse> {
+    const body: CheckoutRequest = { plan, installments };
     const headers = idempotencyKey
       ? { 'Idempotency-Key': idempotencyKey }
       : undefined;

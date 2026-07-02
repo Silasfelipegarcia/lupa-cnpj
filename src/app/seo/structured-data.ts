@@ -37,22 +37,22 @@ export function softwareApplicationJsonLd(): Record<string, unknown> {
     offers: [
       {
         '@type': 'Offer',
-        name: 'Free',
+        name: 'Trial 7 dias',
         price: '0',
         priceCurrency: 'BRL',
-        description: '3 CNPJs/dia, 1 planilha de até 5 linhas'
+        description: 'Prospecção completa por 7 dias ao criar conta — sem cartão para começar'
       },
       {
         '@type': 'Offer',
         name: 'Prospecção',
-        price: '19.90',
+        price: '9.90',
         priceCurrency: 'BRL',
         description: '10 planilhas/dia, até 100 empresas por planilha'
       },
       {
         '@type': 'Offer',
         name: 'Growth',
-        price: '49.90',
+        price: '29.90',
         priceCurrency: 'BRL',
         description: '50 planilhas/dia, até 500 empresas por planilha'
       }
@@ -94,12 +94,12 @@ export const LANDING_FAQ: FaqItem[] = [
   {
     question: 'Posso testar grátis?',
     answer:
-      'Sim. Na página inicial você pode consultar 1 CNPJ completo sem cadastro. Com conta Free, são 3 consultas avulsas por dia e 1 planilha de até 5 linhas. O plano Prospecção oferece 7 dias grátis com cartão cadastrado.'
+      'Sim. Na página inicial você pode consultar 1 CNPJ completo sem cadastro. Ao criar conta e confirmar o e-mail, você ganha 7 dias de Prospecção grátis — Excel, filtros e planilhas em lote, sem cartão para começar.'
   },
   {
     question: 'Qual a diferença entre os planos?',
     answer:
-      'Free: ideal para testar (3 CNPJs/dia, 1 planilha). Prospecção (R$ 19,90/mês): 10 planilhas/dia com até 100 empresas cada, Excel e filtros. Growth (R$ 49,90/mês): 50 planilhas/dia com até 500 empresas, dedupe e filtros avançados.'
+      'Trial 7 dias (grátis ao criar conta): Prospecção completa. Prospecção pago (R$ 9,90/mês, plano anual): 10 planilhas/dia com até 100 empresas cada, Excel e filtros. Growth (R$ 29,90/mês, plano anual): 50 planilhas/dia com até 500 empresas, dedupe e filtros avançados.'
   },
   {
     question: 'Serve para prospecção B2B e SDR?',
@@ -118,7 +118,7 @@ export function planosOffersJsonLd(): Record<string, unknown>[] {
       brand: { '@type': 'Brand', name: 'Lupa Insights' },
       offers: {
         '@type': 'Offer',
-        price: '19.90',
+        price: '9.90',
         priceCurrency: 'BRL',
         availability: 'https://schema.org/InStock',
         url: `${SITE}/planos`
@@ -132,7 +132,7 @@ export function planosOffersJsonLd(): Record<string, unknown>[] {
       brand: { '@type': 'Brand', name: 'Lupa Insights' },
       offers: {
         '@type': 'Offer',
-        price: '49.90',
+        price: '29.90',
         priceCurrency: 'BRL',
         availability: 'https://schema.org/InStock',
         url: `${SITE}/planos`
@@ -159,12 +159,12 @@ export const CONSULTA_CNPJ_FAQ: FaqItem[] = [
   {
     question: 'Preciso criar conta?',
     answer:
-      'Não para a primeira consulta. Você pode consultar 1 CNPJ completo sem cadastro. Para consultar mais empresas ou importar planilhas, crie uma conta grátis.'
+      'Não para a primeira consulta. Você pode consultar 1 CNPJ completo sem cadastro. Ao criar conta, ganha 7 dias de Prospecção grátis para importar planilhas e exportar em Excel.'
   },
   {
     question: 'É gratuito?',
     answer:
-      'Sim para começar. A consulta avulsa é gratuita (1 por dispositivo). Com conta Free, são 3 CNPJs por dia e 1 planilha de até 5 linhas.'
+      'Sim para começar. A consulta avulsa é gratuita (1 por dispositivo). Ao criar conta, você ganha 7 dias de Prospecção grátis com planilhas em lote e exportação Excel.'
   },
   {
     question: 'Posso consultar qualquer empresa?',
