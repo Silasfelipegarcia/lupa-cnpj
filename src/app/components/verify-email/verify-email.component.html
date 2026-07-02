@@ -1,0 +1,29 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <app-brand link="/" />
+    <h1>Confirmar e-mail</h1>
+
+    @if (verificando()) {
+      <p class="subtitle">Validando seu link de confirmação...</p>
+    } @else if (sucesso()) {
+      <div class="alert alert-success">E-mail confirmado! Redirecionando para o painel...</div>
+    } @else if (tokenInvalido()) {
+      <p class="subtitle">Este link é inválido ou expirou.</p>
+      <p class="footer-link">
+        <a routerLink="/cadastro-pendente">Solicitar novo link</a>
+        · <a routerLink="/login">Entrar</a>
+      </p>
+    } @else {
+      <p class="subtitle">Não foi possível confirmar seu e-mail.</p>
+      @if (erro()) {
+        <div class="alert alert-error">{{ erro() }}</div>
+      }
+      <p class="footer-link">
+        <a routerLink="/cadastro-pendente">Solicitar novo link</a>
+        · <a routerLink="/login">Entrar</a>
+      </p>
+    }
+
+    <app-legal-footer-links />
+  </div>
+</div>

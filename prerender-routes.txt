@@ -3,6 +3,8 @@
 /planos
 /cadastro
 /login
+/esqueci-senha
+/cadastro-pendente
 /privacidade
 /cookies
 /termos

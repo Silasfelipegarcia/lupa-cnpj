@@ -41,6 +41,26 @@ export const ROUTE_SEO: Record<string, RouteSeoConfig> = {
     description: 'Acesse sua conta Lupa Insights para consultar e enriquecer listas de CNPJ.',
     index: true
   },
+  'esqueci-senha': {
+    title: 'Esqueci minha senha | Lupa Insights',
+    description: 'Solicite um link por e-mail para redefinir a senha da sua conta Lupa Insights.',
+    index: false
+  },
+  'redefinir-senha': {
+    title: 'Redefinir senha | Lupa Insights',
+    description: 'Defina uma nova senha para sua conta Lupa Insights.',
+    index: false
+  },
+  'cadastro-pendente': {
+    title: 'Confirme seu e-mail | Lupa Insights',
+    description: 'Verifique seu e-mail para ativar sua conta Lupa Insights.',
+    index: false
+  },
+  'verificar-email': {
+    title: 'Confirmar e-mail | Lupa Insights',
+    description: 'Confirmação de e-mail da conta Lupa Insights.',
+    index: false
+  },
   app: {
     title: 'Painel | Lupa Insights',
     description: 'Painel de importação e enriquecimento de CNPJ.',

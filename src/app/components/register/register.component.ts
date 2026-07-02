@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { CnpjImportService } from '../../services/cnpj-import.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
 import { sanitizeAnalyticsError } from '../../utils/analytics-error.util';
@@ -30,7 +29,6 @@ export class RegisterComponent {
 
   constructor(
     private authService: AuthService,
-    private cnpjImportService: CnpjImportService,
     private router: Router,
     private analytics: AnalyticsService
   ) {}
@@ -91,31 +89,16 @@ export class RegisterComponent {
       cpf: cpfDigits,
       password: this.password
     }).subscribe({
-      next: () => {
-        const user = this.authService.currentUser();
-        if (user) {
-          this.analytics.trackSignUp(user.id, user.plan);
-        }
-        this.redirecionarAposCadastro();
+      next: (response) => {
+        this.router.navigate(['/cadastro-pendente'], {
+          queryParams: { email: response.email || this.email.trim() }
+        });
       },
       error: (msg: string) => {
         this.analytics.trackSignUpError(sanitizeAnalyticsError(msg));
         this.erro.set(msg);
         this.enviando.set(false);
       }
-    });
-  }
-
-  private redirecionarAposCadastro(): void {
-    this.cnpjImportService.obterJobAtivo().subscribe({
-      next: (job) => {
-        if (job) {
-          this.router.navigate(['/consulta', job.jobId]);
-          return;
-        }
-        this.router.navigate(['/app']);
-      },
-      error: () => this.router.navigate(['/app'])
     });
   }
 }

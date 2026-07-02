@@ -1,0 +1,37 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <app-brand link="/" />
+    <h1>Confirme seu e-mail</h1>
+    <p class="subtitle">
+      Enviamos um link de confirmação
+      @if (email) {
+        para <strong>{{ email }}</strong>
+      }.
+      Abra o e-mail e clique no link para ativar sua conta antes de entrar.
+    </p>
+
+    @if (sucesso()) {
+      <div class="alert alert-success">{{ sucesso() }}</div>
+    }
+
+    @if (email) {
+      <button class="btn btn-primary" type="button" [disabled]="enviando()" (click)="reenviar()">
+        @if (enviando()) {
+          Reenviando...
+        } @else {
+          Reenviar link
+        }
+      </button>
+    }
+
+    @if (erro()) {
+      <div class="alert alert-error">{{ erro() }}</div>
+    }
+
+    <p class="footer-link">
+      <a routerLink="/login">Voltar para entrar</a>
+      · <a routerLink="/cadastro">Criar outra conta</a>
+    </p>
+    <app-legal-footer-links />
+  </div>
+</div>

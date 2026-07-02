@@ -3,6 +3,10 @@ import { CnpjImportComponent } from './components/cnpj-import/cnpj-import.compon
 import { ConsultaDetalheComponent } from './components/consulta-detalhe/consulta-detalhe.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { RegistrationPendingComponent } from './components/registration-pending/registration-pending.component';
+import { VerifyEmailComponent } from './components/verify-email/verify-email.component';
 import { HistoricoComponent } from './components/historico/historico.component';
 import { LandingComponent } from './components/landing/landing.component';
 import { AdLandingComponent } from './components/ad-landing/ad-landing.component';
@@ -49,6 +53,30 @@ export const routes: Routes = [
     component: RegisterComponent,
     canActivate: [guestGuard],
     data: { seo: ROUTE_SEO['cadastro'], analytics: ROUTE_ANALYTICS['cadastro'] }
+  },
+  {
+    path: 'esqueci-senha',
+    component: ForgotPasswordComponent,
+    canActivate: [guestGuard],
+    data: { seo: ROUTE_SEO['esqueci-senha'], analytics: ROUTE_ANALYTICS['esqueci-senha'] }
+  },
+  {
+    path: 'redefinir-senha',
+    component: ResetPasswordComponent,
+    canActivate: [guestGuard],
+    data: { seo: ROUTE_SEO['redefinir-senha'], analytics: ROUTE_ANALYTICS['redefinir-senha'] }
+  },
+  {
+    path: 'cadastro-pendente',
+    component: RegistrationPendingComponent,
+    canActivate: [guestGuard],
+    data: { seo: ROUTE_SEO['cadastro-pendente'], analytics: ROUTE_ANALYTICS['cadastro-pendente'] }
+  },
+  {
+    path: 'verificar-email',
+    component: VerifyEmailComponent,
+    canActivate: [guestGuard],
+    data: { seo: ROUTE_SEO['verificar-email'], analytics: ROUTE_ANALYTICS['verificar-email'] }
   },
   {
     path: 'app',

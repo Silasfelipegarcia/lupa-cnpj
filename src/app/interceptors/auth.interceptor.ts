@@ -8,6 +8,10 @@ import { isJwtExpired } from '../utils/jwt.util';
 const PUBLIC_API_SEGMENTS = [
   '/auth/login',
   '/auth/register',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+  '/auth/verify-email',
+  '/auth/resend-verification',
   '/cnpj/preview',
   '/plans',
   '/payments/mercadopago/webhook',

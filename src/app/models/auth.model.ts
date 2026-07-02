@@ -64,8 +64,38 @@ export interface RegisterRequest {
   password: string;
 }
 
+export interface RegisterResponse {
+  mensagem: string;
+  email: string;
+}
+
+export interface ResendVerificationRequest {
+  email: string;
+}
+
+export interface ResendVerificationResponse {
+  mensagem: string;
+}
+
+export interface VerifyEmailRequest {
+  token: string;
+}
+
 export interface ChangePasswordRequest {
   senhaAtual: string;
+  senhaNova: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  mensagem: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
   senhaNova: string;
 }
 

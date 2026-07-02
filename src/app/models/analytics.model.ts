@@ -73,6 +73,11 @@ export type AnalyticsEventName =
   | 'view_saved_list'
   | 'password_change'
   | 'password_change_error'
+  | 'password_reset_request'
+  | 'password_reset_request_success'
+  | 'password_reset_request_error'
+  | 'password_reset_complete'
+  | 'password_reset_complete_error'
   | 'cta_click';
 
 export interface AnalyticsEventParams {
@@ -101,6 +106,10 @@ export const ROUTE_ANALYTICS: Record<string, RouteAnalyticsConfig> = {
   'consulta-cnpj': { funnel: 'acquisition', step: 1, stepName: 'landing_view' },
   login: { funnel: 'acquisition', step: 2, stepName: 'login_form_view' },
   cadastro: { funnel: 'acquisition', step: 3, stepName: 'signup_form_view' },
+  'esqueci-senha': { funnel: 'acquisition', step: 2, stepName: 'forgot_password_view' },
+  'redefinir-senha': { funnel: 'acquisition', step: 2, stepName: 'reset_password_view' },
+  'cadastro-pendente': { funnel: 'acquisition', step: 3, stepName: 'signup_pending_view' },
+  'verificar-email': { funnel: 'acquisition', step: 4, stepName: 'verify_email_view' },
   app: { funnel: 'activation', step: 1, stepName: 'import_dashboard_view' },
   'consulta/:jobId': { funnel: 'activation', step: 2, stepName: 'consulta_job_view' },
   planos: { funnel: 'monetization', step: 1, stepName: 'pricing_view' },

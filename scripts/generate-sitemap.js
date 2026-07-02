@@ -10,6 +10,8 @@ const routes = [
   { loc: '/planos', changefreq: 'weekly', priority: '0.9' },
   { loc: '/cadastro', changefreq: 'monthly', priority: '0.8' },
   { loc: '/login', changefreq: 'monthly', priority: '0.5' },
+  { loc: '/esqueci-senha', changefreq: 'monthly', priority: '0.4' },
+  { loc: '/cadastro-pendente', changefreq: 'monthly', priority: '0.4' },
   { loc: '/privacidade', changefreq: 'yearly', priority: '0.4' },
   { loc: '/cookies', changefreq: 'yearly', priority: '0.4' },
   { loc: '/termos', changefreq: 'yearly', priority: '0.4' }

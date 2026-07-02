@@ -2,9 +2,9 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of, tap, throwError } from 'rxjs';
-import { catchError, finalize, shareReplay } from 'rxjs/operators';
+import { catchError, finalize, map, shareReplay } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { AuthResponse, ChangePasswordRequest, LoginRequest, RegisterRequest, User } from '../models/auth.model';
+import { AuthResponse, ChangePasswordRequest, ForgotPasswordRequest, ForgotPasswordResponse, LoginRequest, RegisterRequest, RegisterResponse, ResendVerificationResponse, ResetPasswordRequest, User } from '../models/auth.model';
 import { LogoutReason } from '../models/analytics.model';
 import { AuthStorage } from './auth-storage';
 import { AnalyticsService } from './analytics.service';
@@ -89,9 +89,22 @@ export class AuthService {
     );
   }
 
-  register(request: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiBase}/register`, request).pipe(
+  register(request: RegisterRequest): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${this.apiBase}/register`, request).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  verificarEmail(token: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiBase}/verify-email`, { token }).pipe(
       tap((response) => this.persistirSessao(response)),
+      catchError(this.tratarErro)
+    );
+  }
+
+  reenviarVerificacao(email: string): Observable<string> {
+    return this.http.post<ResendVerificationResponse>(`${this.apiBase}/resend-verification`, { email }).pipe(
+      map((response) => response.mensagem),
       catchError(this.tratarErro)
     );
   }
@@ -129,6 +142,21 @@ export class AuthService {
 
   alterarSenha(request: ChangePasswordRequest): Observable<void> {
     return this.http.put<void>(`${this.apiBase}/password`, request).pipe(
+      catchError(this.tratarErro)
+    );
+  }
+
+  solicitarResetSenha(email: string): Observable<string> {
+    const body: ForgotPasswordRequest = { email };
+    return this.http.post<ForgotPasswordResponse>(`${this.apiBase}/forgot-password`, body).pipe(
+      map((response) => response.mensagem),
+      catchError(this.tratarErro)
+    );
+  }
+
+  redefinirSenha(token: string, senhaNova: string): Observable<void> {
+    const body: ResetPasswordRequest = { token, senhaNova };
+    return this.http.post<void>(`${this.apiBase}/reset-password`, body).pipe(
       catchError(this.tratarErro)
     );
   }

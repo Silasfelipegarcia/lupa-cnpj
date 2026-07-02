@@ -14,6 +14,9 @@
         <span>Senha</span>
         <input type="password" name="password" [(ngModel)]="password" required minlength="8" autocomplete="current-password" />
       </label>
+      <p class="forgot-link">
+        <a routerLink="/esqueci-senha">Esqueci minha senha</a>
+      </p>
 
       <button class="btn btn-primary" type="submit" [disabled]="enviando()">
         @if (enviando()) {
@@ -26,6 +29,12 @@
 
     @if (erro()) {
       <div class="alert alert-error">{{ erro() }}</div>
+    }
+
+    @if (emailNaoConfirmado()) {
+      <p class="footer-link">
+        <a [routerLink]="['/cadastro-pendente']" [queryParams]="{ email: email }">Reenviar link de confirmação</a>
+      </p>
     }
 
     <p class="footer-link">

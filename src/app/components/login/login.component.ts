@@ -22,6 +22,7 @@ export class LoginComponent implements OnInit {
   email = '';
   password = '';
   erro = signal('');
+  emailNaoConfirmado = signal(false);
   enviando = signal(false);
 
   constructor(
@@ -47,6 +48,7 @@ export class LoginComponent implements OnInit {
     }
 
     this.erro.set('');
+    this.emailNaoConfirmado.set(false);
     this.enviando.set(true);
     this.analytics.trackLoginFormStart();
 
@@ -61,6 +63,7 @@ export class LoginComponent implements OnInit {
       error: (msg: string) => {
         this.analytics.trackLoginError(sanitizeAnalyticsError(msg));
         this.erro.set(msg);
+        this.emailNaoConfirmado.set(msg.toLowerCase().includes('confirme seu e-mail'));
         this.enviando.set(false);
       }
     });
