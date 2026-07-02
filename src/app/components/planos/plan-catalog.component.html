@@ -49,7 +49,7 @@
   }
 
   @if (authService.isAuthenticated()) {
-    <section class="payment-prefs card">
+    <section #paymentPrefs id="forma-pagamento" class="payment-prefs card">
       <h3>Forma de pagamento</h3>
       @if (catalogo().length > 0) {
         @for (ref of planosPrincipais(); track ref.nome) {
@@ -98,6 +98,7 @@
           <div class="field field--cvv">
             <span>CVV</span>
             <input
+              #cvvInput
               type="password"
               inputmode="numeric"
               autocomplete="cc-csc"
@@ -176,6 +177,36 @@
           </ul>
         }
 
+        @if (item.plan === 'ADMIN_TEST' && authService.isAuthenticated() && cartoes().length > 0) {
+          <div class="admin-test-pay">
+            <p class="admin-test-pay__label">CVV do cartão para cobrar R$ 1,00</p>
+            <div class="admin-test-pay__row">
+              <label class="field">
+                <span>Cartão</span>
+                <select [ngModel]="cartaoSelecionado()" (ngModelChange)="cartaoSelecionado.set($event)">
+                  @for (card of cartoes(); track card.id) {
+                    <option [value]="card.id">
+                      {{ card.brand }} •••• {{ card.lastFourDigits }}
+                    </option>
+                  }
+                </select>
+              </label>
+              <label class="field field--cvv">
+                <span>CVV</span>
+                <input
+                  type="password"
+                  inputmode="numeric"
+                  autocomplete="cc-csc"
+                  maxlength="4"
+                  placeholder="123"
+                  [value]="cvv()"
+                  (input)="onCvvInput($event)"
+                />
+              </label>
+            </div>
+          </div>
+        }
+
         <div class="plan-actions">
           @if (authService.isMaster() && item.plan !== 'ADMIN_TEST') {
             <span class="plan-badge plan-badge--master">Incluso no Master</span>
@@ -195,11 +226,13 @@
             <button
               type="button"
               class="btn btn-primary"
-              [disabled]="!!processando()"
+              [disabled]="!!processando() || (cartoes().length > 0 && !cvvInformado())"
               (click)="assinar(item.plan!)"
             >
               @if (processando() === item.plan) {
                 Processando...
+              } @else if (cartoes().length > 0 && !cvvInformado()) {
+                Informe o CVV para pagar
               } @else if (cartoes().length > 0) {
                 @if (cotacao(item.plan!)?.upgrade) {
                   Upgrade com cartão salvo

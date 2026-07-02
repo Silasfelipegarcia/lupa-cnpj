@@ -221,6 +221,37 @@
   background: linear-gradient(180deg, rgba(124, 58, 237, 0.04), var(--surface-card));
 }
 
+.admin-test-pay {
+  margin: 1rem 0 0.25rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(124, 58, 237, 0.25);
+  background: rgba(124, 58, 237, 0.06);
+
+  &__label {
+    margin: 0 0 0.65rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  &__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: flex-end;
+
+    .field {
+      flex: 1 1 8rem;
+      min-width: 0;
+    }
+
+    .field--cvv {
+      flex: 0 0 5.5rem;
+    }
+  }
+}
+
 .plan-card__header {
   display: flex;
   flex-direction: column;

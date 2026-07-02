@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -19,6 +19,9 @@ import { PlanQuote, SavedCard, CHECKOUT_ORDER_STORAGE_KEY } from '../../models/p
   styleUrl: './plan-catalog.component.scss'
 })
 export class PlanCatalogComponent implements OnInit {
+
+  @ViewChild('paymentPrefs') paymentPrefs?: ElementRef<HTMLElement>;
+  @ViewChild('cvvInput') cvvInput?: ElementRef<HTMLInputElement>;
 
   readonly authService = inject(AuthService);
   private readonly planService = inject(PlanService);
@@ -46,6 +49,7 @@ export class PlanCatalogComponent implements OnInit {
   planosPrincipais = computed(() => this.catalogo().filter((i) => !i.contatoComercial));
   planoBusiness = computed(() => this.catalogo().find((i) => i.contatoComercial));
   sandboxMercadoPago = computed(() => this.mpPublicKey().startsWith('TEST-'));
+  cvvInformado = computed(() => this.cvv().trim().length >= 3);
 
   ngOnInit(): void {
     this.planService.listarCatalogo().subscribe({
@@ -185,6 +189,21 @@ export class PlanCatalogComponent implements OnInit {
     const digits = input.value.replace(/\D/g, '').slice(0, 4);
     this.cvv.set(digits);
     input.value = digits;
+    if (this.erro().toLowerCase().includes('cvv')) {
+      this.erro.set('');
+    }
+  }
+
+  private focarFormaPagamento(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const alvo = this.paymentPrefs?.nativeElement;
+    if (!alvo) {
+      return;
+    }
+    alvo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.setTimeout(() => this.cvvInput?.nativeElement.focus(), 250);
   }
 
   planoAtual(): SubscriptionPlan | undefined {
@@ -282,6 +301,13 @@ export class PlanCatalogComponent implements OnInit {
       if (!cardId) {
         this.erro.set('Selecione um cartão salvo.');
         this.processando.set(null);
+        this.focarFormaPagamento();
+        return;
+      }
+      if (!this.cvvInformado()) {
+        this.erro.set('Informe o CVV do cartão (3 ou 4 dígitos) na seção Forma de pagamento.');
+        this.processando.set(null);
+        this.focarFormaPagamento();
         return;
       }
       this.pagarComCartaoSalvo(plan, cardId);
@@ -297,6 +323,7 @@ export class PlanCatalogComponent implements OnInit {
     if (cvv.length < 3) {
       this.erro.set('Informe o CVV do cartão (3 ou 4 dígitos).');
       this.processando.set(null);
+      this.focarFormaPagamento();
       return;
     }
 
