@@ -1,14 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Lupa Insights">
   <defs>
-    <linearGradient id="lupa-gradient" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+    <linearGradient id="lupa-bg" x1="8" y1="6" x2="58" y2="58" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#a855f7"/>
       <stop offset="100%" stop-color="#820ad1"/>
     </linearGradient>
+    <linearGradient id="lupa-shine" x1="16" y1="12" x2="40" y2="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="14" fill="#ffffff" stroke="#e5e7eb"/>
-  <circle cx="27" cy="27" r="13" fill="none" stroke="url(#lupa-gradient)" stroke-width="5"/>
-  <path d="M37 37 L51 51" stroke="url(#lupa-gradient)" stroke-width="5" stroke-linecap="round"/>
-  <rect x="21" y="22" width="12" height="2.5" rx="1.2" fill="#9ca3af"/>
-  <rect x="21" y="27" width="9" height="2.5" rx="1.2" fill="#d1d5db"/>
-  <rect x="21" y="32" width="10" height="2.5" rx="1.2" fill="#e5e7eb"/>
+  <rect width="64" height="64" rx="15" fill="url(#lupa-bg)"/>
+  <rect x="1" y="1" width="62" height="62" rx="14" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="1"/>
+  <circle cx="28" cy="28" r="12.5" fill="none" stroke="#ffffff" stroke-width="5.25" stroke-linecap="round"/>
+  <path d="M37.5 37.5 L50.5 50.5" stroke="#ffffff" stroke-width="5.25" stroke-linecap="round"/>
+  <circle cx="28" cy="28" r="12.5" fill="url(#lupa-shine)"/>
 </svg>

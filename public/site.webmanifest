@@ -4,9 +4,9 @@
   "description": "Enriquecimento de listas de CNPJ",
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
+      "src": "/favicon-16.png",
+      "sizes": "16x16",
+      "type": "image/png"
     },
     {
       "src": "/favicon-32.png",
@@ -15,8 +15,13 @@
     },
     {
       "src": "/apple-touch-icon.png",
-      "sizes": "512x512",
+      "sizes": "180x180",
       "type": "image/png"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
     }
   ],
   "theme_color": "#820ad1",
