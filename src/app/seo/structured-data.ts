@@ -10,7 +10,7 @@ export function organizationJsonLd(): Record<string, unknown> {
     url: SITE,
     logo: `${SITE}/favicon.svg`,
     email: 'contato@lupainsights.com.br',
-    description: 'Plataforma de consulta e enriquecimento de CNPJ em lote para prospecção B2B.'
+    description: 'Plataforma simples para consultar CNPJ e pesquisar dados públicos de empresas brasileiras.'
   };
 }
 
@@ -20,7 +20,7 @@ export function websiteJsonLd(): Record<string, unknown> {
     '@type': 'WebSite',
     name: 'Lupa Insights',
     url: SITE,
-    description: 'Consulta e enriquecimento de CNPJ em planilha para equipes comerciais.',
+    description: 'Pesquise empresas por CNPJ — dados públicos, contatos e CNAEs em segundos.',
     inLanguage: 'pt-BR'
   };
 }
@@ -33,7 +33,7 @@ export function softwareApplicationJsonLd(): Record<string, unknown> {
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
     url: SITE,
-    description: 'Enriqueça listas de CNPJ com dados cadastrais oficiais, telefone, e-mail e exportação Excel.',
+    description: 'Consulte CNPJ e encontre dados públicos, sócios, contatos, CNAEs e localização de empresas brasileiras.',
     offers: [
       {
         '@type': 'Offer',
@@ -84,27 +84,27 @@ export const LANDING_FAQ: FaqItem[] = [
   {
     question: 'Como consultar vários CNPJs de uma vez?',
     answer:
-      'Importe uma planilha CSV ou Excel com os CNPJs (ou razão social no plano Prospecção). O Lupa Insights enriquece cada linha com dados cadastrais oficiais e você acompanha o progresso em tempo real.'
+      'Importe uma planilha CSV ou Excel com os CNPJs. O Lupa consulta cada empresa e organiza os dados para você acompanhar em tempo real.'
   },
   {
-    question: 'Quais dados da Receita Federal o Lupa Insights traz?',
+    question: 'Quais informações posso encontrar?',
     answer:
-      'Razão social, nome fantasia, situação cadastral, telefones, e-mail, endereço completo, CNAE principal e mais — dados cadastrais oficiais para qualificar sua prospecção B2B.'
+      'Razão social, nome fantasia, situação cadastral, sócios, telefones, e-mail, endereço, CNAE principal e outros dados públicos de empresas brasileiras.'
   },
   {
     question: 'Posso testar grátis?',
     answer:
-      'Sim. Na página inicial você pode consultar 1 CNPJ completo sem cadastro. Ao criar conta e confirmar o e-mail, você ganha 7 dias de Prospecção grátis — Excel, filtros e planilhas em lote, sem cartão para começar.'
+      'Sim. Na página inicial você pode pesquisar 1 CNPJ completo sem cadastro. Ao criar conta e confirmar o e-mail, ganha 7 dias grátis para consultar empresas em lote.'
   },
   {
     question: 'Qual a diferença entre os planos?',
     answer:
-      'Trial 7 dias (grátis ao criar conta): Prospecção completa. Prospecção pago (R$ 9,90/mês, plano anual): 10 planilhas/dia com até 100 empresas cada, Excel e filtros. Growth (R$ 29,90/mês, plano anual): 50 planilhas/dia com até 500 empresas, dedupe e filtros avançados.'
+      'Trial 7 dias (grátis ao criar conta): pesquisas em lote completas. Prospecção (R$ 9,90/mês, plano anual): até 100 empresas por planilha e exportação Excel. Growth (R$ 29,90/mês): até 500 empresas por planilha e filtros avançados.'
   },
   {
-    question: 'Serve para prospecção B2B e SDR?',
+    question: 'Para quem o Lupa é indicado?',
     answer:
-      'Sim. O foco é transformar listas brutas em leads qualificados com telefone, e-mail e situação cadastral — prontos para exportar ao CRM e iniciar outreach.'
+      'Para qualquer pessoa que precise pesquisar empresas: vendedores, contadores, consultores, advogados, empreendedores, analistas e quem quiser economizar tempo nas consultas.'
   }
 ];
 

@@ -16,6 +16,7 @@
       @if (!isLoggedIn()) {
         <a href="#experimente" class="nav-link">Experimente</a>
       }
+      <a href="#quem-usa" class="nav-link">Quem usa</a>
       <a href="#recursos" class="nav-link">Recursos</a>
       <a href="#faq" class="nav-link">FAQ</a>
       <a routerLink="/planos" class="nav-link" appAnalyticsCta="planos" appAnalyticsCtaLocation="topbar">Planos</a>
@@ -24,7 +25,7 @@
           <a routerLink="/app" class="btn btn-primary" appAnalyticsCta="acessar_painel" appAnalyticsCtaLocation="topbar">Acessar painel</a>
         } @else {
           <a routerLink="/login" class="nav-link" appAnalyticsCta="entrar" appAnalyticsCtaLocation="topbar">Entrar</a>
-          <a routerLink="/cadastro" class="btn btn-primary" appAnalyticsCta="comecar_gratis" appAnalyticsCtaLocation="topbar">Começar grátis</a>
+          <a routerLink="/cadastro" class="btn btn-primary" appAnalyticsCta="comecar_gratis" appAnalyticsCtaLocation="topbar">Começar gratuitamente</a>
         }
       </span>
     </nav>
@@ -33,18 +34,19 @@
   <section class="hero">
     <div class="hero-content">
       <div class="hero-badges">
-        <span class="badge badge--pulse">Prospecção B2B em lote</span>
-        <span class="trust-line">Dados oficiais verificados</span>
+        <span class="badge badge--pulse">Consulta CNPJ rápida</span>
+        <span class="trust-line">Dados públicos organizados</span>
       </div>
 
-      <h1>
-        Sua lista de empresas,
-        <span class="hero-highlight">pronta para ligar</span>
-      </h1>
+      <h1>Descubra tudo sobre qualquer CNPJ em segundos.</h1>
+
+      <p class="hero-proof">
+        Mais de <strong>60 milhões</strong> de empresas brasileiras pesquisáveis em um único lugar.
+      </p>
 
       <p class="hero-lead">
-        Consulta CNPJ em lote e enriquecimento de planilhas com telefone, e-mail e dados cadastrais oficiais.
-        Pare de perder tempo com consultas avulsas — filtre empresas ativas e exporte para o CRM em minutos.
+        Dados públicos organizados para você encontrar respostas em segundos —
+        sócios, CNAEs, contatos, localização e outras informações importantes em uma única plataforma.
       </p>
 
       <div class="hero-actions">
@@ -52,11 +54,11 @@
           <a routerLink="/app" class="btn btn-primary btn-lg" appAnalyticsCta="ir_painel" appAnalyticsCtaLocation="hero">Ir para o painel</a>
           <a routerLink="/historico" class="btn btn-outline btn-lg" appAnalyticsCta="ver_historico" appAnalyticsCtaLocation="hero">Ver histórico</a>
         } @else {
-          <a routerLink="/cadastro" class="btn btn-primary btn-lg" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="hero">Criar conta gratuita</a>
+          <a routerLink="/cadastro" class="btn btn-primary btn-lg" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="hero">Começar gratuitamente</a>
           <button type="button" class="btn btn-outline btn-lg"
                   appAnalyticsCta="testar_cnpj" appAnalyticsCtaLocation="hero"
                   (click)="scrollTo('experimente')">
-            Testar 1 CNPJ grátis
+            Pesquisar um CNPJ
           </button>
         }
       </div>
@@ -79,15 +81,15 @@
           <span class="dot dot--red"></span>
           <span class="dot dot--yellow"></span>
           <span class="dot dot--green"></span>
-          <span class="mock-title">campanha_sdr_q2.xlsx</span>
-          <span class="mock-badge">Enriquecendo</span>
+          <span class="mock-title">pesquisa_empresas.xlsx</span>
+          <span class="mock-badge">Consultando</span>
         </div>
         <div class="mock-progress">
           <div class="mock-bar"></div>
         </div>
         <p class="mock-status">
           <span class="mock-pulse"></span>
-          Consultando 36 de 50 empresas · 72%
+          Buscando dados de 36 empresas · 72%
         </p>
         <div class="mock-table">
           <div class="mock-row head">
@@ -119,15 +121,15 @@
       <div class="float-card float-card--1">
         <span class="float-icon">✓</span>
         <div>
-          <strong>847 ativas</strong>
-          <span>filtradas da lista</span>
+          <strong>847 empresas</strong>
+          <span>consultadas hoje</span>
         </div>
       </div>
       <div class="float-card float-card--2">
         <span class="float-icon">↓</span>
         <div>
           <strong>Excel pronto</strong>
-          <span>export em 1 clique</span>
+          <span>baixe em 1 clique</span>
         </div>
       </div>
     </div>
@@ -158,10 +160,10 @@
   @if (!isLoggedIn()) {
     <section id="experimente" class="section section-preview">
       <div class="section-head">
-        <span class="section-tag">Degustação grátis</span>
-        <h2>Veja o produto funcionando — sem cadastro</h2>
+        <span class="section-tag">Experimente agora</span>
+        <h2>Pesquise um CNPJ sem cadastro</h2>
         <p class="section-lead">
-          Digite um CNPJ e receba <strong>todos os dados oficiais</strong> na hora.
+          Digite um CNPJ e veja na hora os dados públicos disponíveis.
           @if (quota(); as q) {
             <span class="quota-badge">{{ q.consultasRestantes }} de {{ q.consultasLimite }} consulta(s) restante(s)</span>
           }
@@ -171,8 +173,8 @@
       <div class="preview-shell">
         <div class="preview-card">
           <div class="preview-card-head">
-            <h3>Consulta avulsa gratuita</h3>
-            <p>Igual ao que você recebe no plano pago — só 1x por dispositivo.</p>
+            <h3>Consulta gratuita</h3>
+            <p>1 pesquisa completa por dispositivo — igual ao que você recebe na conta.</p>
           </div>
 
           <form class="preview-form" (ngSubmit)="consultarCnpj()">
@@ -211,8 +213,8 @@
           @if (quota()?.limiteAtingido) {
             <div class="preview-alert preview-alert-limit">
               Você já usou sua consulta gratuita neste dispositivo.
-              <a routerLink="/cadastro" class="preview-cta-link" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="preview_limite">Crie sua conta grátis</a>
-              e ganhe <strong>7 dias de Prospecção</strong> com Excel, filtros e planilhas em lote.
+              <a routerLink="/cadastro" class="preview-cta-link" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="preview_limite">Comece gratuitamente</a>
+              e ganhe <strong>7 dias</strong> para pesquisar empresas em lote, exportar em Excel e salvar seu histórico.
             </div>
           }
 
@@ -234,42 +236,42 @@
 
               <div class="preview-signup-cta">
                 <div class="preview-signup-cta__copy">
-                  <span class="preview-signup-cta__eyebrow">Próximo passo</span>
-                  <h4>Gostou? Crie sua conta em 30 segundos</h4>
-                  <p>Salve consultas, importe planilhas e continue de onde parou — grátis para começar.</p>
+                  <span class="preview-signup-cta__eyebrow">Gostou do resultado?</span>
+                  <h4>Comece gratuitamente em poucos segundos</h4>
+                  <p>Salve suas pesquisas, consulte vários CNPJs e exporte quando precisar.</p>
                 </div>
                 <form class="preview-signup-form" (ngSubmit)="irParaCadastro('preview_signup')">
                   <label class="preview-signup-field">
-                    <span>Seu e-mail profissional</span>
+                    <span>Seu e-mail</span>
                     <input
                       type="email"
                       name="signupEmail"
                       [(ngModel)]="signupEmail"
-                      placeholder="voce@empresa.com.br"
+                      placeholder="voce@email.com"
                       autocomplete="email"
                       required
                     />
                   </label>
                   <button type="submit" class="btn btn-primary btn-lg preview-signup-btn">
-                    Criar conta grátis →
+                    Começar gratuitamente →
                   </button>
                 </form>
-                <p class="preview-signup-hint">7 dias de Prospecção grátis · Sem cartão agora · Upgrade quando precisar</p>
+                <p class="preview-signup-hint">7 dias grátis ao confirmar o e-mail · Sem cartão para começar</p>
               </div>
 
               <div class="preview-upsell">
-                <p class="preview-upsell-title">Imagine isso para 50, 100 ou 500 empresas de uma vez</p>
+                <p class="preview-upsell-title">Precisa pesquisar dezenas ou centenas de empresas?</p>
                 <ul class="preview-upsell-list">
-                  <li>Até <strong>100 empresas/planilha</strong> no trial de 7 dias</li>
-                  <li><strong>10 planilhas/dia</strong> + Excel e filtro de ativas no trial</li>
-                  <li>Depois do trial, a partir de <strong>R$ 9,90/mês</strong> (plano anual)</li>
+                  <li>Importe uma planilha e consulte <strong>até 100 empresas</strong> de uma vez</li>
+                  <li>Veja contatos, CNAEs, sócios e situação cadastral reunidos</li>
+                  <li>Planos a partir de <strong>R$ 9,90/mês</strong> quando precisar de mais volume</li>
                 </ul>
                 <div class="preview-upsell-actions">
                   <button type="button" class="btn btn-outline btn-sm" (click)="scrollTo('experimente')"
                           appAnalyticsCta="testar_outro_cnpj" appAnalyticsCtaLocation="preview_upsell">
-                    Testar outro CNPJ
+                    Pesquisar outro CNPJ
                   </button>
-                  <a routerLink="/planos" class="btn btn-outline btn-sm" appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="preview_upsell">Ver planos beta</a>
+                  <a routerLink="/planos" class="btn btn-outline btn-sm" appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="preview_upsell">Ver planos</a>
                 </div>
               </div>
             </div>
@@ -277,7 +279,7 @@
         </div>
 
         <aside class="preview-aside">
-          <h3>O que muda com o Lupa Insights</h3>
+          <h3>Por que usar o Lupa?</h3>
           <div class="compare">
             <div class="compare-col compare-col--before">
               <span class="compare-title">Sem o Lupa Insights</span>
@@ -301,17 +303,16 @@
     </section>
   }
 
-  <section class="section section-personas">
+  <section id="quem-usa" class="section section-personas">
     <div class="section-head">
       <span class="section-tag">Para quem é</span>
-      <h2>Feito para quem vive de lista</h2>
-      <p class="section-lead">SDRs, reps e agências que precisam de dado confiável e ação rápida — não de mais uma planilha.</p>
+      <h2>Quem usa o Lupa?</h2>
+      <p class="section-lead">Qualquer pessoa que precise pesquisar empresas com rapidez e confiança.</p>
     </div>
     <div class="personas-grid">
-      @for (p of personas; track p.title) {
+      @for (p of personas; track p.perfil) {
         <article class="persona-card">
-          <span class="persona-tag">{{ p.tag }}</span>
-          <h3>{{ p.title }}</h3>
+          <h3>{{ p.perfil }}</h3>
           <p>{{ p.text }}</p>
         </article>
       }
@@ -321,8 +322,8 @@
   <section id="recursos" class="section">
     <div class="section-head">
       <span class="section-tag">Recursos</span>
-      <h2>Tudo para ir da planilha ao outreach</h2>
-      <p class="section-lead">Enriquecimento oficial, filtros comerciais e exportação no formato que o time usa.</p>
+      <h2>Encontre informações em segundos</h2>
+      <p class="section-lead">Tudo que você precisa para pesquisar empresas sem complicação.</p>
     </div>
     <div class="features-grid">
       @for (f of features; track f.title) {
@@ -339,6 +340,7 @@
     <div class="section-head">
       <span class="section-tag">Como funciona</span>
       <h2>3 passos. Menos de 1 minuto para começar.</h2>
+      <p class="section-lead">Simples de usar — você entende na hora.</p>
     </div>
     <div class="steps">
       @for (s of steps; track s.num) {
@@ -354,8 +356,8 @@
   <section class="section section-fields">
     <div class="section-head">
       <span class="section-tag">Dados entregues</span>
-      <h2>Cada linha enriquecida com dados oficiais</h2>
-      <p class="section-lead">Tudo que você precisa para qualificar e abordar — com dados cadastrais oficiais e atualizados.</p>
+      <h2>O que você encontra em cada consulta</h2>
+      <p class="section-lead">Dados públicos organizados para você economizar tempo nas suas pesquisas.</p>
     </div>
     <div class="fields-wrap">
       @for (field of fields; track field) {
@@ -367,8 +369,8 @@
   <section id="faq" class="section section-alt">
     <div class="section-head">
       <span class="section-tag">Perguntas frequentes</span>
-      <h2>Dúvidas sobre consulta e enriquecimento de CNPJ</h2>
-      <p class="section-lead">Respostas rápidas para quem quer qualificar listas B2B com dados oficiais.</p>
+      <h2>Perguntas frequentes</h2>
+      <p class="section-lead">Respostas rápidas sobre como pesquisar empresas no Lupa.</p>
     </div>
     <div class="faq-list">
       @for (item of faq; track item.question) {
@@ -382,28 +384,32 @@
 
   <section class="cta">
     <div class="cta-inner">
-      <h2>Sua próxima campanha começa com uma lista limpa</h2>
-      <p>Importe, enriqueça e exporte — sem depender de TI ou copy-paste.</p>
+      <h2>Comece a pesquisar empresas agora</h2>
+      <p>Consulte qualquer CNPJ em segundos — grátis para experimentar.</p>
       <div class="cta-actions">
         @if (isLoggedIn()) {
           <a routerLink="/app" class="btn btn-primary btn-lg" appAnalyticsCta="nova_consulta" appAnalyticsCtaLocation="cta_final">Nova consulta</a>
           <a routerLink="/historico" class="btn btn-outline btn-lg" appAnalyticsCta="ver_historico" appAnalyticsCtaLocation="cta_final">Ver histórico</a>
         } @else {
-          <a routerLink="/cadastro" class="btn btn-primary btn-lg" appAnalyticsCta="comecar_gratis" appAnalyticsCtaLocation="cta_final">Começar grátis</a>
-          <a routerLink="/planos" class="btn btn-outline btn-lg" appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="cta_final">Ver planos</a>
+          <a routerLink="/cadastro" class="btn btn-primary btn-lg" appAnalyticsCta="comecar_gratis" appAnalyticsCtaLocation="cta_final">Começar gratuitamente</a>
+          <button type="button" class="btn btn-outline btn-lg"
+                  appAnalyticsCta="testar_cnpj" appAnalyticsCtaLocation="cta_final"
+                  (click)="scrollTo('experimente')">
+            Experimentar grátis
+          </button>
         }
       </div>
       @if (!isLoggedIn()) {
-        <p class="cta-note">7 dias de Prospecção grátis ao criar conta · Sem cartão para começar</p>
+        <p class="cta-note">7 dias grátis ao criar conta · Sem cartão para começar</p>
       }
     </div>
   </section>
 
   @if (!isLoggedIn() && resultado()) {
     <div class="sticky-signup-bar">
-      <p>Vi os dados — agora crie sua conta grátis</p>
+      <p>Gostou do resultado? Comece gratuitamente</p>
       <button type="button" class="btn btn-primary btn-sm" (click)="irParaCadastro('sticky_bar')">
-        Crie sua conta grátis
+        Começar gratuitamente
       </button>
     </div>
   }
@@ -416,12 +422,12 @@
         <a routerLink="/app" appAnalyticsCta="acessar_painel" appAnalyticsCtaLocation="footer">Acessar painel</a>
         <a routerLink="/historico" appAnalyticsCta="ver_historico" appAnalyticsCtaLocation="footer">Histórico</a>
       } @else {
-        <a routerLink="/cadastro" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="footer">Criar conta</a>
+        <a routerLink="/cadastro" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="footer">Começar gratuitamente</a>
         <a routerLink="/login" appAnalyticsCta="entrar" appAnalyticsCtaLocation="footer">Entrar</a>
       }
       <a href="mailto:contato&#64;lupainsights.com.br" appAnalyticsCta="contato_email" appAnalyticsCtaLocation="footer">contato&#64;lupainsights.com.br</a>
     </nav>
     <app-legal-footer-links />
-    <p>Consulta CNPJ em lote · Dados cadastrais oficiais · {{ ano }} Lupa Insights</p>
+    <p>Consulta CNPJ · Dados públicos organizados · {{ ano }} Lupa Insights</p>
   </footer>
 </div>

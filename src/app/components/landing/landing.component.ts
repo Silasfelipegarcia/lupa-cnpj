@@ -32,61 +32,70 @@ export class LandingComponent implements OnInit {
   quota = signal<CnpjPreviewQuota | null>(null);
 
   readonly stats = [
-    { value: '1', label: 'consulta completa grátis', sub: 'sem cadastro' },
-    { value: '7 dias', label: 'Prospecção grátis', sub: 'ao criar conta' },
-    { value: 'Excel', label: 'export no trial', sub: 'pronto pro CRM' }
+    { value: 'Segundos', label: 'para consultar', sub: 'um CNPJ completo' },
+    { value: '7 dias', label: 'grátis ao cadastrar', sub: 'pesquisas em lote' },
+    { value: 'Tudo', label: 'em um só lugar', sub: 'dados, contatos e CNAEs' }
   ];
 
   readonly personas = [
     {
-      tag: 'SDR / pré-vendas',
-      title: 'Lista limpa para ligar hoje',
-      text: 'Filtre só empresas ativas, exporte com telefone e e-mail e comece o outreach sem planilha manual.'
+      perfil: 'Vendedores',
+      text: 'Encontre telefone, e-mail e situação cadastral antes de ligar — sem perder tempo em sites diferentes.'
     },
     {
-      tag: 'Agência / consultoria',
-      title: 'Volume com histórico',
-      text: 'Salve listas por campanha, reprocesse com dados atualizados e dedupe CNPJs duplicados no Growth.'
+      perfil: 'Contadores',
+      text: 'Confira dados cadastrais, CNAEs e situação fiscal de clientes e fornecedores com rapidez.'
     },
     {
-      tag: 'Rep comercial',
-      title: 'Valide o lead em segundos',
-      text: 'Consulta avulsa por CNPJ ou importe a lista do CRM — dados cadastrais oficiais em minutos.'
+      perfil: 'Consultores',
+      text: 'Pesquise dezenas de empresas de uma vez e exporte tudo organizado para seus relatórios.'
+    },
+    {
+      perfil: 'Advogados',
+      text: 'Valide razão social, endereço e quadro societário de empresas em poucos cliques.'
+    },
+    {
+      perfil: 'Empreendedores',
+      text: 'Analise concorrentes, parceiros e fornecedores antes de fechar um negócio.'
+    },
+    {
+      perfil: 'Analistas',
+      text: 'Monte listas com dados públicos atualizados e filtre o que importa para sua análise.'
     }
   ];
 
   readonly features = [
     {
-      icon: 'target',
-      title: 'Lista pronta para prospecção',
-      text: 'Filtre empresas ativas, exporte em Excel e leve direto para o CRM — sem retrabalho pós-export.'
-    },
-    {
       icon: 'search',
-      title: 'CNPJ ou razão social',
-      text: 'Importe planilhas com CNPJ, nome da empresa ou misto. No plano Prospecção+, busca por razão social.'
+      title: 'Pesquise qualquer CNPJ',
+      text: 'Digite o número e receba razão social, situação, contatos e endereço em segundos.'
     },
     {
       icon: 'bolt',
-      title: 'Acompanhamento em tempo real',
-      text: 'Barra de progresso e tabela com resultados parciais enquanto cada empresa é qualificada.'
+      title: 'Economize tempo',
+      text: 'Consulte uma empresa ou importe uma planilha inteira — sem abrir dezenas de abas.'
+    },
+    {
+      icon: 'target',
+      title: 'Informação confiável',
+      text: 'Dados públicos organizados de forma clara para você decidir com mais segurança.'
     },
     {
       icon: 'folder',
-      title: 'Histórico e listas salvas',
-      text: 'Reabra consultas, salve listas para campanhas e reprocesse com dados atualizados.'
+      title: 'Salve e exporte',
+      text: 'Guarde suas pesquisas, baixe em Excel e retome de onde parou quando precisar.'
     }
   ];
 
   readonly steps = [
-    { num: '1', title: 'Importe sua lista', text: 'CSV ou Excel com CNPJ e/ou razão social.' },
-    { num: '2', title: 'Enriqueça e filtre', text: 'Dados oficiais + filtro de empresas ativas (Prospecção+).' },
-    { num: '3', title: 'Exporte e prospecte', text: 'Baixe CSV ou Excel e comece o outreach hoje.' }
+    { num: '1', title: 'Digite ou importe', text: 'Um CNPJ avulso ou uma planilha com vários números.' },
+    { num: '2', title: 'Veja os resultados', text: 'Dados públicos, contatos, CNAEs e localização reunidos para você.' },
+    { num: '3', title: 'Exporte se quiser', text: 'Baixe em Excel e use nas suas pesquisas do dia a dia.' }
   ];
 
   readonly compare = {
-    before: ['Planilha suja com nomes errados', 'Consulta manual empresa por empresa', 'Lista cheia de inaptas', 'Copy-paste para o CRM'],
-    after: ['Dados oficiais em lote', 'Filtro só empresas ATIVAS', 'Telefone, e-mail e CNAE', 'Export Excel em 1 clique']
+    before: ['Abrir site por site', 'Copiar dados na mão', 'Informação espalhada', 'Horas perdidas'],
+    after: ['Tudo em uma consulta', 'Resultado na hora', 'Dados organizados', 'Minutos, não horas']
   };
 
   readonly faq = LANDING_FAQ;
@@ -108,7 +117,7 @@ export class LandingComponent implements OnInit {
 
   readonly fields = [
     'CNPJ', 'Razão social', 'Nome fantasia', 'Situação cadastral',
-    'Telefones', 'E-mail', 'Endereço completo', 'CNAE principal'
+    'Sócios', 'Telefones', 'E-mail', 'Endereço', 'CNAE principal'
   ];
 
   constructor(

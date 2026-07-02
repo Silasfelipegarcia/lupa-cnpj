@@ -2,17 +2,17 @@ import { RouteSeoConfig } from '../models/seo.model';
 import { landingJsonLd, planosOffersJsonLd, consultaCnpjJsonLd } from './structured-data';
 
 export const DEFAULT_SEO: RouteSeoConfig = {
-  title: 'Consulta e enriquecimento de CNPJ em lote | Lupa Insights',
+  title: 'Consultar CNPJ — Dados de empresas em segundos | Lupa Insights',
   description:
-    'Enriqueça listas de empresas com dados cadastrais oficiais. Consulta CNPJ em planilha, filtros comerciais e exportação Excel para prospecção B2B.',
+    'Pesquise qualquer CNPJ e encontre dados públicos, sócios, CNAEs, contatos e localização de empresas brasileiras em uma única plataforma.',
   index: true
 };
 
 export const ROUTE_SEO: Record<string, RouteSeoConfig> = {
   '': {
-    title: 'Lupa Insights — Prospecção B2B em lote',
+    title: 'Lupa Insights — Descubra tudo sobre qualquer CNPJ em segundos',
     description:
-      'Plataforma para equipes comerciais enriquecerem listas de empresas com dados cadastrais oficiais, filtros comerciais e exportação Excel para o CRM.',
+      'Mais de 60 milhões de empresas brasileiras pesquisáveis em um único lugar. Dados públicos organizados — sócios, CNAEs, contatos e localização em segundos.',
     index: true,
     jsonLd: landingJsonLd()
   },
@@ -24,16 +24,16 @@ export const ROUTE_SEO: Record<string, RouteSeoConfig> = {
     jsonLd: consultaCnpjJsonLd()
   },
   planos: {
-    title: 'Planos e preços — Prospecção B2B | Lupa Insights',
+    title: 'Planos e preços | Lupa Insights',
     description:
-      'Planos Trial 7 dias (grátis), Prospecção (R$ 9,90/mês, plano anual) e Growth (R$ 29,90/mês, plano anual). Consulta CNPJ em lote, enriquecimento de planilhas e exportação para CRM.',
+      'Planos para pesquisar empresas em volume. Trial 7 dias grátis, Prospecção (R$ 9,90/mês) e Growth (R$ 29,90/mês). Consulte CNPJs em lote e exporte em Excel.',
     index: true,
     jsonLd: planosOffersJsonLd()
   },
   cadastro: {
-    title: 'Criar conta grátis | Lupa Insights',
+    title: 'Começar gratuitamente | Lupa Insights',
     description:
-      'Cadastre-se grátis e consulte CNPJs em lote. Enriqueça planilhas com telefone, e-mail e dados cadastrais oficiais.',
+      'Crie sua conta grátis e pesquise CNPJs em segundos. 7 dias para consultar empresas em lote e exportar seus resultados.',
     index: true
   },
   login: {

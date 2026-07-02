@@ -332,12 +332,25 @@
 }
 
 .hero h1 {
-  margin: 0 0 1rem;
+  margin: 0 0 0.75rem;
   font-size: clamp(2rem, 5vw, 2.75rem);
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.1;
   color: var(--text-primary);
+}
+
+.hero-proof {
+  margin: 0 0 0.85rem;
+  font-size: clamp(1.05rem, 2.5vw, 1.2rem);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--text-primary);
+
+  strong {
+    font-weight: 800;
+    color: var(--primary);
+  }
 }
 
 .hero-highlight {
@@ -346,7 +359,7 @@
 
 .hero-lead {
   margin: 0 0 1.75rem;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   line-height: 1.65;
   color: var(--text-secondary);
   max-width: 34rem;
@@ -876,7 +889,7 @@
   }
 }
 
-.persona-card {
+  .persona-card {
   background: var(--surface-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -893,6 +906,7 @@
     margin: 0 0 0.5rem;
     font-size: 1.05rem;
     font-weight: 700;
+    color: var(--primary);
   }
 
   p {
