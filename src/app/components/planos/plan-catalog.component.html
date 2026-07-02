@@ -110,14 +110,14 @@
         </div>
         @if (sandboxMercadoPago()) {
           <p class="payment-prefs__hint payment-prefs__hint--sandbox">
-            Sandbox: informe o CVV e tente com o cartão salvo. Se falhar, abrimos o checkout Mercado Pago automaticamente.
+            Sandbox: informe o CVV e tente com o cartão salvo. Se falhar, você será direcionado ao pagamento.
           </p>
         } @else {
           <p class="payment-prefs__hint">Digite o CVV e clique no plano para pagar com o cartão salvo.</p>
         }
       } @else {
         <p class="payment-prefs__hint">
-          <a routerLink="/conta/cobranca" appAnalyticsCta="cadastrar_cartao" appAnalyticsCtaLocation="plan_catalog">Cadastre um cartão</a> para assinar sem sair do app, ou use o checkout Mercado Pago.
+          <a routerLink="/conta/cobranca" appAnalyticsCta="cadastrar_cartao" appAnalyticsCtaLocation="plan_catalog">Cadastre um cartão</a> para assinar sem sair do app, ou conclua o pagamento na próxima tela.
         </p>
       }
     </section>
@@ -180,7 +180,7 @@
           } @else if (item.plan === 'FREE') {
             @if (!authService.isAuthenticated()) {
               <a routerLink="/cadastro" class="btn btn-primary" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="plan_card_trial">
-                Criar conta — 7 dias grátis
+                Começar gratuitamente
               </a>
             } @else if (emTrial()) {
               <span class="plan-badge">Trial ativo</span>
@@ -246,6 +246,6 @@
   Pagamento seguro via Mercado Pago. Cancele quando quiser em
   <a routerLink="/conta/plano" appAnalyticsCta="conta_plano" appAnalyticsCtaLocation="plan_catalog">Conta → Plano</a>.
   @if (!authService.isAuthenticated()) {
-    <a routerLink="/login" appAnalyticsCta="entrar" appAnalyticsCtaLocation="plan_catalog"> Entre</a> para assinar um plano pago.
+    <a routerLink="/cadastro" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="plan_catalog"> Crie sua conta</a> para assinar um plano pago.
   }
 </p>

@@ -167,7 +167,7 @@ export class PlanCatalogComponent implements OnInit {
         return `Assinar em 12x de ${item.priceLabel}`;
       }
     }
-    return 'Assinar (checkout)';
+    return 'Assinar';
   }
 
   onCvvInput(event: Event): void {
@@ -240,8 +240,8 @@ export class PlanCatalogComponent implements OnInit {
 
   assinar(plan: SubscriptionPlan): void {
     if (!this.authService.isAuthenticated()) {
-      this.analytics.trackCtaClick('login_to_subscribe', 'plan_catalog');
-      this.router.navigate(['/login'], { queryParams: { redirect: '/planos' } });
+      this.analytics.trackCtaClick('criar_conta', 'plan_catalog');
+      this.router.navigate(['/cadastro'], { queryParams: { redirect: '/planos' } });
       return;
     }
 
@@ -315,7 +315,7 @@ export class PlanCatalogComponent implements OnInit {
       },
       error: (msg: string) => {
         if (this.sandboxMercadoPago() && this.deveUsarCheckoutComoFallback(msg)) {
-          this.mensagem.set('Sandbox: cartão salvo indisponível aqui. Abrindo checkout Mercado Pago...');
+          this.mensagem.set('Sandbox: cartão salvo indisponível aqui. Abrindo pagamento...');
           this.erro.set('');
           this.iniciarCheckout(plan);
           return;
@@ -344,7 +344,7 @@ export class PlanCatalogComponent implements OnInit {
         this.analytics.trackCheckoutRedirect(plan, checkout.orderId);
         const url = this.urlCheckoutMercadoPago(checkout);
         if (!url) {
-          this.erro.set('Checkout indisponível. Tente mais tarde.');
+          this.erro.set('Pagamento indisponível. Tente mais tarde.');
           this.processando.set(null);
           this.mensagem.set('');
           return;
