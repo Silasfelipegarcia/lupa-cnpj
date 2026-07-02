@@ -179,10 +179,13 @@
 
         @if (item.plan === 'ADMIN_TEST' && authService.isAuthenticated() && cartoes().length > 0) {
           <div class="admin-test-pay">
-            <p class="admin-test-pay__label">CVV do cartão para cobrar R$ 1,00</p>
+            <p class="admin-test-pay__label">
+              Cobrança direta no cartão salvo costuma ser bloqueada pelo antifraude em produção.
+              Prefira o checkout Mercado Pago.
+            </p>
             <div class="admin-test-pay__row">
               <label class="field">
-                <span>Cartão</span>
+                <span>Cartão (opcional)</span>
                 <select [ngModel]="cartaoSelecionado()" (ngModelChange)="cartaoSelecionado.set($event)">
                   @for (card of cartoes(); track card.id) {
                     <option [value]="card.id">
@@ -223,6 +226,32 @@
               <span class="plan-badge plan-badge--muted">Trial já utilizado</span>
             }
           } @else if (item.plan && podeAssinar(item)) {
+            @if (item.plan === 'ADMIN_TEST') {
+              <div class="admin-test-actions">
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  [disabled]="!!processando()"
+                  (click)="assinar(item.plan!)"
+                >
+                  @if (processando() === item.plan) {
+                    Processando...
+                  } @else {
+                    Pagar R$ 1,00 no Mercado Pago
+                  }
+                </button>
+                @if (cartoes().length > 0) {
+                  <button
+                    type="button"
+                    class="btn btn-outline"
+                    [disabled]="!!processando() || !cvvInformado()"
+                    (click)="assinar(item.plan!, { adminTestCartaoSalvo: true })"
+                  >
+                    Tentar cartão salvo
+                  </button>
+                }
+              </div>
+            } @else {
             <button
               type="button"
               class="btn btn-primary"
@@ -243,6 +272,7 @@
                 {{ rotuloAssinatura(item.plan!) }}
               }
             </button>
+            }
           } @else {
             <span class="plan-badge plan-badge--muted">—</span>
           }

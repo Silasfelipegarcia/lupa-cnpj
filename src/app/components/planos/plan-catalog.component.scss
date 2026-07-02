@@ -252,6 +252,17 @@
   }
 }
 
+.admin-test-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: 100%;
+
+  .btn {
+    width: 100%;
+  }
+}
+
 .plan-card__header {
   display: flex;
   flex-direction: column;

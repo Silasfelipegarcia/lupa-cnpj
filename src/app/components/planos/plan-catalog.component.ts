@@ -162,7 +162,7 @@ export class PlanCatalogComponent implements OnInit {
 
   rotuloAssinatura(plan: SubscriptionPlan): string {
     if (plan === 'ADMIN_TEST') {
-      return 'Testar R$ 1,00';
+      return 'Pagar R$ 1,00 no Mercado Pago';
     }
     if (this.cartoes().length > 0) {
       const quote = this.cotacao(plan);
@@ -270,7 +270,7 @@ export class PlanCatalogComponent implements OnInit {
     });
   }
 
-  assinar(plan: SubscriptionPlan): void {
+  assinar(plan: SubscriptionPlan, opcoes?: { adminTestCartaoSalvo?: boolean }): void {
     if (!this.authService.isAuthenticated()) {
       this.analytics.trackCtaClick('criar_conta', 'plan_catalog');
       this.router.navigate(['/cadastro'], { queryParams: { redirect: '/planos' } });
@@ -295,6 +295,12 @@ export class PlanCatalogComponent implements OnInit {
     this.erro.set('');
     this.mensagem.set('');
     this.analytics.trackBeginCheckout(plan);
+
+    if (plan === 'ADMIN_TEST' && !opcoes?.adminTestCartaoSalvo) {
+      this.mensagem.set('Redirecionando para o Mercado Pago...');
+      this.iniciarCheckout(plan);
+      return;
+    }
 
     if (this.cartoes().length > 0) {
       const cardId = this.cartaoSelecionado();
@@ -352,11 +358,19 @@ export class PlanCatalogComponent implements OnInit {
             this.mensagem.set(`Plano ${result.planNome} ativado! Assinatura anual vigente por 12 meses.`);
           }
         } else if (result.status === 'REJECTED' || result.status === 'CANCELLED') {
+          if (plan === 'ADMIN_TEST' && this.deveUsarCheckoutAdminTest(result.message)) {
+            this.mensagem.set(
+              'Cartão válido, mas o antifraude bloqueou cobrança direta. Abrindo checkout Mercado Pago...'
+            );
+            this.erro.set('');
+            this.iniciarCheckout(plan);
+            return;
+          }
           this.analytics.trackPurchaseError(result.message || result.statusLabel, plan);
           const detalhe = result.message || 'Pagamento recusado pelo emissor ou antifraude.';
           if (plan === 'ADMIN_TEST') {
             this.erro.set(
-              `${detalhe} Se persistir, remova o cartão salvo e use "Testar R$ 1,00" para pagar no checkout Mercado Pago.`
+              `${detalhe} Use o botão "Pagar R$ 1,00 no Mercado Pago" para concluir o teste.`
             );
           } else {
             this.erro.set(detalhe);
@@ -392,6 +406,14 @@ export class PlanCatalogComponent implements OnInit {
         || texto.includes('cartão salvo')
         || texto.includes('validar o cartão')
         || texto.includes('processar o pagamento');
+  }
+
+  private deveUsarCheckoutAdminTest(msg?: string): boolean {
+    const texto = (msg ?? '').toLowerCase();
+    return texto.includes('antifraude')
+        || texto.includes('high_risk')
+        || texto.includes('checkout mercado pago')
+        || texto.includes('recusado');
   }
 
   private iniciarCheckout(plan: SubscriptionPlan): void {
