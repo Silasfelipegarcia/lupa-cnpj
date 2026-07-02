@@ -109,5 +109,6 @@ export interface AdminUserDetail {
 export const PLAN_LABELS: Record<SubscriptionPlan, string> = {
   FREE: 'Free',
   PREMIUM: 'Prospecção',
-  PRO_PLUS: 'Growth'
+  PRO_PLUS: 'Growth',
+  ADMIN_TEST: 'Teste Admin'
 };

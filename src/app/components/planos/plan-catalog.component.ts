@@ -110,6 +110,9 @@ export class PlanCatalogComponent implements OnInit {
   }
 
   notaPrecoPlano(item: PlanCatalogItem, quote?: PlanQuote): string | null {
+    if (item.plan === 'ADMIN_TEST') {
+      return item.paymentOptionsLabel ?? 'Pagamento único';
+    }
     if (quote?.upgrade) {
       return quote.description ?? null;
     }
@@ -124,9 +127,13 @@ export class PlanCatalogComponent implements OnInit {
 
   private carregarCotacoes(): void {
     const parcelas = this.parcelas();
-    const planos: Array<'PREMIUM' | 'PRO_PLUS'> = ['PREMIUM', 'PRO_PLUS'];
+    const planos: SubscriptionPlan[] = ['PREMIUM', 'PRO_PLUS'];
+    if (this.authService.currentUser()?.role === 'ADMIN') {
+      planos.push('ADMIN_TEST');
+    }
     for (const plan of planos) {
-      this.paymentService.obterCotacao(plan, parcelas).subscribe({
+      const parcelasPlano = plan === 'ADMIN_TEST' ? 1 : parcelas;
+      this.paymentService.obterCotacao(plan, parcelasPlano).subscribe({
         next: (quote) => {
           this.cotacoes.update((atual) => ({ ...atual, [plan]: quote }));
         },
@@ -150,6 +157,9 @@ export class PlanCatalogComponent implements OnInit {
   }
 
   rotuloAssinatura(plan: SubscriptionPlan): string {
+    if (plan === 'ADMIN_TEST') {
+      return 'Testar R$ 1,00';
+    }
     if (this.cartoes().length > 0) {
       const quote = this.cotacao(plan);
       if (quote?.upgrade) {
@@ -205,6 +215,9 @@ export class PlanCatalogComponent implements OnInit {
   podeAssinar(item: PlanCatalogItem): boolean {
     if (item.contatoComercial || !item.plan) {
       return false;
+    }
+    if (item.plan === 'ADMIN_TEST') {
+      return this.authService.currentUser()?.role === 'ADMIN';
     }
     if (this.authService.isMaster()) {
       return false;
@@ -290,10 +303,10 @@ export class PlanCatalogComponent implements OnInit {
     this.mensagem.set('Processando pagamento...');
     const idempotencyKey = crypto.randomUUID();
     this.paymentService.cobrarPlano({
-      plan: plan as 'PREMIUM' | 'PRO_PLUS',
+      plan,
       cardId,
       securityCode: cvv,
-      installments: this.parcelas()
+      installments: plan === 'ADMIN_TEST' ? 1 : this.parcelas()
     }, idempotencyKey).subscribe({
       next: (result) => {
         this.authService.refreshMe(true).subscribe({ error: () => {} });
@@ -306,7 +319,11 @@ export class PlanCatalogComponent implements OnInit {
             result.orderId,
             quote?.amountCents ?? quote?.fullPriceCents
           );
-          this.mensagem.set(`Plano ${result.planNome} ativado! Assinatura anual vigente por 12 meses.`);
+          if (plan === 'ADMIN_TEST') {
+            this.mensagem.set('Pagamento teste de R$ 1,00 aprovado! Cartão e fluxo validados.');
+          } else {
+            this.mensagem.set(`Plano ${result.planNome} ativado! Assinatura anual vigente por 12 meses.`);
+          }
         } else {
           this.analytics.trackPurchasePending(plan, result.orderId);
           this.mensagem.set(`Pagamento ${result.statusLabel.toLowerCase()}. Aguarde a confirmação.`);
@@ -338,7 +355,8 @@ export class PlanCatalogComponent implements OnInit {
 
   private iniciarCheckout(plan: SubscriptionPlan): void {
     const idempotencyKey = crypto.randomUUID();
-    this.planService.iniciarCheckout(plan, idempotencyKey, this.parcelas()).subscribe({
+    const parcelas = plan === 'ADMIN_TEST' ? 1 : this.parcelas();
+    this.planService.iniciarCheckout(plan, idempotencyKey, parcelas).subscribe({
       next: (checkout) => {
         sessionStorage.setItem(CHECKOUT_ORDER_STORAGE_KEY, checkout.orderId);
         this.analytics.trackCheckoutRedirect(plan, checkout.orderId);

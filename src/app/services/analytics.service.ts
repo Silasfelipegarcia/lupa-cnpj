@@ -17,7 +17,8 @@ import { sanitizeAnalyticsError } from '../utils/analytics-error.util';
 const PLAN_LABELS: Record<SubscriptionPlan, string> = {
   FREE: 'free',
   PREMIUM: 'prospeccao',
-  PRO_PLUS: 'growth'
+  PRO_PLUS: 'growth',
+  ADMIN_TEST: 'teste_admin'
 };
 
 @Injectable({ providedIn: 'root' })

@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { SubscriptionPlan } from '../models/auth.model';
 import {
   CheckoutSyncRequest,
   CheckoutSyncResponse,
@@ -61,7 +62,7 @@ export class PaymentService {
     );
   }
 
-  obterCotacao(plan: 'PREMIUM' | 'PRO_PLUS', installments = 1): Observable<PlanQuote> {
+  obterCotacao(plan: SubscriptionPlan, installments = 1): Observable<PlanQuote> {
     return this.http.get<PlanQuote>(`${this.apiBase}/payments/quote`, { params: { plan, installments: String(installments) } }).pipe(
       catchError(this.tratarErro)
     );

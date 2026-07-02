@@ -1,5 +1,5 @@
 export type UserRole = 'USER' | 'ADMIN';
-export type SubscriptionPlan = 'FREE' | 'PREMIUM' | 'PRO_PLUS';
+export type SubscriptionPlan = 'FREE' | 'PREMIUM' | 'PRO_PLUS' | 'ADMIN_TEST';
 
 export type SubscriptionStatusType = 'NONE' | 'ACTIVE' | 'CANCELLED_PENDING' | 'EXPIRED';
 
@@ -117,6 +117,7 @@ export interface PlanCatalogItem {
   paymentOptionsLabel?: string;
   beneficios?: string[];
   contatoComercial?: boolean;
+  somenteAdmin?: boolean;
 }
 
 export interface CheckoutRequest {

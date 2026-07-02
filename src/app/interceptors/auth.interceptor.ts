@@ -18,7 +18,7 @@ const PUBLIC_API_SEGMENTS = [
   '/analytics/event'
 ];
 
-const OPTIONAL_AUTH_API_SEGMENTS = ['/analytics/event'];
+const OPTIONAL_AUTH_API_SEGMENTS = ['/analytics/event', '/plans'];
 
 function isPublicApi(url: string): boolean {
   return PUBLIC_API_SEGMENTS.some((segment) => url.includes(segment));
@@ -37,7 +37,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = authService.getToken();
 
   if (isApiCall && token && optionalAuth) {
-    // Analytics é público: nunca bloquear o POST por token inválido/expirado.
     if (authService.sessaoCompativelComApi() && !isJwtExpired(token)) {
       req = req.clone({
         setHeaders: { Authorization: `Bearer ${token}` }

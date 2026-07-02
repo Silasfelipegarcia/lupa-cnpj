@@ -129,9 +129,13 @@
         class="plan-card"
         [class.plan-card--current]="item.plan && isPlanoAtual(item.plan)"
         [class.plan-card--featured]="item.plan === 'PREMIUM'"
+        [class.plan-card--admin]="item.somenteAdmin"
       >
         @if (item.plan === 'PREMIUM') {
           <span class="plan-popular">Mais popular</span>
+        }
+        @if (item.somenteAdmin) {
+          <span class="plan-popular plan-popular--admin">Somente admin</span>
         }
         <div class="plan-card__header">
           <h2>{{ item.nome }}</h2>
@@ -173,7 +177,7 @@
         }
 
         <div class="plan-actions">
-          @if (authService.isMaster()) {
+          @if (authService.isMaster() && item.plan !== 'ADMIN_TEST') {
             <span class="plan-badge plan-badge--master">Incluso no Master</span>
           } @else if (item.plan && isPlanoAtual(item.plan)) {
             <span class="plan-badge">Seu plano atual</span>

@@ -1,3 +1,5 @@
+import type { SubscriptionPlan } from './auth.model';
+
 export interface PaymentConfig {
   publicKey: string;
   configured: boolean;
@@ -39,7 +41,7 @@ export interface CheckoutSyncRequest {
 }
 
 export interface ChargePlanRequest {
-  plan: 'PREMIUM' | 'PRO_PLUS';
+  plan: SubscriptionPlan;
   cardId?: string;
   securityCode?: string;
   token?: string;
@@ -55,7 +57,7 @@ export interface ChargePlanResponse {
 
 export interface SubscriptionStatusResponse {
   status: string;
-  plan?: 'PREMIUM' | 'PRO_PLUS' | 'FREE';
+  plan?: SubscriptionPlan;
   planNome?: string;
   validUntil?: string;
   cancelledAt?: string;
@@ -67,7 +69,7 @@ export interface SubscriptionStatusResponse {
 }
 
 export interface PlanQuote {
-  plan: 'PREMIUM' | 'PRO_PLUS';
+  plan: SubscriptionPlan;
   amountCents: number;
   amountLabel: string;
   fullPriceCents: number;
