@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -16,7 +16,7 @@ import { LegalFooterLinksComponent } from '../legal-footer-links/legal-footer-li
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
 
   nome = '';
   email = '';
@@ -27,16 +27,47 @@ export class RegisterComponent {
   erro = signal('');
   enviando = signal(false);
 
+  signupRef = '';
+  previewCnpj = '';
+
+  readonly trialBenefits = [
+    'Importar planilha com dezenas de CNPJs',
+    'Exportar resultados em Excel',
+    'Sem cartão para começar o trial'
+  ];
+
   constructor(
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
     private analytics: AnalyticsService
-  ) {
-    const emailParam = this.route.snapshot.queryParamMap.get('email');
+  ) {}
+
+  ngOnInit(): void {
+    const params = this.route.snapshot.queryParamMap;
+    const emailParam = params.get('email');
     if (emailParam) {
       this.email = emailParam;
     }
+    this.signupRef = params.get('ref')?.trim() ?? '';
+    this.previewCnpj = params.get('cnpj')?.trim() ?? '';
+  }
+
+  get tituloCadastro(): string {
+    if (this.signupRef === 'consulta-cnpj') {
+      return 'Comece seu trial de 7 dias';
+    }
+    return 'Crie sua conta grátis';
+  }
+
+  get subtituloCadastro(): string {
+    if (this.signupRef === 'consulta-cnpj' && this.previewCnpj) {
+      return `Você consultou ${this.previewCnpj}. Confirme o e-mail e use Prospecção completa — planilhas, Excel e mais consultas.`;
+    }
+    if (this.signupRef === 'consulta-cnpj') {
+      return 'Confirme o e-mail e use Prospecção completa — planilhas, Excel e mais consultas.';
+    }
+    return '7 dias de Prospecção · sem cartão · ativa ao confirmar o e-mail';
   }
 
   onCpfInput(event: Event): void {
@@ -87,7 +118,10 @@ export class RegisterComponent {
     }
 
     this.enviando.set(true);
-    this.analytics.trackSignUpStart();
+    this.analytics.trackSignUpStart({
+      signup_ref: this.signupRef || undefined,
+      has_preview_cnpj: this.previewCnpj ? '1' : '0'
+    });
 
     this.authService.register({
       nome: this.nome.trim(),

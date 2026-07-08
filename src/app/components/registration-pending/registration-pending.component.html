@@ -7,8 +7,18 @@
       @if (email) {
         para <strong>{{ email }}</strong>
       }.
-      Abra o e-mail e clique no link para ativar sua conta antes de entrar.
     </p>
+
+    <div class="pending-trial-block">
+      <p class="pending-trial-title">Próximo passo: confirme seu e-mail</p>
+      <p class="pending-trial-lead">Ao clicar no link você ganha <strong>7 dias de Prospecção grátis</strong>.</p>
+      <p class="pending-trial-sub">Depois disso você poderá:</p>
+      <ul class="pending-trial-list">
+        <li>Importar planilha de CNPJs</li>
+        <li>Exportar resultados em Excel</li>
+        <li>Consultar mais empresas por dia</li>
+      </ul>
+    </div>
 
     @if (sucesso()) {
       <div class="alert alert-success">{{ sucesso() }}</div>
@@ -22,6 +32,7 @@
           Reenviar link
         }
       </button>
+      <a class="btn btn-secondary btn-mailto" [href]="mailtoLink">Abrir e-mail</a>
     }
 
     @if (erro()) {

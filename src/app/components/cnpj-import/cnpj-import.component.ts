@@ -16,6 +16,7 @@ import { AppHeaderComponent } from '../app-header/app-header.component';
 
 const ONBOARDING_KEY = 'lupa_insights_onboarding_visto';
 const LEGACY_ONBOARDING_KEY = 'lupa_onboarding_visto';
+const TRIAL_WELCOME_KEY = 'lupa_trial_welcome_visto';
 
 @Component({
   selector: 'app-cnpj-import',
@@ -70,6 +71,7 @@ export class CnpjImportComponent implements OnInit {
   jobAtivo = signal<ImportJobResponse | null>(null);
   cancelando = signal(false);
   mostrarOnboarding = signal(false);
+  mostrarTrialWelcome = signal(false);
 
   arquivoSelecionado = signal<File | null>(null);
   mensagem = signal<string>('');
@@ -95,8 +97,14 @@ export class CnpjImportComponent implements OnInit {
       localStorage.removeItem(LEGACY_ONBOARDING_KEY);
     }
     this.mostrarOnboarding.set(!localStorage.getItem(ONBOARDING_KEY));
+    this.mostrarTrialWelcome.set(this.emTrial() && !sessionStorage.getItem(TRIAL_WELCOME_KEY));
 
-    this.authService.refreshMe().subscribe({ error: () => {} });
+    this.authService.refreshMe().subscribe({
+      next: () => {
+        this.mostrarTrialWelcome.set(this.emTrial() && !sessionStorage.getItem(TRIAL_WELCOME_KEY));
+      },
+      error: () => {}
+    });
 
     this.cnpjImportService.obterJobAtivo().subscribe({
       next: (job) => {
@@ -114,6 +122,11 @@ export class CnpjImportComponent implements OnInit {
     localStorage.setItem(ONBOARDING_KEY, '1');
     this.mostrarOnboarding.set(false);
     this.analytics.trackOnboardingDismissed();
+  }
+
+  fecharTrialWelcome(): void {
+    sessionStorage.setItem(TRIAL_WELCOME_KEY, '1');
+    this.mostrarTrialWelcome.set(false);
   }
 
   continuarJobAtivo(): void {

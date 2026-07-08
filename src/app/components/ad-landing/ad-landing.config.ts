@@ -21,6 +21,8 @@ export interface AdLandingConfig {
   slug: string;
   headline: string;
   subheadline: string;
+  trialTagline: string;
+  trialBenefits: string[];
   benefits: string[];
   trustIndicators: { icon: string; text: string }[];
   inputPlaceholder: string;
@@ -44,6 +46,13 @@ export const AD_LANDING_CONFIGS: Record<string, AdLandingConfig> = {
     headline: 'Consulte qualquer empresa em segundos',
     subheadline:
       'Consulte gratuitamente informações públicas de empresas brasileiras. Encontre telefone, e-mail, CNAE, situação cadastral, endereço e muito mais em uma única pesquisa.',
+    trialTagline: '1 consulta grátis agora · 7 dias de Prospecção ao criar conta (sem cartão)',
+    trialBenefits: [
+      '7 dias de Prospecção completa',
+      'Consultar empresas em lote (planilha)',
+      'Exportar resultados em Excel',
+      'Histórico das suas pesquisas'
+    ],
     benefits: [
       'Telefone atualizado',
       'E-mail comercial',
@@ -55,7 +64,8 @@ export const AD_LANDING_CONFIGS: Record<string, AdLandingConfig> = {
     ],
     trustIndicators: [
       { icon: '⚡', text: 'Resultado em segundos' },
-      { icon: '🔒', text: 'Dados públicos organizados' },
+      { icon: '🎁', text: '7 dias grátis' },
+      { icon: '💳', text: 'Sem cartão para começar' },
       { icon: '🇧🇷', text: 'Empresas de todo o Brasil' }
     ],
     inputPlaceholder: 'Digite o CNPJ',
@@ -107,7 +117,12 @@ export const AD_LANDING_CONFIGS: Record<string, AdLandingConfig> = {
       {
         question: 'É gratuito?',
         answer:
-          'Sim para começar. A consulta avulsa nesta página é gratuita (1 por dispositivo). Com conta Free, são 3 CNPJs por dia e 1 planilha de até 5 linhas.'
+          'Sim. Você consulta 1 CNPJ grátis nesta página. Ao criar conta e confirmar o e-mail, ganha 7 dias de Prospecção completa — planilhas, exportação Excel e mais consultas — sem cartão.'
+      },
+      {
+        question: 'Quando começa o trial de 7 dias?',
+        answer:
+          'Assim que você confirmar o e-mail após o cadastro. Não precisa cadastrar cartão para começar o trial.'
       },
       {
         question: 'Posso consultar qualquer empresa?',

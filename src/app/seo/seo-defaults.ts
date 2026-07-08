@@ -17,9 +17,9 @@ export const ROUTE_SEO: Record<string, RouteSeoConfig> = {
     jsonLd: landingJsonLd()
   },
   'consulta-cnpj': {
-    title: 'Consultar CNPJ Grátis — Telefone, E-mail e Dados em Segundos | Lupa Insights',
+    title: 'Consultar CNPJ Grátis — 7 dias de Prospecção ao criar conta | Lupa Insights',
     description:
-      'Consulte qualquer empresa em segundos. Informações públicas de empresas brasileiras: telefone, e-mail, CNAE, situação cadastral, endereço, razão social e nome fantasia. Grátis para testar.',
+      '1 consulta grátis agora. Crie conta e ganhe 7 dias de Prospecção sem cartão — planilhas em lote, Excel e mais consultas por dia.',
     index: true,
     jsonLd: consultaCnpjJsonLd()
   },
@@ -31,9 +31,9 @@ export const ROUTE_SEO: Record<string, RouteSeoConfig> = {
     jsonLd: planosOffersJsonLd()
   },
   cadastro: {
-    title: 'Começar gratuitamente | Lupa Insights',
+    title: 'Criar conta — 7 dias de Prospecção grátis | Lupa Insights',
     description:
-      'Crie sua conta grátis e pesquise CNPJs em segundos. 7 dias para consultar empresas em lote e exportar seus resultados.',
+      'Crie sua conta grátis e comece 7 dias de Prospecção ao confirmar o e-mail. Sem cartão — importe planilhas, exporte Excel e consulte mais CNPJs.',
     index: true
   },
   login: {
@@ -52,8 +52,8 @@ export const ROUTE_SEO: Record<string, RouteSeoConfig> = {
     index: false
   },
   'cadastro-pendente': {
-    title: 'Confirme seu e-mail | Lupa Insights',
-    description: 'Verifique seu e-mail para ativar sua conta Lupa Insights.',
+    title: 'Confirme seu e-mail — trial de 7 dias | Lupa Insights',
+    description: 'Confirme seu e-mail para ativar 7 dias de Prospecção grátis na Lupa Insights.',
     index: false
   },
   'verificar-email': {

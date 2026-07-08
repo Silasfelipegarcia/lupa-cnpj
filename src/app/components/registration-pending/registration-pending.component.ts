@@ -32,6 +32,10 @@ export class RegistrationPendingComponent implements OnInit {
     this.email = this.route.snapshot.queryParamMap.get('email')?.trim() ?? '';
   }
 
+  get mailtoLink(): string {
+    return 'mailto:';
+  }
+
   reenviar(): void {
     if (this.enviando() || !this.email) {
       return;

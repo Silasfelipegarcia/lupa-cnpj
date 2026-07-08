@@ -1,5 +1,64 @@
 @use '../auth/auth-shared';
 
+.pending-trial-block {
+  margin: 0 0 1.25rem;
+  padding: 1rem;
+  text-align: left;
+  background: rgba(130, 10, 209, 0.05);
+  border: 1px solid rgba(130, 10, 209, 0.15);
+  border-radius: var(--radius-sm);
+}
+
+.pending-trial-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.pending-trial-lead {
+  margin: 0 0 0.5rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.pending-trial-sub {
+  margin: 0 0 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.pending-trial-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.4;
+
+    &::before {
+      content: '•';
+      color: var(--primary);
+      font-weight: 800;
+    }
+  }
+}
+
+.btn-mailto {
+  display: block;
+  margin-top: 0.65rem;
+  text-align: center;
+  text-decoration: none;
+}
+
 .alert-success {
   background: color-mix(in srgb, var(--success, #16a34a) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--success, #16a34a) 35%, transparent);

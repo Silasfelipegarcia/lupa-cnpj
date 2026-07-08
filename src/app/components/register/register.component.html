@@ -1,8 +1,14 @@
 <div class="auth-page">
   <div class="auth-card">
       <app-brand link="/" />
-    <h1>Criar conta</h1>
-    <p class="subtitle">Cadastre-se para usar o Lupa Insights</p>
+    <h1>{{ tituloCadastro }}</h1>
+    <p class="subtitle">{{ subtituloCadastro }}</p>
+
+    <ul class="signup-benefits">
+      @for (benefit of trialBenefits; track benefit) {
+        <li>{{ benefit }}</li>
+      }
+    </ul>
 
     <form (ngSubmit)="cadastrar()">
       <label class="field">
@@ -27,6 +33,7 @@
           placeholder="000.000.000-00"
           autocomplete="off"
         />
+        <span class="field-hint">Exigido para sua conta e futura cobrança; cartão só se quiser continuar após o trial.</span>
       </label>
 
       <label class="field">
@@ -51,9 +58,9 @@
 
       <button class="btn btn-primary" type="submit" [disabled]="enviando() || !aceitoTermos">
         @if (enviando()) {
-          Cadastrando...
+          Criando conta...
         } @else {
-          Cadastrar
+          Criar conta e começar trial
         }
       </button>
     </form>

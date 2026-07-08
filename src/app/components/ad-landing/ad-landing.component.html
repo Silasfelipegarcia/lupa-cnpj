@@ -5,6 +5,7 @@
     <section class="lp-hero" aria-labelledby="lp-title">
       <h1 id="lp-title">{{ config.headline }}</h1>
       <p class="lp-sub">{{ config.subheadline }}</p>
+      <p class="lp-trial-tagline">{{ config.trialTagline }}</p>
 
       <div class="lp-form-wrap" id="consulta-form">
         @if (isLoggedIn()) {
@@ -34,7 +35,7 @@
                 <span class="lp-spinner" aria-hidden="true"></span>
                 {{ config.previewButtonLoading }}
               } @else if (quota()?.limiteAtingido) {
-                Criar conta grátis
+                Começar trial de 7 dias
               } @else {
                 {{ config.previewButton }}
               }
@@ -45,13 +46,23 @@
             <p class="lp-alert lp-alert--error" role="alert">{{ erroPreview() }}</p>
           }
 
-          @if (quota()?.limiteAtingido) {
-            <p class="lp-alert" role="status">
-              Consulta gratuita usada.
-              <a routerLink="/cadastro" [queryParams]="signupQueryParams" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="ad_hero_limite">
-                Criar conta grátis
-              </a>
-            </p>
+          @if (quota()?.limiteAtingido && !resultado()) {
+            <div class="lp-upgrade-panel" role="region" aria-label="Trial grátis">
+              <p class="lp-upgrade-title">Consulta gratuita usada neste dispositivo</p>
+              <p class="lp-upgrade-lead">Com conta grátis você ganha:</p>
+              <ul class="lp-upgrade-list">
+                @for (benefit of config.trialBenefits; track benefit) {
+                  <li>{{ benefit }}</li>
+                }
+              </ul>
+              <button
+                type="button"
+                class="btn btn-primary lp-btn"
+                (click)="irParaCadastro('ad_hero_limite_panel')"
+              >
+                Começar trial grátis
+              </button>
+            </div>
           }
 
           @if (resultado(); as r) {
@@ -63,15 +74,28 @@
                   <strong>{{ campo.valor }}</strong>
                 </div>
               }
-              <a
-                routerLink="/cadastro"
-                [queryParams]="signupQueryParams"
-                class="btn btn-primary lp-btn lp-btn--soft"
-                appAnalyticsCta="criar_conta"
-                appAnalyticsCtaLocation="ad_hero_result"
+            </div>
+
+            <div class="lp-upgrade-panel" role="region" aria-label="Desbloquear trial">
+              <p class="lp-upgrade-title">Você viu o que o Lupa entrega</p>
+              <p class="lp-upgrade-lead">Com conta grátis você ganha:</p>
+              <ul class="lp-upgrade-list">
+                @for (benefit of config.trialBenefits; track benefit) {
+                  <li>{{ benefit }}</li>
+                }
+              </ul>
+              <button
+                type="button"
+                class="btn btn-primary lp-btn"
+                (click)="irParaCadastro('ad_hero_result')"
               >
-                Consultar mais empresas grátis
-              </a>
+                Começar trial grátis
+              </button>
+              @if (!quota()?.limiteAtingido) {
+                <button type="button" class="btn btn-outline lp-btn lp-btn--secondary" (click)="scrollToForm()">
+                  Consultar outro CNPJ
+                </button>
+              }
             </div>
           }
         }
@@ -147,16 +171,6 @@
       </div>
     </section>
 
-    <section class="lp-section lp-section--muted lp-defer" aria-labelledby="soon-title">
-      <h2 id="soon-title">{{ config.comingSoonTitle }}</h2>
-      <p class="lp-soon-note">{{ config.comingSoonNote }}</p>
-      <ul class="lp-soon-list">
-        @for (item of config.comingSoonItems; track item.text) {
-          <li><span aria-hidden="true">{{ item.icon }}</span> {{ item.text }}</li>
-        }
-      </ul>
-    </section>
-
     <section class="lp-section lp-defer" aria-labelledby="faq-title">
       <h2 id="faq-title">Perguntas frequentes</h2>
       <div class="lp-faq">
@@ -170,21 +184,44 @@
     </section>
 
     <section class="lp-final lp-defer" aria-labelledby="final-cta">
-      <h2 id="final-cta">Consulte agora</h2>
-      <button type="button" class="btn btn-primary lp-btn" (click)="scrollToForm()">
-        {{ config.previewButton }}
-      </button>
+      @if (deveMostrarCtaTrial) {
+        <h2 id="final-cta">Pronto para consultar em lote?</h2>
+        <p class="lp-final-note">7 dias de Prospecção grátis · sem cartão</p>
+        <button type="button" class="btn btn-primary lp-btn" (click)="irParaCadastro('ad_final_trial')">
+          Começar trial grátis
+        </button>
+      } @else {
+        <h2 id="final-cta">Consulte agora</h2>
+        <button type="button" class="btn btn-primary lp-btn" (click)="scrollToForm()">
+          Consultar minha empresa
+        </button>
+      }
     </section>
 
     @if (!isLoggedIn()) {
       <div class="lp-sticky">
-        <button type="button" class="btn btn-primary lp-btn" (click)="scrollToForm()">
-          {{ config.previewButton }}
-        </button>
+        @if (deveMostrarCtaTrial) {
+          <button type="button" class="btn btn-primary lp-btn" (click)="irParaCadastro('ad_sticky_trial')">
+            Começar trial grátis
+          </button>
+        } @else {
+          <button type="button" class="btn btn-primary lp-btn" (click)="scrollToForm()">
+            {{ config.previewButton }}
+          </button>
+        }
       </div>
     }
 
     <footer class="lp-footer">
+      <details class="lp-soon-collapsed">
+        <summary>{{ config.comingSoonTitle }}</summary>
+        <p class="lp-soon-note">{{ config.comingSoonNote }}</p>
+        <ul class="lp-soon-list">
+          @for (item of config.comingSoonItems; track item.text) {
+            <li><span aria-hidden="true">{{ item.icon }}</span> {{ item.text }}</li>
+          }
+        </ul>
+      </details>
       <app-legal-footer-links />
     </footer>
   </div>

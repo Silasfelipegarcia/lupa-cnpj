@@ -52,8 +52,22 @@ export class AdLandingComponent implements OnInit {
     }
   }
 
-  get signupQueryParams(): { ref: string } {
-    return { ref: this.config.signupRef };
+  get signupQueryParams(): Record<string, string> {
+    const params: Record<string, string> = { ref: this.config.signupRef };
+    const cnpj = this.resultado()?.cnpj ?? this.cnpjInput.trim();
+    if (cnpj) {
+      params['cnpj'] = cnpj;
+    }
+    return params;
+  }
+
+  get deveMostrarCtaTrial(): boolean {
+    return !!this.resultado() || !!this.quota()?.limiteAtingido;
+  }
+
+  irParaCadastro(location: string): void {
+    this.analytics.trackCtaClick('criar_conta', location);
+    void this.router.navigate(['/cadastro'], { queryParams: this.signupQueryParams });
   }
 
   scrollToForm(): void {
@@ -88,7 +102,7 @@ export class AdLandingComponent implements OnInit {
     this.analytics.trackCnpjSearch({ landing_variant: this.config.slug });
 
     if (this.quota()?.limiteAtingido) {
-      void this.router.navigate(['/cadastro'], { queryParams: this.signupQueryParams });
+      this.irParaCadastro('ad_hero_limite');
       return;
     }
 

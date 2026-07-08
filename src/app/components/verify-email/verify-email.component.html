@@ -6,7 +6,9 @@
     @if (verificando()) {
       <p class="subtitle">Validando seu link de confirmação...</p>
     } @else if (sucesso()) {
-      <div class="alert alert-success">E-mail confirmado! Redirecionando para o painel...</div>
+      <h1>Trial ativado!</h1>
+      <p class="subtitle">7 dias de Prospecção grátis.</p>
+      <div class="alert alert-success">Redirecionando para importar sua primeira planilha...</div>
     } @else if (tokenInvalido()) {
       <p class="subtitle">Este link é inválido ou expirou.</p>
       <p class="footer-link">

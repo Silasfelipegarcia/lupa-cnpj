@@ -19,6 +19,16 @@
     }
   </header>
 
+  @if (mostrarTrialWelcome()) {
+    <div class="trial-welcome-banner">
+      <p>
+        <strong>Trial ativo — {{ trialDiasRestantes() }} dia(s) restante(s).</strong>
+        Importe uma planilha para testar o Lupa de verdade.
+      </p>
+      <button type="button" class="trial-welcome-dismiss" (click)="fecharTrialWelcome()" aria-label="Fechar">×</button>
+    </div>
+  }
+
   @if (emTrial() && conversaoTrialPendente()) {
     <div class="alert alert-info trial-dashboard-banner">
       <strong>Trial Prospecção — {{ trialDiasRestantes() }} dia(s) restante(s).</strong>

@@ -37,10 +37,38 @@
   }
 
   .subtitle {
-    margin: 0 0 1.5rem;
+    margin: 0 0 1rem;
     color: var(--text-secondary);
     font-size: 0.95rem;
     line-height: 1.55;
+  }
+}
+
+.signup-benefits {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0.75rem 0.85rem;
+  display: grid;
+  gap: 0.4rem;
+  background: rgba(130, 10, 209, 0.05);
+  border: 1px solid rgba(130, 10, 209, 0.15);
+  border-radius: var(--radius-sm);
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text-primary);
+
+    &::before {
+      content: '✓';
+      flex-shrink: 0;
+      color: var(--primary);
+      font-weight: 800;
+    }
   }
 }
 
@@ -60,6 +88,13 @@ form {
     color: var(--text-secondary);
     font-weight: 600;
   }
+}
+
+.field-hint {
+  font-size: 0.75rem !important;
+  font-weight: 400 !important;
+  line-height: 1.4;
+  color: var(--text-muted) !important;
 }
 
 .field-checkbox {

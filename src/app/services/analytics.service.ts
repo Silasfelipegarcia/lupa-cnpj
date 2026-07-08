@@ -193,8 +193,8 @@ export class AnalyticsService {
     this.funnelEvent('result_view', 'acquisition', 3, 'result_view', extra);
   }
 
-  trackSignUpStart(): void {
-    this.funnelEvent('signup_form_start', 'acquisition', 3, 'signup_form_submit');
+  trackSignUpStart(extra?: AnalyticsEventParams): void {
+    this.funnelEvent('signup_form_start', 'acquisition', 3, 'signup_form_submit', extra);
   }
 
   trackSignUp(userId: string, plan?: SubscriptionPlan): void {

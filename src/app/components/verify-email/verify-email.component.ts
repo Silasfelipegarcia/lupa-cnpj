@@ -43,6 +43,9 @@ export class VerifyEmailComponent implements OnInit {
         const user = this.authService.currentUser();
         if (user) {
           this.analytics.trackSignUp(user.id, user.plan);
+          if (user.usage?.emTrial) {
+            this.analytics.trackTrialStart('PREMIUM');
+          }
         }
         this.sucesso.set(true);
         this.verificando.set(false);

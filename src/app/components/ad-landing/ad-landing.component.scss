@@ -53,10 +53,18 @@
 }
 
 .lp-sub {
-  margin: 0 0 1.25rem;
+  margin: 0 0 0.5rem;
   font-size: 0.95rem;
   line-height: 1.55;
   color: var(--text-secondary);
+}
+
+.lp-trial-tagline {
+  margin: 0 0 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--primary);
 }
 
 .lp-form-wrap {
@@ -102,6 +110,11 @@
   &--soft {
     margin-top: 0.75rem;
     font-size: 0.9rem;
+  }
+
+  &--secondary {
+    margin-top: 0.5rem;
+    font-weight: 600;
   }
 }
 
@@ -172,6 +185,53 @@
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.lp-upgrade-panel {
+  margin-top: 1rem;
+  padding: 1rem;
+  text-align: left;
+  background: linear-gradient(180deg, rgba(130, 10, 209, 0.06), var(--surface-card));
+  border: 1px solid rgba(130, 10, 209, 0.22);
+  border-radius: var(--radius-sm);
+  animation: fadeUp 0.3s ease;
+}
+
+.lp-upgrade-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.lp-upgrade-lead {
+  margin: 0 0 0.65rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.lp-upgrade-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.4;
+
+    &::before {
+      content: '✓';
+      flex-shrink: 0;
+      color: var(--primary);
+      font-weight: 800;
+    }
+  }
 }
 
 .lp-trust {
@@ -450,10 +510,16 @@
   border-top: 1px solid var(--border);
 
   h2 {
-    margin: 0 0 1rem;
+    margin: 0 0 0.5rem;
     font-size: 1.15rem;
     font-weight: 800;
   }
+}
+
+.lp-final-note {
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
 }
 
 .lp-sticky {
@@ -476,6 +542,33 @@
   ::ng-deep a {
     font-size: 0.72rem;
     color: var(--text-muted);
+  }
+}
+
+.lp-soon-collapsed {
+  margin-bottom: 1rem;
+  text-align: left;
+
+  summary {
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  .lp-soon-note {
+    margin: 0.5rem 0 0.75rem;
+    text-align: left;
+    font-size: 0.72rem;
+  }
+
+  .lp-soon-list {
+    justify-content: flex-start;
   }
 }
 
