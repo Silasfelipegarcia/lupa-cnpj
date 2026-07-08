@@ -23,6 +23,11 @@ export interface AdLandingConfig {
   subheadline: string;
   trialTagline: string;
   trialBenefits: string[];
+  successTitle: string;
+  upgradeHint: string;
+  upgradeChips: string[];
+  upgradeCta: string;
+  quotaBlockedTitle: string;
   benefits: string[];
   trustIndicators: { icon: string; text: string }[];
   inputPlaceholder: string;
@@ -53,6 +58,11 @@ export const AD_LANDING_CONFIGS: Record<string, AdLandingConfig> = {
       'Exportar resultados em Excel',
       'Histórico das suas pesquisas'
     ],
+    successTitle: 'Consulta concluída',
+    upgradeHint: 'Precisa consultar mais empresas?',
+    upgradeChips: ['Planilha em lote', 'Exportar Excel', '7 dias grátis'],
+    upgradeCta: 'Desbloquear 7 dias grátis',
+    quotaBlockedTitle: 'Consulta gratuita usada neste dispositivo',
     benefits: [
       'Telefone atualizado',
       'E-mail comercial',

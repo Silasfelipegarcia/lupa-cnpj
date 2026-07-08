@@ -10,6 +10,8 @@ import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive'
 import { LegalFooterLinksComponent } from '../legal-footer-links/legal-footer-links.component';
 import { AD_LANDING_CONFIGS, AdLandingConfig } from './ad-landing.config';
 
+type HeroEstado = 'idle' | 'loading' | 'success' | 'quotaBlocked';
+
 @Component({
   selector: 'app-ad-landing',
   standalone: true,
@@ -52,6 +54,19 @@ export class AdLandingComponent implements OnInit {
     }
   }
 
+  get heroEstado(): HeroEstado {
+    if (this.resultado()) {
+      return 'success';
+    }
+    if (this.consultando()) {
+      return 'loading';
+    }
+    if (this.quota()?.limiteAtingido) {
+      return 'quotaBlocked';
+    }
+    return 'idle';
+  }
+
   get signupQueryParams(): Record<string, string> {
     const params: Record<string, string> = { ref: this.config.signupRef };
     const cnpj = this.resultado()?.cnpj ?? this.cnpjInput.trim();
@@ -65,6 +80,10 @@ export class AdLandingComponent implements OnInit {
     return !!this.resultado() || !!this.quota()?.limiteAtingido;
   }
 
+  get deveMostrarCtaTrialFinal(): boolean {
+    return this.deveMostrarCtaTrial && !this.resultado();
+  }
+
   irParaCadastro(location: string): void {
     this.analytics.trackCtaClick('criar_conta', location);
     void this.router.navigate(['/cadastro'], { queryParams: this.signupQueryParams });
@@ -75,6 +94,10 @@ export class AdLandingComponent implements OnInit {
     setTimeout(() => {
       document.querySelector<HTMLInputElement>('#cnpj-input')?.focus();
     }, 350);
+  }
+
+  scrollToSuccess(): void {
+    document.getElementById('lp-success-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   onCnpjInput(event: Event): void {
@@ -130,6 +153,10 @@ export class AdLandingComponent implements OnInit {
           limiteAtingido: result.consultasRestantes <= 0
         });
         this.consultando.set(false);
+        setTimeout(() => {
+          this.scrollToSuccess();
+          this.analytics.trackCtaClick('result_view', 'ad_hero_success');
+        }, 300);
       },
       error: (msg: string) => {
         this.erroPreview.set(msg);

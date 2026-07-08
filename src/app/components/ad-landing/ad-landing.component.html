@@ -5,7 +5,9 @@
     <section class="lp-hero" aria-labelledby="lp-title">
       <h1 id="lp-title">{{ config.headline }}</h1>
       <p class="lp-sub">{{ config.subheadline }}</p>
-      <p class="lp-trial-tagline">{{ config.trialTagline }}</p>
+      @if (heroEstado !== 'success') {
+        <p class="lp-trial-tagline">{{ config.trialTagline }}</p>
+      }
 
       <div class="lp-form-wrap" id="consulta-form">
         @if (isLoggedIn()) {
@@ -13,99 +15,111 @@
             Ir para o painel
           </a>
         } @else {
-          <form class="lp-form" (ngSubmit)="consultarCnpj()">
-            <label class="sr-only" for="cnpj-input">CNPJ da empresa</label>
-            <input
-              id="cnpj-input"
-              type="text"
-              name="cnpj"
-              [value]="cnpjInput"
-              (input)="onCnpjInput($event)"
-              [placeholder]="config.inputPlaceholder"
-              inputmode="numeric"
-              autocomplete="off"
-              [disabled]="consultando() || quota()?.limiteAtingido"
-            />
-            <button
-              type="submit"
-              class="btn btn-primary lp-btn"
-              [disabled]="consultando() || quota()?.limiteAtingido"
-            >
-              @if (consultando()) {
-                <span class="lp-spinner" aria-hidden="true"></span>
-                {{ config.previewButtonLoading }}
-              } @else if (quota()?.limiteAtingido) {
-                Começar trial de 7 dias
-              } @else {
-                {{ config.previewButton }}
-              }
-            </button>
-          </form>
+          @switch (heroEstado) {
+            @case ('success') {
+              @if (resultado(); as r) {
+                <div id="lp-success-card" class="lp-success-card" role="region" aria-label="Resultado da consulta">
+                  <div class="lp-success-header">
+                    <span class="lp-success-check" aria-hidden="true">✓</span>
+                    <div>
+                      <p class="lp-success-title">{{ config.successTitle }}</p>
+                      <p class="lp-success-cnpj">{{ r.cnpj }}</p>
+                    </div>
+                  </div>
 
-          @if (erroPreview()) {
-            <p class="lp-alert lp-alert--error" role="alert">{{ erroPreview() }}</p>
-          }
+                  <div class="lp-success-body">
+                    @for (campo of camposResultado(r); track campo.label) {
+                      <div class="lp-success-row">
+                        <span>{{ campo.label }}</span>
+                        <strong>{{ campo.valor }}</strong>
+                      </div>
+                    }
+                  </div>
 
-          @if (quota()?.limiteAtingido && !resultado()) {
-            <div class="lp-upgrade-panel" role="region" aria-label="Trial grátis">
-              <p class="lp-upgrade-title">Consulta gratuita usada neste dispositivo</p>
-              <p class="lp-upgrade-lead">Com conta grátis você ganha:</p>
-              <ul class="lp-upgrade-list">
-                @for (benefit of config.trialBenefits; track benefit) {
-                  <li>{{ benefit }}</li>
-                }
-              </ul>
-              <button
-                type="button"
-                class="btn btn-primary lp-btn"
-                (click)="irParaCadastro('ad_hero_limite_panel')"
-              >
-                Começar trial grátis
-              </button>
-            </div>
-          }
-
-          @if (resultado(); as r) {
-            <div class="lp-live-result" role="region" aria-label="Resultado da consulta">
-              <p class="lp-live-label">Sua consulta · {{ r.cnpj }}</p>
-              @for (campo of camposResultado(r); track campo.label) {
-                <div class="lp-live-row">
-                  <span>{{ campo.label }}</span>
-                  <strong>{{ campo.valor }}</strong>
+                  <div class="lp-success-upgrade">
+                    <p class="lp-success-hint">{{ config.upgradeHint }}</p>
+                    <ul class="lp-success-chips" aria-label="Benefícios do trial">
+                      @for (chip of config.upgradeChips; track chip) {
+                        <li>{{ chip }}</li>
+                      }
+                    </ul>
+                    <button
+                      type="button"
+                      class="btn btn-primary lp-btn lp-btn--upgrade"
+                      (click)="irParaCadastro('ad_hero_result')"
+                    >
+                      {{ config.upgradeCta }} →
+                    </button>
+                    @if (!quota()?.limiteAtingido) {
+                      <button type="button" class="lp-link-action" (click)="scrollToForm()">
+                        Consultar outro CNPJ
+                      </button>
+                    }
+                  </div>
                 </div>
               }
-            </div>
-
-            <div class="lp-upgrade-panel" role="region" aria-label="Desbloquear trial">
-              <p class="lp-upgrade-title">Você viu o que o Lupa entrega</p>
-              <p class="lp-upgrade-lead">Com conta grátis você ganha:</p>
-              <ul class="lp-upgrade-list">
-                @for (benefit of config.trialBenefits; track benefit) {
-                  <li>{{ benefit }}</li>
-                }
-              </ul>
-              <button
-                type="button"
-                class="btn btn-primary lp-btn"
-                (click)="irParaCadastro('ad_hero_result')"
-              >
-                Começar trial grátis
-              </button>
-              @if (!quota()?.limiteAtingido) {
-                <button type="button" class="btn btn-outline lp-btn lp-btn--secondary" (click)="scrollToForm()">
-                  Consultar outro CNPJ
+            }
+            @case ('quotaBlocked') {
+              <div class="lp-quota-card" role="region" aria-label="Trial grátis">
+                <p class="lp-quota-title">{{ config.quotaBlockedTitle }}</p>
+                <p class="lp-success-hint">{{ config.upgradeHint }}</p>
+                <ul class="lp-success-chips" aria-label="Benefícios do trial">
+                  @for (chip of config.upgradeChips; track chip) {
+                    <li>{{ chip }}</li>
+                  }
+                </ul>
+                <button
+                  type="button"
+                  class="btn btn-primary lp-btn lp-btn--upgrade"
+                  (click)="irParaCadastro('ad_hero_limite_panel')"
+                >
+                  {{ config.upgradeCta }} →
                 </button>
+              </div>
+            }
+            @default {
+              <form class="lp-form" (ngSubmit)="consultarCnpj()">
+                <label class="sr-only" for="cnpj-input">CNPJ da empresa</label>
+                <input
+                  id="cnpj-input"
+                  type="text"
+                  name="cnpj"
+                  [value]="cnpjInput"
+                  (input)="onCnpjInput($event)"
+                  [placeholder]="config.inputPlaceholder"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  [disabled]="heroEstado === 'loading'"
+                />
+                <button
+                  type="submit"
+                  class="btn btn-primary lp-btn"
+                  [disabled]="heroEstado === 'loading'"
+                >
+                  @if (heroEstado === 'loading') {
+                    <span class="lp-spinner" aria-hidden="true"></span>
+                    {{ config.previewButtonLoading }}
+                  } @else {
+                    {{ config.previewButton }}
+                  }
+                </button>
+              </form>
+
+              @if (erroPreview()) {
+                <p class="lp-alert lp-alert--error" role="alert">{{ erroPreview() }}</p>
               }
-            </div>
+            }
           }
         }
       </div>
 
-      <ul class="lp-trust" aria-label="Indicadores de confiança">
-        @for (item of config.trustIndicators; track item.text) {
-          <li><span aria-hidden="true">{{ item.icon }}</span> {{ item.text }}</li>
-        }
-      </ul>
+      @if (heroEstado !== 'success') {
+        <ul class="lp-trust" aria-label="Indicadores de confiança">
+          @for (item of config.trustIndicators; track item.text) {
+            <li><span aria-hidden="true">{{ item.icon }}</span> {{ item.text }}</li>
+          }
+        </ul>
+      }
     </section>
 
     <section class="lp-section lp-defer" aria-labelledby="benefits-title">
@@ -139,9 +153,15 @@
           }
         </div>
       </div>
-      <button type="button" class="btn btn-outline lp-cta-secondary" (click)="scrollToForm()">
-        Consultar minha empresa
-      </button>
+      @if (resultado()) {
+        <button type="button" class="lp-link-action lp-link-action--center" (click)="scrollToSuccess()">
+          Ver resultado acima
+        </button>
+      } @else {
+        <button type="button" class="btn btn-outline lp-cta-secondary" (click)="scrollToForm()">
+          Consultar minha empresa
+        </button>
+      }
     </section>
 
     <section class="lp-section lp-defer" aria-labelledby="steps-title">
@@ -183,26 +203,29 @@
       </div>
     </section>
 
-    <section class="lp-final lp-defer" aria-labelledby="final-cta">
-      @if (deveMostrarCtaTrial) {
+    @if (deveMostrarCtaTrialFinal) {
+      <section class="lp-final lp-defer" aria-labelledby="final-cta">
         <h2 id="final-cta">Pronto para consultar em lote?</h2>
         <p class="lp-final-note">7 dias de Prospecção grátis · sem cartão</p>
-        <button type="button" class="btn btn-primary lp-btn" (click)="irParaCadastro('ad_final_trial')">
-          Começar trial grátis
+        <button type="button" class="btn btn-primary lp-btn lp-btn--upgrade" (click)="irParaCadastro('ad_final_trial')">
+          {{ config.upgradeCta }} →
         </button>
-      } @else {
+      </section>
+    } @else if (!resultado()) {
+      <section class="lp-final lp-defer" aria-labelledby="final-cta">
         <h2 id="final-cta">Consulte agora</h2>
         <button type="button" class="btn btn-primary lp-btn" (click)="scrollToForm()">
           Consultar minha empresa
         </button>
-      }
-    </section>
+      </section>
+    }
 
     @if (!isLoggedIn()) {
-      <div class="lp-sticky">
+      <div class="lp-sticky" [class.lp-sticky--trial]="deveMostrarCtaTrial">
         @if (deveMostrarCtaTrial) {
-          <button type="button" class="btn btn-primary lp-btn" (click)="irParaCadastro('ad_sticky_trial')">
-            Começar trial grátis
+          <p class="lp-sticky-note">Sem cartão para começar</p>
+          <button type="button" class="btn btn-primary lp-btn lp-btn--upgrade" (click)="irParaCadastro('ad_sticky_trial')">
+            {{ config.upgradeCta }} →
           </button>
         } @else {
           <button type="button" class="btn btn-primary lp-btn" (click)="scrollToForm()">
