@@ -1,14 +1,4 @@
 <div class="landing">
-  @if (!isLoggedIn()) {
-    <div class="beta-banner" role="status">
-      <span class="beta-banner__pill">Beta</span>
-      <span class="beta-banner__text">
-        Lançamento beta — preços especiais por tempo limitado. Prospecção <strong>R$ 9,90/mês</strong> · Growth <strong>R$ 29,90/mês</strong> (plano anual)
-      </span>
-      <a routerLink="/planos" class="beta-banner__link" appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="beta_banner">Ver planos</a>
-    </div>
-  }
-
   <header class="topbar">
     <app-brand link="/" ariaLabel="Lupa Insights — página inicial" />
     <nav class="topbar-nav">
@@ -25,7 +15,14 @@
           <a routerLink="/app" class="btn btn-primary" appAnalyticsCta="acessar_painel" appAnalyticsCtaLocation="topbar">Acessar painel</a>
         } @else {
           <a routerLink="/login" class="nav-link" appAnalyticsCta="entrar" appAnalyticsCtaLocation="topbar">Entrar</a>
-          <a routerLink="/cadastro" class="btn btn-primary" appAnalyticsCta="desbloquear_gratis" appAnalyticsCtaLocation="topbar">Desbloquear gratuitamente</a>
+          <a
+            routerLink="/cadastro"
+            [queryParams]="signupQueryParams"
+            class="btn btn-primary"
+            (click)="registrarDesbloquear('hero_desbloquear')"
+          >
+            Desbloquear gratuitamente
+          </a>
         }
       </span>
     </nav>
@@ -88,7 +85,7 @@
           @if (quota()?.limiteAtingido) {
             <div class="hero-alert hero-alert--limit">
               Você já usou sua consulta gratuita neste dispositivo.
-              <button type="button" class="hero-alert-link" (click)="irParaCadastro('hero_limite')" appAnalyticsCta="desbloquear_gratis" appAnalyticsCtaLocation="hero_limite">
+              <button type="button" class="hero-alert-link" (click)="irParaCadastro('hero_limite')">
                 Desbloquear gratuitamente
               </button>
             </div>
@@ -108,16 +105,15 @@
       <app-cnpj-consulta-experience
         [data]="r"
         [signupQueryParams]="signupQueryParams"
-        [ctaLocation]="'result_signup'"
-        (signupClick)="irParaCadastro('result_signup')"
+        (signupClick)="irParaCadastro($event)"
       />
     </div>
   }
 
   @if (!isLoggedIn()) {
-    <section class="section section-pricing-strip" aria-label="Preços beta">
+    <section class="section section-pricing-strip" aria-label="Planos e preços">
       <div class="pricing-strip">
-        @for (p of betaPricing; track p.nome) {
+        @for (p of pricingPlans; track p.nome) {
           <article class="pricing-strip__card" [class.pricing-strip__card--featured]="p.destaque">
             @if (p.destaque) {
               <span class="pricing-strip__badge">Mais popular</span>
@@ -186,10 +182,10 @@
     </div>
   </section>
 
-  <section id="faq" class="section section-alt">
+  <section id="faq" class="section section-alt" aria-labelledby="faq-title">
     <div class="section-head">
-      <span class="section-tag">Perguntas frequentes</span>
-      <h2>Perguntas frequentes</h2>
+      <span class="section-tag">FAQ</span>
+      <h2 id="faq-title">Dúvidas comuns</h2>
       <p class="section-lead">Respostas rápidas sobre como pesquisar empresas no Lupa.</p>
     </div>
     <div class="faq-list">
@@ -211,7 +207,14 @@
           <a routerLink="/app" class="btn btn-primary btn-lg" appAnalyticsCta="nova_consulta" appAnalyticsCtaLocation="cta_final">Nova consulta</a>
           <a routerLink="/historico" class="btn btn-outline btn-lg" appAnalyticsCta="ver_historico" appAnalyticsCtaLocation="cta_final">Ver histórico</a>
         } @else {
-          <a routerLink="/cadastro" [queryParams]="signupQueryParams" class="btn btn-primary btn-lg" appAnalyticsCta="desbloquear_gratis" appAnalyticsCtaLocation="cta_final">Desbloquear gratuitamente</a>
+          <a
+            routerLink="/cadastro"
+            [queryParams]="signupQueryParams"
+            class="btn btn-primary btn-lg"
+            (click)="registrarDesbloquear('cta_final')"
+          >
+            Desbloquear gratuitamente
+          </a>
           <button type="button" class="btn btn-outline btn-lg"
                   appAnalyticsCta="consultar_cnpj" appAnalyticsCtaLocation="cta_final"
                   (click)="scrollTo('consulta-form')">
@@ -228,7 +231,7 @@
   @if (!isLoggedIn() && resultado()) {
     <div class="sticky-signup-bar">
       <p>Desbloqueie a análise completa desta empresa</p>
-      <button type="button" class="btn btn-primary btn-sm" (click)="irParaCadastro('sticky_desbloquear')" appAnalyticsCta="desbloquear_gratis" appAnalyticsCtaLocation="sticky_desbloquear">
+      <button type="button" class="btn btn-primary btn-sm" (click)="irParaCadastro('sticky_desbloquear')">
         Desbloquear gratuitamente
       </button>
     </div>
@@ -242,7 +245,13 @@
         <a routerLink="/app" appAnalyticsCta="acessar_painel" appAnalyticsCtaLocation="footer">Acessar painel</a>
         <a routerLink="/historico" appAnalyticsCta="ver_historico" appAnalyticsCtaLocation="footer">Histórico</a>
       } @else {
-        <a routerLink="/cadastro" appAnalyticsCta="desbloquear_gratis" appAnalyticsCtaLocation="footer">Desbloquear gratuitamente</a>
+        <a
+          routerLink="/cadastro"
+          [queryParams]="signupQueryParams"
+          (click)="registrarDesbloquear('footer')"
+        >
+          Desbloquear gratuitamente
+        </a>
         <a routerLink="/login" appAnalyticsCta="entrar" appAnalyticsCtaLocation="footer">Entrar</a>
       }
       <a href="mailto:contato&#64;lupainsights.com.br" appAnalyticsCta="contato_email" appAnalyticsCtaLocation="footer">contato&#64;lupainsights.com.br</a>

@@ -28,11 +28,10 @@ import { CnpjSignupCtaComponent } from './cnpj-signup-cta.component';
         <app-cnpj-findings [data]="data()" />
         <app-cnpj-main-data [data]="data()" />
         <app-cnpj-insights-section [data]="data()" />
-        <app-cnpj-premium-teaser (unlockClick)="onSignup()" />
+        <app-cnpj-premium-teaser (unlockClick)="onPremiumUnlock()" />
         <app-cnpj-signup-cta
           [signupQueryParams]="signupQueryParams()"
-          [ctaLocation]="ctaLocation()"
-          (signupClick)="onSignup()"
+          (signupClick)="onSignupCta()"
         />
       </article>
     </div>
@@ -42,10 +41,13 @@ import { CnpjSignupCtaComponent } from './cnpj-signup-cta.component';
 export class CnpjConsultaExperienceComponent {
   readonly data = input.required<CnpjPreviewResult>();
   readonly signupQueryParams = input<Record<string, string>>({});
-  readonly ctaLocation = input('result_signup');
-  readonly signupClick = output<void>();
+  readonly signupClick = output<string>();
 
-  onSignup(): void {
-    this.signupClick.emit();
+  onPremiumUnlock(): void {
+    this.signupClick.emit('result_premium_cta');
+  }
+
+  onSignupCta(): void {
+    this.signupClick.emit('insights_signup');
   }
 }

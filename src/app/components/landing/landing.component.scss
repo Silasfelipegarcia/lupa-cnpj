@@ -15,46 +15,6 @@
     padding-bottom: 5.5rem;
   }
 }
-.beta-banner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.65rem 1rem;
-  margin: 0 -0.5rem 0.5rem;
-  padding: 0.65rem 1rem;
-  background: linear-gradient(90deg, #4c1d95 0%, var(--primary) 55%, #7c3aed 100%);
-  color: #fff;
-  border-radius: 0 0 var(--radius-md) var(--radius-md);
-  font-size: 0.88rem;
-  line-height: 1.45;
-  text-align: center;
-
-  &__pill {
-    padding: 0.15rem 0.55rem;
-    border-radius: var(--radius-full);
-    background: rgba(255, 255, 255, 0.2);
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  &__text strong {
-    font-weight: 700;
-  }
-
-  &__link {
-    color: #fff;
-    font-weight: 600;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-
-    &:hover {
-      color: #f3e8ff;
-    }
-  }
-}
 
 // —— Pricing strip ——
 .section-pricing-strip {

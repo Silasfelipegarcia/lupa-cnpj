@@ -15,8 +15,6 @@ import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive'
           [routerLink]="['/cadastro']"
           [queryParams]="signupQueryParams()"
           class="btn btn-primary btn-lg"
-          appAnalyticsCta="desbloquear_gratis"
-          [appAnalyticsCtaLocation]="ctaLocation()"
           (click)="signupClick.emit()"
         >
           Desbloquear gratuitamente
@@ -30,7 +28,7 @@ import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive'
           }
         </ul>
         <p class="cc-signup-login">
-          <a routerLink="/login" appAnalyticsCta="entrar" [appAnalyticsCtaLocation]="ctaLocation() + '_login'">Já tenho conta</a>
+          <a routerLink="/login" appAnalyticsCta="entrar" appAnalyticsCtaLocation="insights_signup_login">Já tenho conta</a>
         </p>
       </div>
     </section>
@@ -39,7 +37,6 @@ import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive'
 })
 export class CnpjSignupCtaComponent {
   readonly signupQueryParams = input<Record<string, string>>({});
-  readonly ctaLocation = input('result_signup');
   readonly signupClick = output<void>();
 
   readonly benefits = [

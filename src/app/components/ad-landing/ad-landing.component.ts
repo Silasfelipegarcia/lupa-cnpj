@@ -85,7 +85,7 @@ export class AdLandingComponent implements OnInit {
   }
 
   irParaCadastro(location: string): void {
-    this.analytics.trackCtaClick('criar_conta', location);
+    this.analytics.trackCtaClick('desbloquear_gratis', location);
     void this.router.navigate(['/cadastro'], { queryParams: this.signupQueryParams });
   }
 

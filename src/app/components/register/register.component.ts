@@ -51,6 +51,11 @@ export class RegisterComponent implements OnInit {
     }
     this.signupRef = params.get('ref')?.trim() ?? '';
     this.previewCnpj = params.get('cnpj')?.trim() ?? '';
+    this.analytics.trackSignUpStart({
+      signup_ref: this.signupRef || undefined,
+      has_preview_cnpj: this.previewCnpj ? '1' : '0',
+      source: 'register_page'
+    });
   }
 
   get tituloCadastro(): string {
@@ -118,10 +123,6 @@ export class RegisterComponent implements OnInit {
     }
 
     this.enviando.set(true);
-    this.analytics.trackSignUpStart({
-      signup_ref: this.signupRef || undefined,
-      has_preview_cnpj: this.previewCnpj ? '1' : '0'
-    });
 
     this.authService.register({
       nome: this.nome.trim(),

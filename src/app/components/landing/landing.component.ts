@@ -101,7 +101,7 @@ export class LandingComponent implements OnInit {
 
   readonly faq = LANDING_FAQ;
 
-  readonly betaPricing = [
+  readonly pricingPlans = [
     {
       nome: 'Prospecção',
       mensal: 'R$ 9,90/mês',
@@ -211,8 +211,12 @@ export class LandingComponent implements OnInit {
     });
   }
 
-  irParaCadastro(origem: string): void {
+  registrarDesbloquear(origem: string): void {
     this.analytics.trackCtaClick('desbloquear_gratis', origem);
+  }
+
+  irParaCadastro(origem: string): void {
+    this.registrarDesbloquear(origem);
     void this.router.navigate(['/cadastro'], { queryParams: this.signupQueryParams });
   }
 }

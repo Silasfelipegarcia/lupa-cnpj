@@ -272,7 +272,7 @@ export class PlanCatalogComponent implements OnInit {
 
   assinar(plan: SubscriptionPlan, opcoes?: { adminTestCartaoSalvo?: boolean }): void {
     if (!this.authService.isAuthenticated()) {
-      this.analytics.trackCtaClick('criar_conta', 'plan_catalog');
+      this.analytics.trackCtaClick('desbloquear_gratis', 'plan_catalog');
       this.router.navigate(['/cadastro'], { queryParams: { redirect: '/planos' } });
       return;
     }

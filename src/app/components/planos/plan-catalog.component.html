@@ -26,7 +26,7 @@
         <strong>7 dias de Prospecção grátis</strong> ao criar conta — sem cartão para começar.
         Depois, a partir de R$ 9,90/mês (plano anual).
       </p>
-      <a routerLink="/cadastro" class="btn btn-primary btn-sm" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="plan_catalog_trial">
+      <a routerLink="/cadastro" class="btn btn-primary btn-sm" appAnalyticsCta="desbloquear_gratis" appAnalyticsCtaLocation="plan_catalog_trial">
         Criar conta grátis
       </a>
     </div>
@@ -227,7 +227,7 @@
             <span class="plan-badge">Seu plano atual</span>
           } @else if (item.plan === 'FREE') {
             @if (!authService.isAuthenticated()) {
-              <a routerLink="/cadastro" class="btn btn-primary" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="plan_card_trial">
+              <a routerLink="/cadastro" class="btn btn-primary" appAnalyticsCta="desbloquear_gratis" appAnalyticsCtaLocation="plan_card_trial">
                 Começar gratuitamente
               </a>
             } @else if (emTrial()) {
@@ -323,6 +323,6 @@
   Pagamento seguro via Mercado Pago. Cancele quando quiser em
   <a routerLink="/conta/plano" appAnalyticsCta="conta_plano" appAnalyticsCtaLocation="plan_catalog">Conta → Plano</a>.
   @if (!authService.isAuthenticated()) {
-    <a routerLink="/cadastro" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="plan_catalog"> Crie sua conta</a> para assinar um plano pago.
+    <a routerLink="/cadastro" appAnalyticsCta="desbloquear_gratis" appAnalyticsCtaLocation="plan_catalog"> Crie sua conta</a> para assinar um plano pago.
   }
 </p>
