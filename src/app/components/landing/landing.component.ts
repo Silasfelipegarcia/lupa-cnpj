@@ -3,18 +3,25 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { GuestCnpjPreviewService } from '../../services/guest-cnpj-preview.service';
-import { buildCnpjResultFields } from '../../utils/cnpj-result-fields';
-import { CnpjPreviewCampo, CnpjPreviewQuota, CnpjPreviewResult } from '../../models/cnpj-preview.model';
+import { CnpjPreviewQuota, CnpjPreviewResult } from '../../models/cnpj-preview.model';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive';
 import { LANDING_FAQ } from '../../seo/structured-data';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 import { LegalFooterLinksComponent } from '../legal-footer-links/legal-footer-links.component';
+import { CnpjConsultaExperienceComponent } from '../cnpj-consulta/cnpj-consulta-experience.component';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [RouterLink, AppBrandComponent, LegalFooterLinksComponent, FormsModule, AnalyticsCtaDirective],
+  imports: [
+    RouterLink,
+    AppBrandComponent,
+    LegalFooterLinksComponent,
+    FormsModule,
+    AnalyticsCtaDirective,
+    CnpjConsultaExperienceComponent
+  ],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss',
   host: { ngSkipHydration: 'true' }
@@ -25,26 +32,25 @@ export class LandingComponent implements OnInit {
   readonly ano = new Date().getFullYear();
 
   cnpjInput = '';
-  signupEmail = '';
   consultando = signal(false);
   erroPreview = signal('');
   resultado = signal<CnpjPreviewResult | null>(null);
   quota = signal<CnpjPreviewQuota | null>(null);
 
-  readonly stats = [
-    { value: 'Segundos', label: 'para consultar', sub: 'um CNPJ completo' },
-    { value: '7 dias', label: 'grátis ao cadastrar', sub: 'pesquisas em lote' },
-    { value: 'Tudo', label: 'em um só lugar', sub: 'dados, contatos e CNAEs' }
+  readonly trustBadges = [
+    'Dados oficiais',
+    'Consulta gratuita',
+    'Atualizado diariamente'
   ];
 
   readonly personas = [
     {
       perfil: 'Vendedores',
-      text: 'Encontre telefone, e-mail e situação cadastral antes de ligar — sem perder tempo em sites diferentes.'
+      text: 'Encontre telefone, e-mail e status da empresa antes de ligar — sem perder tempo em sites diferentes.'
     },
     {
       perfil: 'Contadores',
-      text: 'Confira dados cadastrais, CNAEs e situação fiscal de clientes e fornecedores com rapidez.'
+      text: 'Confira dados cadastrais, atividades e status de clientes e fornecedores com rapidez.'
     },
     {
       perfil: 'Consultores',
@@ -52,7 +58,7 @@ export class LandingComponent implements OnInit {
     },
     {
       perfil: 'Advogados',
-      text: 'Valide razão social, endereço e quadro societário de empresas em poucos cliques.'
+      text: 'Valide razão social, endereço e sócios de empresas em poucos cliques.'
     },
     {
       perfil: 'Empreendedores',
@@ -68,12 +74,12 @@ export class LandingComponent implements OnInit {
     {
       icon: 'search',
       title: 'Pesquise qualquer CNPJ',
-      text: 'Digite o número e receba razão social, situação, contatos e endereço em segundos.'
+      text: 'Digite o número e receba razão social, status, contatos e endereço em segundos.'
     },
     {
       icon: 'bolt',
-      title: 'Economize tempo',
-      text: 'Consulte uma empresa ou importe uma planilha inteira — sem abrir dezenas de abas.'
+      title: 'Insights automáticos',
+      text: 'Receba análises inteligentes com base nos dados oficiais — sem complicação.'
     },
     {
       icon: 'target',
@@ -88,15 +94,10 @@ export class LandingComponent implements OnInit {
   ];
 
   readonly steps = [
-    { num: '1', title: 'Digite ou importe', text: 'Um CNPJ avulso ou uma planilha com vários números.' },
-    { num: '2', title: 'Veja os resultados', text: 'Dados públicos, contatos, CNAEs e localização reunidos para você.' },
-    { num: '3', title: 'Exporte se quiser', text: 'Baixe em Excel e use nas suas pesquisas do dia a dia.' }
+    { num: '1', title: 'Digite o CNPJ', text: 'Informe os 14 dígitos da empresa que deseja consultar.' },
+    { num: '2', title: 'Veja o resultado', text: 'Dados oficiais, insights e análise organizados em cards.' },
+    { num: '3', title: 'Desbloqueie mais', text: 'Crie sua conta gratuita para salvar, comparar e exportar.' }
   ];
-
-  readonly compare = {
-    before: ['Abrir site por site', 'Copiar dados na mão', 'Informação espalhada', 'Horas perdidas'],
-    after: ['Tudo em uma consulta', 'Resultado na hora', 'Dados organizados', 'Minutos, não horas']
-  };
 
   readonly faq = LANDING_FAQ;
 
@@ -115,11 +116,6 @@ export class LandingComponent implements OnInit {
     }
   ];
 
-  readonly fields = [
-    'CNPJ', 'Razão social', 'Nome fantasia', 'Situação cadastral',
-    'Sócios', 'Telefones', 'E-mail', 'Endereço', 'CNAE principal'
-  ];
-
   constructor(
     private guestPreviewService: GuestCnpjPreviewService,
     private analytics: AnalyticsService,
@@ -131,6 +127,15 @@ export class LandingComponent implements OnInit {
       this.analytics.trackLandingView('home');
       this.carregarQuota();
     }
+  }
+
+  get signupQueryParams(): Record<string, string> {
+    const params: Record<string, string> = { ref: 'home' };
+    const cnpj = this.resultado()?.cnpj ?? this.cnpjInput.trim();
+    if (cnpj) {
+      params['cnpj'] = cnpj;
+    }
+    return params;
   }
 
   scrollTo(id: string): void {
@@ -167,7 +172,7 @@ export class LandingComponent implements OnInit {
     }
 
     if (this.quota()?.limiteAtingido) {
-      this.erroPreview.set('Você usou sua consulta gratuita. Crie uma conta para continuar.');
+      this.erroPreview.set('Você usou sua consulta gratuita. Desbloqueie a análise completa criando uma conta.');
       this.analytics.trackGuestPreviewError('quota_limit_reached');
       return;
     }
@@ -188,6 +193,7 @@ export class LandingComponent implements OnInit {
           limiteAtingido: result.consultasRestantes <= 0
         });
         this.consultando.set(false);
+        setTimeout(() => this.scrollTo('resultado-consulta'), 100);
       },
       error: (msg: string) => {
         this.erroPreview.set(msg);
@@ -205,17 +211,8 @@ export class LandingComponent implements OnInit {
     });
   }
 
-  camposResultado(r: CnpjPreviewResult): CnpjPreviewCampo[] {
-    return buildCnpjResultFields(r);
-  }
-
   irParaCadastro(origem: string): void {
-    const email = this.signupEmail.trim();
-    this.analytics.trackCtaClick('criar_conta', origem);
-    if (email) {
-      void this.router.navigate(['/cadastro'], { queryParams: { email } });
-      return;
-    }
-    void this.router.navigate(['/cadastro']);
+    this.analytics.trackCtaClick('desbloquear_gratis', origem);
+    void this.router.navigate(['/cadastro'], { queryParams: this.signupQueryParams });
   }
 }

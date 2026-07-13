@@ -14,7 +14,7 @@
     <nav class="topbar-nav">
       <a href="#como-funciona" class="nav-link">Como funciona</a>
       @if (!isLoggedIn()) {
-        <a href="#experimente" class="nav-link">Experimente</a>
+        <a href="#consulta-form" class="nav-link">Consultar</a>
       }
       <a href="#quem-usa" class="nav-link">Quem usa</a>
       <a href="#recursos" class="nav-link">Recursos</a>
@@ -25,115 +25,94 @@
           <a routerLink="/app" class="btn btn-primary" appAnalyticsCta="acessar_painel" appAnalyticsCtaLocation="topbar">Acessar painel</a>
         } @else {
           <a routerLink="/login" class="nav-link" appAnalyticsCta="entrar" appAnalyticsCtaLocation="topbar">Entrar</a>
-          <a routerLink="/cadastro" class="btn btn-primary" appAnalyticsCta="comecar_gratis" appAnalyticsCtaLocation="topbar">Começar gratuitamente</a>
+          <a routerLink="/cadastro" class="btn btn-primary" appAnalyticsCta="desbloquear_gratis" appAnalyticsCtaLocation="topbar">Desbloquear gratuitamente</a>
         }
       </span>
     </nav>
   </header>
 
-  <section class="hero">
+  <section class="hero hero--centered">
     <div class="hero-content">
-      <div class="hero-badges">
-        <span class="badge badge--pulse">Consulta CNPJ rápida</span>
-        <span class="trust-line">Dados públicos organizados</span>
-      </div>
-
-      <h1>Descubra tudo sobre qualquer CNPJ em segundos.</h1>
-
-      <p class="hero-proof">
-        Mais de <strong>60 milhões</strong> de empresas brasileiras pesquisáveis em um único lugar.
-      </p>
+      <h1>Descubra tudo sobre qualquer empresa brasileira</h1>
 
       <p class="hero-lead">
-        Dados públicos organizados para você encontrar respostas em segundos —
-        sócios, CNAEs, contatos, localização e outras informações importantes em uma única plataforma.
+        Consulte gratuitamente CNPJ e obtenha uma visão clara da empresa com dados oficiais e insights inteligentes.
       </p>
 
-      <div class="hero-actions">
-        @if (isLoggedIn()) {
+      <ul class="hero-trust" aria-label="Indicadores de confiança">
+        @for (badge of trustBadges; track badge) {
+          <li><span aria-hidden="true">✔</span> {{ badge }}</li>
+        }
+      </ul>
+
+      @if (!isLoggedIn()) {
+        <div id="consulta-form" class="hero-search">
+          <form class="hero-search-form" (ngSubmit)="consultarCnpj()">
+            <label class="sr-only" for="hero-cnpj-input">CNPJ da empresa</label>
+            <input
+              id="hero-cnpj-input"
+              type="text"
+              name="cnpj"
+              [value]="cnpjInput"
+              (input)="onCnpjInput($event)"
+              placeholder="00.000.000/0000-00"
+              inputmode="numeric"
+              autocomplete="off"
+              [disabled]="consultando() || quota()?.limiteAtingido"
+            />
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg"
+              [disabled]="consultando() || quota()?.limiteAtingido"
+              appAnalyticsCta="consultar_cnpj"
+              appAnalyticsCtaLocation="hero_search"
+            >
+              @if (consultando()) {
+                Consultando...
+              } @else if (quota()?.limiteAtingido) {
+                Limite atingido
+              } @else {
+                Consultar empresa
+              }
+            </button>
+          </form>
+
+          @if (quota(); as q) {
+            <p class="hero-quota">{{ q.consultasRestantes }} de {{ q.consultasLimite }} consulta(s) gratuita(s) restante(s)</p>
+          }
+
+          @if (erroPreview()) {
+            <p class="hero-alert hero-alert--error" role="alert">{{ erroPreview() }}</p>
+          }
+
+          @if (quota()?.limiteAtingido) {
+            <div class="hero-alert hero-alert--limit">
+              Você já usou sua consulta gratuita neste dispositivo.
+              <button type="button" class="hero-alert-link" (click)="irParaCadastro('hero_limite')" appAnalyticsCta="desbloquear_gratis" appAnalyticsCtaLocation="hero_limite">
+                Desbloquear gratuitamente
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="hero-actions">
           <a routerLink="/app" class="btn btn-primary btn-lg" appAnalyticsCta="ir_painel" appAnalyticsCtaLocation="hero">Ir para o painel</a>
           <a routerLink="/historico" class="btn btn-outline btn-lg" appAnalyticsCta="ver_historico" appAnalyticsCtaLocation="hero">Ver histórico</a>
-        } @else {
-          <a routerLink="/cadastro" class="btn btn-primary btn-lg" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="hero">Começar gratuitamente</a>
-          <button type="button" class="btn btn-outline btn-lg"
-                  appAnalyticsCta="testar_cnpj" appAnalyticsCtaLocation="hero"
-                  (click)="scrollTo('experimente')">
-            Pesquisar um CNPJ
-          </button>
-        }
-      </div>
-
-      <div class="hero-stats">
-        @for (s of stats; track s.label) {
-          <div class="stat">
-            <strong class="stat-value">{{ s.value }}</strong>
-            <span class="stat-label">{{ s.label }}</span>
-            <span class="stat-sub">{{ s.sub }}</span>
-          </div>
-        }
-      </div>
-    </div>
-
-    <div class="hero-visual" aria-hidden="true">
-      <div class="mock-glow"></div>
-      <div class="mock-card">
-        <div class="mock-header">
-          <span class="dot dot--red"></span>
-          <span class="dot dot--yellow"></span>
-          <span class="dot dot--green"></span>
-          <span class="mock-title">pesquisa_empresas.xlsx</span>
-          <span class="mock-badge">Consultando</span>
         </div>
-        <div class="mock-progress">
-          <div class="mock-bar"></div>
-        </div>
-        <p class="mock-status">
-          <span class="mock-pulse"></span>
-          Buscando dados de 36 empresas · 72%
-        </p>
-        <div class="mock-table">
-          <div class="mock-row head">
-            <span>CNPJ</span><span>Empresa</span><span>Status</span>
-          </div>
-          <div class="mock-row">
-            <span>12.345.678/0001-90</span>
-            <span>Alpha Tecnologia</span>
-            <span class="pill pill--ok">ATIVA</span>
-          </div>
-          <div class="mock-row">
-            <span>98.765.432/0001-10</span>
-            <span>Beta Comércio SA</span>
-            <span class="pill pill--ok">ATIVA</span>
-          </div>
-          <div class="mock-row dim">
-            <span>11.222.333/0001-44</span>
-            <span>Buscando dados...</span>
-            <span class="pill pill--wait">—</span>
-          </div>
-        </div>
-        <div class="mock-footer">
-          <span>📞 Telefone</span>
-          <span>✉ E-mail</span>
-          <span>📍 UF · CNAE</span>
-        </div>
-      </div>
-
-      <div class="float-card float-card--1">
-        <span class="float-icon">✓</span>
-        <div>
-          <strong>847 empresas</strong>
-          <span>consultadas hoje</span>
-        </div>
-      </div>
-      <div class="float-card float-card--2">
-        <span class="float-icon">↓</span>
-        <div>
-          <strong>Excel pronto</strong>
-          <span>baixe em 1 clique</span>
-        </div>
-      </div>
+      }
     </div>
   </section>
+
+  @if (!isLoggedIn() && resultado(); as r) {
+    <div id="resultado-consulta">
+      <app-cnpj-consulta-experience
+        [data]="r"
+        [signupQueryParams]="signupQueryParams"
+        [ctaLocation]="'result_signup'"
+        (signupClick)="irParaCadastro('result_signup')"
+      />
+    </div>
+  }
 
   @if (!isLoggedIn()) {
     <section class="section section-pricing-strip" aria-label="Preços beta">
@@ -157,152 +136,6 @@
     </section>
   }
 
-  @if (!isLoggedIn()) {
-    <section id="experimente" class="section section-preview">
-      <div class="section-head">
-        <span class="section-tag">Experimente agora</span>
-        <h2>Pesquise um CNPJ sem cadastro</h2>
-        <p class="section-lead">
-          Digite um CNPJ e veja na hora os dados públicos disponíveis.
-          @if (quota(); as q) {
-            <span class="quota-badge">{{ q.consultasRestantes }} de {{ q.consultasLimite }} consulta(s) restante(s)</span>
-          }
-        </p>
-      </div>
-
-      <div class="preview-shell">
-        <div class="preview-card">
-          <div class="preview-card-head">
-            <h3>Consulta gratuita</h3>
-            <p>1 pesquisa completa por dispositivo — igual ao que você recebe na conta.</p>
-          </div>
-
-          <form class="preview-form" (ngSubmit)="consultarCnpj()">
-            <label class="preview-field">
-              <span>CNPJ da empresa</span>
-              <input
-                type="text"
-                name="cnpj"
-                [value]="cnpjInput"
-                (input)="onCnpjInput($event)"
-                placeholder="00.000.000/0000-00"
-                inputmode="numeric"
-                autocomplete="off"
-                [disabled]="consultando() || quota()?.limiteAtingido"
-              />
-            </label>
-            <button
-              type="submit"
-              class="btn btn-primary btn-preview"
-              [disabled]="consultando() || quota()?.limiteAtingido"
-            >
-              @if (consultando()) {
-                Consultando...
-              } @else if (quota()?.limiteAtingido) {
-                Limite atingido
-              } @else {
-                Consultar grátis →
-              }
-            </button>
-          </form>
-
-          @if (erroPreview()) {
-            <div class="preview-alert preview-alert-error">{{ erroPreview() }}</div>
-          }
-
-          @if (quota()?.limiteAtingido) {
-            <div class="preview-alert preview-alert-limit">
-              Você já usou sua consulta gratuita neste dispositivo.
-              <a routerLink="/cadastro" class="preview-cta-link" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="preview_limite">Comece gratuitamente</a>
-              e ganhe <strong>7 dias</strong> para pesquisar empresas em lote, exportar em Excel e salvar seu histórico.
-            </div>
-          }
-
-          @if (resultado(); as r) {
-            <div class="preview-result">
-              <div class="preview-result-header">
-                <span class="preview-label">Consulta completa</span>
-                <span class="preview-cnpj">{{ r.cnpj }}</span>
-              </div>
-
-              <div class="preview-dados">
-                @for (campo of camposResultado(r); track campo.label) {
-                  <div class="preview-row">
-                    <span class="preview-field-label">{{ campo.label }}</span>
-                    <span class="preview-field-value">{{ campo.valor }}</span>
-                  </div>
-                }
-              </div>
-
-              <div class="preview-signup-cta">
-                <div class="preview-signup-cta__copy">
-                  <span class="preview-signup-cta__eyebrow">Gostou do resultado?</span>
-                  <h4>Comece gratuitamente em poucos segundos</h4>
-                  <p>Salve suas pesquisas, consulte vários CNPJs e exporte quando precisar.</p>
-                </div>
-                <form class="preview-signup-form" (ngSubmit)="irParaCadastro('preview_signup')">
-                  <label class="preview-signup-field">
-                    <span>Seu e-mail</span>
-                    <input
-                      type="email"
-                      name="signupEmail"
-                      [(ngModel)]="signupEmail"
-                      placeholder="voce@email.com"
-                      autocomplete="email"
-                      required
-                    />
-                  </label>
-                  <button type="submit" class="btn btn-primary btn-lg preview-signup-btn">
-                    Começar gratuitamente →
-                  </button>
-                </form>
-                <p class="preview-signup-hint">7 dias grátis ao confirmar o e-mail · Sem cartão para começar</p>
-              </div>
-
-              <div class="preview-upsell">
-                <p class="preview-upsell-title">Precisa pesquisar dezenas ou centenas de empresas?</p>
-                <ul class="preview-upsell-list">
-                  <li>Importe uma planilha e consulte <strong>até 100 empresas</strong> de uma vez</li>
-                  <li>Veja contatos, CNAEs, sócios e situação cadastral reunidos</li>
-                  <li>Planos a partir de <strong>R$ 9,90/mês</strong> quando precisar de mais volume</li>
-                </ul>
-                <div class="preview-upsell-actions">
-                  <button type="button" class="btn btn-outline btn-sm" (click)="scrollTo('experimente')"
-                          appAnalyticsCta="testar_outro_cnpj" appAnalyticsCtaLocation="preview_upsell">
-                    Pesquisar outro CNPJ
-                  </button>
-                  <a routerLink="/planos" class="btn btn-outline btn-sm" appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="preview_upsell">Ver planos</a>
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-
-        <aside class="preview-aside">
-          <h3>Por que usar o Lupa?</h3>
-          <div class="compare">
-            <div class="compare-col compare-col--before">
-              <span class="compare-title">Sem o Lupa Insights</span>
-              <ul>
-                @for (item of compare.before; track item) {
-                  <li>{{ item }}</li>
-                }
-              </ul>
-            </div>
-            <div class="compare-col compare-col--after">
-              <span class="compare-title">Com o Lupa Insights</span>
-              <ul>
-                @for (item of compare.after; track item) {
-                  <li>{{ item }}</li>
-                }
-              </ul>
-            </div>
-          </div>
-        </aside>
-      </div>
-    </section>
-  }
-
   <section id="quem-usa" class="section section-personas">
     <div class="section-head">
       <span class="section-tag">Para quem é</span>
@@ -322,8 +155,8 @@
   <section id="recursos" class="section">
     <div class="section-head">
       <span class="section-tag">Recursos</span>
-      <h2>Encontre informações em segundos</h2>
-      <p class="section-lead">Tudo que você precisa para pesquisar empresas sem complicação.</p>
+      <h2>Inteligência empresarial ao seu alcance</h2>
+      <p class="section-lead">Mais do que uma consulta — uma visão clara sobre qualquer empresa.</p>
     </div>
     <div class="features-grid">
       @for (f of features; track f.title) {
@@ -339,7 +172,7 @@
   <section id="como-funciona" class="section section-alt">
     <div class="section-head">
       <span class="section-tag">Como funciona</span>
-      <h2>3 passos. Menos de 1 minuto para começar.</h2>
+      <h2>3 passos. Menos de 1 minuto.</h2>
       <p class="section-lead">Simples de usar — você entende na hora.</p>
     </div>
     <div class="steps">
@@ -349,19 +182,6 @@
           <h3>{{ s.title }}</h3>
           <p>{{ s.text }}</p>
         </div>
-      }
-    </div>
-  </section>
-
-  <section class="section section-fields">
-    <div class="section-head">
-      <span class="section-tag">Dados entregues</span>
-      <h2>O que você encontra em cada consulta</h2>
-      <p class="section-lead">Dados públicos organizados para você economizar tempo nas suas pesquisas.</p>
-    </div>
-    <div class="fields-wrap">
-      @for (field of fields; track field) {
-        <span class="field-tag">{{ field }}</span>
       }
     </div>
   </section>
@@ -384,32 +204,32 @@
 
   <section class="cta">
     <div class="cta-inner">
-      <h2>Comece a pesquisar empresas agora</h2>
-      <p>Consulte qualquer CNPJ em segundos — grátis para experimentar.</p>
+      <h2>Desbloqueie gratuitamente a análise completa</h2>
+      <p>Crie sua conta em menos de 20 segundos.</p>
       <div class="cta-actions">
         @if (isLoggedIn()) {
           <a routerLink="/app" class="btn btn-primary btn-lg" appAnalyticsCta="nova_consulta" appAnalyticsCtaLocation="cta_final">Nova consulta</a>
           <a routerLink="/historico" class="btn btn-outline btn-lg" appAnalyticsCta="ver_historico" appAnalyticsCtaLocation="cta_final">Ver histórico</a>
         } @else {
-          <a routerLink="/cadastro" class="btn btn-primary btn-lg" appAnalyticsCta="comecar_gratis" appAnalyticsCtaLocation="cta_final">Começar gratuitamente</a>
+          <a routerLink="/cadastro" [queryParams]="signupQueryParams" class="btn btn-primary btn-lg" appAnalyticsCta="desbloquear_gratis" appAnalyticsCtaLocation="cta_final">Desbloquear gratuitamente</a>
           <button type="button" class="btn btn-outline btn-lg"
-                  appAnalyticsCta="testar_cnpj" appAnalyticsCtaLocation="cta_final"
-                  (click)="scrollTo('experimente')">
-            Experimentar grátis
+                  appAnalyticsCta="consultar_cnpj" appAnalyticsCtaLocation="cta_final"
+                  (click)="scrollTo('consulta-form')">
+            Consultar um CNPJ
           </button>
         }
       </div>
       @if (!isLoggedIn()) {
-        <p class="cta-note">7 dias grátis ao criar conta · Sem cartão para começar</p>
+        <p class="cta-note">7 dias grátis ao confirmar o e-mail · Sem cartão para começar</p>
       }
     </div>
   </section>
 
   @if (!isLoggedIn() && resultado()) {
     <div class="sticky-signup-bar">
-      <p>Gostou do resultado? Comece gratuitamente</p>
-      <button type="button" class="btn btn-primary btn-sm" (click)="irParaCadastro('sticky_bar')">
-        Começar gratuitamente
+      <p>Desbloqueie a análise completa desta empresa</p>
+      <button type="button" class="btn btn-primary btn-sm" (click)="irParaCadastro('sticky_desbloquear')" appAnalyticsCta="desbloquear_gratis" appAnalyticsCtaLocation="sticky_desbloquear">
+        Desbloquear gratuitamente
       </button>
     </div>
   }
@@ -422,12 +242,12 @@
         <a routerLink="/app" appAnalyticsCta="acessar_painel" appAnalyticsCtaLocation="footer">Acessar painel</a>
         <a routerLink="/historico" appAnalyticsCta="ver_historico" appAnalyticsCtaLocation="footer">Histórico</a>
       } @else {
-        <a routerLink="/cadastro" appAnalyticsCta="criar_conta" appAnalyticsCtaLocation="footer">Começar gratuitamente</a>
+        <a routerLink="/cadastro" appAnalyticsCta="desbloquear_gratis" appAnalyticsCtaLocation="footer">Desbloquear gratuitamente</a>
         <a routerLink="/login" appAnalyticsCta="entrar" appAnalyticsCtaLocation="footer">Entrar</a>
       }
       <a href="mailto:contato&#64;lupainsights.com.br" appAnalyticsCta="contato_email" appAnalyticsCtaLocation="footer">contato&#64;lupainsights.com.br</a>
     </nav>
     <app-legal-footer-links />
-    <p>Consulta CNPJ · Dados públicos organizados · {{ ano }} Lupa Insights</p>
+    <p>Consulta CNPJ · Inteligência empresarial · {{ ano }} Lupa Insights</p>
   </footer>
 </div>

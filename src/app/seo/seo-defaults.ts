@@ -2,17 +2,17 @@ import { RouteSeoConfig } from '../models/seo.model';
 import { landingJsonLd, planosOffersJsonLd, consultaCnpjJsonLd } from './structured-data';
 
 export const DEFAULT_SEO: RouteSeoConfig = {
-  title: 'Consultar CNPJ — Dados de empresas em segundos | Lupa Insights',
+  title: 'Consultar CNPJ — Dados e insights de empresas | Lupa Insights',
   description:
-    'Pesquise qualquer CNPJ e encontre dados públicos, sócios, CNAEs, contatos e localização de empresas brasileiras em uma única plataforma.',
+    'Pesquise qualquer CNPJ e encontre dados públicos, insights inteligentes, contatos e localização de empresas brasileiras em uma única plataforma.',
   index: true
 };
 
 export const ROUTE_SEO: Record<string, RouteSeoConfig> = {
   '': {
-    title: 'Lupa Insights — Descubra tudo sobre qualquer CNPJ em segundos',
+    title: 'Lupa Insights — Descubra tudo sobre qualquer empresa brasileira',
     description:
-      'Mais de 60 milhões de empresas brasileiras pesquisáveis em um único lugar. Dados públicos organizados — sócios, CNAEs, contatos e localização em segundos.',
+      'Consulte CNPJ gratuitamente e obtenha dados oficiais com insights inteligentes. Mais de 60 milhões de empresas brasileiras pesquisáveis.',
     index: true,
     jsonLd: landingJsonLd()
   },

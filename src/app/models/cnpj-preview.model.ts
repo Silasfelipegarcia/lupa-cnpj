@@ -21,6 +21,12 @@ export interface CnpjPreviewResult extends CnpjPreviewQuota {
   uf?: string;
   cep?: string;
   cnaePrincipal?: string;
+  dataAbertura?: string;
+  capitalSocial?: string;
+  porte?: string;
+  naturezaJuridica?: string;
+  quantidadeSocios?: number;
+  mei?: string;
   cadastroLimiteCnpjDia?: number;
   cadastroLimitePlanilha?: number;
   cadastroLimiteLoteDia?: number;

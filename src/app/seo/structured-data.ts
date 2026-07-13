@@ -33,7 +33,7 @@ export function softwareApplicationJsonLd(): Record<string, unknown> {
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
     url: SITE,
-    description: 'Consulte CNPJ e encontre dados públicos, sócios, contatos, CNAEs e localização de empresas brasileiras.',
+    description: 'Consulte CNPJ e encontre dados públicos, insights, contatos, CNAEs e localização de empresas brasileiras.',
     offers: [
       {
         '@type': 'Offer',
@@ -89,7 +89,7 @@ export const LANDING_FAQ: FaqItem[] = [
   {
     question: 'Quais informações posso encontrar?',
     answer:
-      'Razão social, nome fantasia, situação cadastral, sócios, telefones, e-mail, endereço, CNAE principal e outros dados públicos de empresas brasileiras.'
+      'Razão social, nome fantasia, status cadastral, sócios, telefones, e-mail, endereço, atividade principal e insights automáticos com base em dados oficiais.'
   },
   {
     question: 'Posso testar grátis?',
