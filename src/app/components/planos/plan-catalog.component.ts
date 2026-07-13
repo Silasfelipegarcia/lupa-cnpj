@@ -47,7 +47,6 @@ export class PlanCatalogComponent implements OnInit {
   parcelas = signal(1);
 
   planosPrincipais = computed(() => this.catalogo().filter((i) => !i.contatoComercial));
-  planoBusiness = computed(() => this.catalogo().find((i) => i.contatoComercial));
   sandboxMercadoPago = computed(() => this.mpPublicKey().startsWith('TEST-'));
   cvvInformado = computed(() => this.cvv().trim().length >= 3);
 
@@ -123,10 +122,13 @@ export class PlanCatalogComponent implements OnInit {
     if (item.priceCents <= 0) {
       return null;
     }
+    const opcoesPagamento = item.plan === 'PREMIUM' && this.authService.isAuthenticated()
+      ? 'À vista ou em até 12x no cartão'
+      : (item.paymentOptionsLabel ?? 'Cobrança anual');
     if (this.parcelas() === 12) {
-      return `Total anual ${item.annualPriceLabel} · ${item.paymentOptionsLabel ?? ''}`;
+      return `Total anual ${item.annualPriceLabel} · ${opcoesPagamento}`;
     }
-    return `${item.annualPriceLabel} · ${item.paymentOptionsLabel ?? 'Cobrança anual'}`;
+    return `${item.annualPriceLabel} · ${opcoesPagamento}`;
   }
 
   private carregarCotacoes(): void {
@@ -261,6 +263,15 @@ export class PlanCatalogComponent implements OnInit {
 
   trialDiasRestantes(): number {
     return this.authService.currentUser()?.usage?.trialDiasRestantes ?? 0;
+  }
+
+  exibirTrialPrimeiro(item: PlanCatalogItem): boolean {
+    return item.plan === 'PREMIUM' && !this.authService.isAuthenticated();
+  }
+
+  irParaCadastro(origem: string): void {
+    this.analytics.trackCtaClick('desbloquear_gratis', origem);
+    void this.router.navigate(['/cadastro'], { queryParams: { redirect: '/planos' } });
   }
 
   irCadastrarCartao(): void {

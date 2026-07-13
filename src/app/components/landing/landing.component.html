@@ -120,7 +120,7 @@
             }
             <h3>{{ p.nome }}</h3>
             <p class="pricing-strip__monthly">{{ p.mensal }}</p>
-            <p class="pricing-strip__annual">{{ p.anual }} · à vista ou 12x</p>
+            <p class="pricing-strip__annual">{{ p.anual }}@if (p.destaque) { · sem cartão para começar }@else { · à vista ou 12x }</p>
             <a routerLink="/planos" class="btn btn-sm" [class.btn-primary]="p.destaque" [class.btn-outline]="!p.destaque"
                appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="pricing_strip">
               Escolher plano

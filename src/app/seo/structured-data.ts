@@ -99,7 +99,7 @@ export const LANDING_FAQ: FaqItem[] = [
   {
     question: 'Qual a diferença entre os planos?',
     answer:
-      'Trial 7 dias (grátis ao criar conta): pesquisas em lote completas. Prospecção (R$ 9,90/mês, plano anual): até 100 empresas por planilha e exportação Excel. Growth (R$ 29,90/mês): até 500 empresas por planilha e filtros avançados.'
+      'Prospecção: 7 dias grátis ao criar conta, depois R$ 9,90/mês (plano anual) — até 100 empresas por planilha e exportação Excel. Growth (R$ 29,90/mês): até 500 empresas por planilha e filtros avançados.'
   },
   {
     question: 'Para quem o Lupa é indicado?',
