@@ -23,7 +23,7 @@
     "@angular/forms": "^19.2.0",
     "@angular/platform-browser": "^19.2.0",
     "@angular/platform-browser-dynamic": "^19.2.0",
-    "@angular/platform-server": "^19.2.0",
+    "@angular/platform-server": "^22.0.6",
     "@angular/router": "^19.2.0",
     "@angular/ssr": "^19.2.27",
     "@mercadopago/sdk-js": "^0.0.3",
