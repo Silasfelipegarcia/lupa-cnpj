@@ -46,7 +46,10 @@ export class PlanCatalogComponent implements OnInit {
   cotacoes = signal<Partial<Record<SubscriptionPlan, PlanQuote>>>({});
   parcelas = signal(1);
 
-  planosPrincipais = computed(() => this.catalogo().filter((i) => !i.contatoComercial));
+  /** Só planos comerciais — nunca card Trial/FREE separado (trial vive dentro do Prospecção). */
+  planosPrincipais = computed(() =>
+    this.catalogo().filter((i) => !i.contatoComercial && i.plan !== 'FREE')
+  );
   sandboxMercadoPago = computed(() => this.mpPublicKey().startsWith('TEST-'));
   cvvInformado = computed(() => this.cvv().trim().length >= 3);
 
@@ -122,13 +125,17 @@ export class PlanCatalogComponent implements OnInit {
     if (item.priceCents <= 0) {
       return null;
     }
-    const opcoesPagamento = item.plan === 'PREMIUM' && this.authService.isAuthenticated()
-      ? 'À vista ou em até 12x no cartão'
-      : (item.paymentOptionsLabel ?? 'Cobrança anual');
-    if (this.parcelas() === 12) {
-      return `Total anual ${item.annualPriceLabel} · ${opcoesPagamento}`;
+    if (item.plan === 'PREMIUM' && !this.authService.isAuthenticated()) {
+      return `${item.annualPriceLabel} · inclui 7 dias grátis sem cartão`;
     }
-    return `${item.annualPriceLabel} · ${opcoesPagamento}`;
+    if (this.parcelas() === 12) {
+      return `Total anual ${item.annualPriceLabel} · À vista ou em até 12x no cartão`;
+    }
+    return `${item.annualPriceLabel} · À vista ou em até 12x no cartão`;
+  }
+
+  rotuloCtaVisitante(item: PlanCatalogItem): string {
+    return item.plan === 'PREMIUM' ? 'Começar gratuitamente' : 'Criar conta';
   }
 
   private carregarCotacoes(): void {
@@ -263,10 +270,6 @@ export class PlanCatalogComponent implements OnInit {
 
   trialDiasRestantes(): number {
     return this.authService.currentUser()?.usage?.trialDiasRestantes ?? 0;
-  }
-
-  exibirTrialPrimeiro(item: PlanCatalogItem): boolean {
-    return item.plan === 'PREMIUM' && !this.authService.isAuthenticated();
   }
 
   irParaCadastro(origem: string): void {

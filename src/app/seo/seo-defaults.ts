@@ -26,7 +26,7 @@ export const ROUTE_SEO: Record<string, RouteSeoConfig> = {
   planos: {
     title: 'Planos e preços | Lupa Insights',
     description:
-      'Planos para pesquisar empresas em volume. Trial 7 dias grátis, Prospecção (R$ 9,90/mês) e Growth (R$ 29,90/mês). Consulte CNPJs em lote e exporte em Excel.',
+      'Prospecção (R$ 9,90/mês, com 7 dias grátis) e Growth (R$ 29,90/mês). Consulte CNPJs em lote e exporte em Excel.',
     index: true,
     jsonLd: planosOffersJsonLd()
   },
@@ -52,7 +52,7 @@ export const ROUTE_SEO: Record<string, RouteSeoConfig> = {
     index: false
   },
   'cadastro-pendente': {
-    title: 'Confirme seu e-mail — trial de 7 dias | Lupa Insights',
+    title: 'Confirme seu e-mail — 7 dias de Prospecção | Lupa Insights',
     description: 'Confirme seu e-mail para ativar 7 dias de Prospecção grátis na Lupa Insights.',
     index: false
   },

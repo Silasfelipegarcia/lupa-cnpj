@@ -128,32 +128,27 @@
         }
         <div class="plan-card__header">
           <h2>{{ item.nome }}</h2>
-          @if (exibirTrialPrimeiro(item)) {
-            <span class="plan-price">7 dias grátis</span>
-            <span class="plan-price-note">depois {{ item.priceLabel }} · {{ item.annualPriceLabel }}</span>
-          } @else {
-            @if (cotacao(item.plan); as quote) {
-              @if (quote.upgrade) {
-                <span class="plan-price">{{ quote.amountLabel }}</span>
-                <span class="plan-price-note">{{ quote.description }}</span>
-              } @else {
-                <span class="plan-price">{{ rotuloPrecoPlano(item, quote) }}</span>
-                @if (notaPrecoPlano(item, quote); as nota) {
-                  <span class="plan-price-note">{{ nota }}</span>
-                }
-              }
-            } @else if (item.priceCents > 0) {
-              <span class="plan-price">{{ rotuloPrecoPlano(item) }}</span>
-              @if (notaPrecoPlano(item); as nota) {
+          @if (cotacao(item.plan); as quote) {
+            @if (quote.upgrade) {
+              <span class="plan-price">{{ quote.amountLabel }}</span>
+              <span class="plan-price-note">{{ quote.description }}</span>
+            } @else {
+              <span class="plan-price">{{ rotuloPrecoPlano(item, quote) }}</span>
+              @if (notaPrecoPlano(item, quote); as nota) {
                 <span class="plan-price-note">{{ nota }}</span>
               }
-            } @else {
-              <span class="plan-price">{{ item.priceLabel }}</span>
             }
+          } @else if (item.priceCents > 0) {
+            <span class="plan-price">{{ rotuloPrecoPlano(item) }}</span>
+            @if (notaPrecoPlano(item); as nota) {
+              <span class="plan-price-note">{{ nota }}</span>
+            }
+          } @else {
+            <span class="plan-price">{{ item.priceLabel }}</span>
           }
         </div>
         @if (item.descricao) {
-          <p class="plan-desc">{{ item.descricao }}@if (exibirTrialPrimeiro(item)) { · sem cartão para começar }</p>
+          <p class="plan-desc">{{ item.descricao }}</p>
         }
 
         @if (item.beneficios?.length) {
@@ -223,9 +218,9 @@
               routerLink="/cadastro"
               [queryParams]="{ redirect: '/planos' }"
               class="btn btn-primary"
-              (click)="irParaCadastro(item.plan === 'PREMIUM' ? 'plan_card_trial' : 'plan_card_signup')"
+              (click)="irParaCadastro(item.plan === 'PREMIUM' ? 'plan_card_prospeccao' : 'plan_card_growth')"
             >
-              Começar gratuitamente
+              {{ rotuloCtaVisitante(item) }}
             </a>
           } @else if (item.plan && podeAssinar(item)) {
             @if (item.plan === 'ADMIN_TEST') {

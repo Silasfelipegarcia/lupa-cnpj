@@ -104,8 +104,8 @@ export class LandingComponent implements OnInit {
   readonly pricingPlans = [
     {
       nome: 'Prospecção',
-      mensal: '7 dias grátis',
-      anual: 'depois R$ 9,90/mês',
+      mensal: 'R$ 9,90/mês',
+      anual: '7 dias grátis · R$ 118,80/ano',
       destaque: true
     },
     {

@@ -37,24 +37,17 @@ export function softwareApplicationJsonLd(): Record<string, unknown> {
     offers: [
       {
         '@type': 'Offer',
-        name: 'Trial 7 dias',
-        price: '0',
-        priceCurrency: 'BRL',
-        description: 'Prospecção completa por 7 dias ao criar conta — sem cartão para começar'
-      },
-      {
-        '@type': 'Offer',
         name: 'Prospecção',
         price: '9.90',
         priceCurrency: 'BRL',
-        description: '10 planilhas/dia, até 100 empresas por planilha'
+        description: 'Inclui 7 dias grátis. 10 planilhas/dia, até 100 empresas por planilha'
       },
       {
         '@type': 'Offer',
         name: 'Growth',
         price: '29.90',
         priceCurrency: 'BRL',
-        description: '50 planilhas/dia, até 500 empresas por planilha'
+        description: '50 planilhas/dia, até 500 empresas por planilha e filtros avançados'
       }
     ]
   };
@@ -99,7 +92,7 @@ export const LANDING_FAQ: FaqItem[] = [
   {
     question: 'Qual a diferença entre os planos?',
     answer:
-      'Prospecção: 7 dias grátis ao criar conta, depois R$ 9,90/mês (plano anual) — até 100 empresas por planilha e exportação Excel. Growth (R$ 29,90/mês): até 500 empresas por planilha e filtros avançados.'
+      'São dois planos: Prospecção (R$ 9,90/mês, com 7 dias grátis ao criar conta) para até 100 empresas por planilha; e Growth (R$ 29,90/mês) para até 500 empresas, com filtros avançados e histórico ilimitado.'
   },
   {
     question: 'Para quem o Lupa é indicado?',
