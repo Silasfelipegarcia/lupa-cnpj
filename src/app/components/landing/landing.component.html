@@ -2,13 +2,6 @@
   <header class="topbar">
     <app-brand link="/" ariaLabel="Lupa Insights — página inicial" />
     <nav class="topbar-nav">
-      <a href="#como-funciona" class="nav-link">Como funciona</a>
-      @if (!isLoggedIn()) {
-        <a href="#consulta-form" class="nav-link">Consultar</a>
-      }
-      <a href="#quem-usa" class="nav-link">Quem usa</a>
-      <a href="#recursos" class="nav-link">Recursos</a>
-      <a href="#faq" class="nav-link">FAQ</a>
       <a routerLink="/planos" class="nav-link" appAnalyticsCta="planos" appAnalyticsCtaLocation="topbar">Planos</a>
       <span class="topbar-auth">
         @if (isLoggedIn()) {
@@ -19,9 +12,9 @@
             routerLink="/cadastro"
             [queryParams]="signupQueryParams"
             class="btn btn-primary"
-            (click)="registrarDesbloquear('hero_desbloquear')"
+            (click)="registrarCriarConta('topbar')"
           >
-            Desbloquear gratuitamente
+            Criar conta grátis
           </a>
         }
       </span>
@@ -30,17 +23,11 @@
 
   <section class="hero hero--centered">
     <div class="hero-content">
-      <h1>Descubra tudo sobre qualquer empresa brasileira</h1>
+      <h1>Consulte qualquer CNPJ</h1>
 
       <p class="hero-lead">
-        Consulte gratuitamente CNPJ e obtenha uma visão clara da empresa com dados oficiais e insights inteligentes.
+        Digite o número e veja dados oficiais da empresa em segundos.
       </p>
-
-      <ul class="hero-trust" aria-label="Indicadores de confiança">
-        @for (badge of trustBadges; track badge) {
-          <li><span aria-hidden="true">✔</span> {{ badge }}</li>
-        }
-      </ul>
 
       @if (!isLoggedIn()) {
         <div id="consulta-form" class="hero-search">
@@ -69,13 +56,13 @@
               } @else if (quota()?.limiteAtingido) {
                 Limite atingido
               } @else {
-                Consultar empresa
+                Consultar
               }
             </button>
           </form>
 
           @if (quota(); as q) {
-            <p class="hero-quota">{{ q.consultasRestantes }} de {{ q.consultasLimite }} consulta(s) gratuita(s) restante(s)</p>
+            <p class="hero-quota">{{ rotuloQuota(q) }}</p>
           }
 
           @if (erroPreview()) {
@@ -86,7 +73,7 @@
             <div class="hero-alert hero-alert--limit">
               Você já usou sua consulta gratuita neste dispositivo.
               <button type="button" class="hero-alert-link" (click)="irParaCadastro('hero_limite')">
-                Desbloquear gratuitamente
+                Desbloquear grátis
               </button>
             </div>
           }
@@ -110,6 +97,23 @@
     </div>
   }
 
+  <section id="como-funciona" class="section section-alt">
+    <div class="section-head">
+      <span class="section-tag">Como funciona</span>
+      <h2>3 passos. Menos de 1 minuto.</h2>
+      <p class="section-lead">Simples de usar — você entende na hora.</p>
+    </div>
+    <div class="steps">
+      @for (s of steps; track s.num) {
+        <div class="step">
+          <span class="step-num">{{ s.num }}</span>
+          <h3>{{ s.title }}</h3>
+          <p>{{ s.text }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
   @if (!isLoggedIn()) {
     <section class="section section-pricing-strip" aria-label="Planos e preços">
       <div class="pricing-strip">
@@ -123,7 +127,7 @@
             <p class="pricing-strip__annual">{{ p.anual }}@if (!p.destaque) { · à vista ou 12x }</p>
             <a routerLink="/planos" class="btn btn-sm" [class.btn-primary]="p.destaque" [class.btn-outline]="!p.destaque"
                appAnalyticsCta="ver_planos" appAnalyticsCtaLocation="pricing_strip">
-              Escolher plano
+              Ver planos
             </a>
           </article>
         }
@@ -151,8 +155,8 @@
   <section id="recursos" class="section">
     <div class="section-head">
       <span class="section-tag">Recursos</span>
-      <h2>Inteligência empresarial ao seu alcance</h2>
-      <p class="section-lead">Mais do que uma consulta — uma visão clara sobre qualquer empresa.</p>
+      <h2>Mais do que uma consulta</h2>
+      <p class="section-lead">Dados claros sobre qualquer empresa brasileira.</p>
     </div>
     <div class="features-grid">
       @for (f of features; track f.title) {
@@ -161,23 +165,6 @@
           <h3>{{ f.title }}</h3>
           <p>{{ f.text }}</p>
         </article>
-      }
-    </div>
-  </section>
-
-  <section id="como-funciona" class="section section-alt">
-    <div class="section-head">
-      <span class="section-tag">Como funciona</span>
-      <h2>3 passos. Menos de 1 minuto.</h2>
-      <p class="section-lead">Simples de usar — você entende na hora.</p>
-    </div>
-    <div class="steps">
-      @for (s of steps; track s.num) {
-        <div class="step">
-          <span class="step-num">{{ s.num }}</span>
-          <h3>{{ s.title }}</h3>
-          <p>{{ s.text }}</p>
-        </div>
       }
     </div>
   </section>
@@ -200,8 +187,8 @@
 
   <section class="cta">
     <div class="cta-inner">
-      <h2>Desbloqueie gratuitamente a análise completa</h2>
-      <p>Crie sua conta em menos de 20 segundos.</p>
+      <h2>Crie sua conta grátis</h2>
+      <p>Em menos de 20 segundos — sem cartão para começar.</p>
       <div class="cta-actions">
         @if (isLoggedIn()) {
           <a routerLink="/app" class="btn btn-primary btn-lg" appAnalyticsCta="nova_consulta" appAnalyticsCtaLocation="cta_final">Nova consulta</a>
@@ -211,9 +198,9 @@
             routerLink="/cadastro"
             [queryParams]="signupQueryParams"
             class="btn btn-primary btn-lg"
-            (click)="registrarDesbloquear('cta_final')"
+            (click)="registrarCriarConta('cta_final')"
           >
-            Desbloquear gratuitamente
+            Criar conta grátis
           </a>
           <button type="button" class="btn btn-outline btn-lg"
                   appAnalyticsCta="consultar_cnpj" appAnalyticsCtaLocation="cta_final"
@@ -223,7 +210,7 @@
         }
       </div>
       @if (!isLoggedIn()) {
-        <p class="cta-note">7 dias grátis ao confirmar o e-mail · Sem cartão para começar</p>
+        <p class="cta-note">7 dias de Prospecção ao confirmar o e-mail</p>
       }
     </div>
   </section>
@@ -232,7 +219,7 @@
     <div class="sticky-signup-bar">
       <p>Desbloqueie a análise completa desta empresa</p>
       <button type="button" class="btn btn-primary btn-sm" (click)="irParaCadastro('sticky_desbloquear')">
-        Desbloquear gratuitamente
+        Desbloquear grátis
       </button>
     </div>
   }
@@ -240,6 +227,8 @@
   <footer class="footer">
     <app-brand link="/" ariaLabel="Lupa Insights" />
     <nav class="footer-nav" aria-label="Links do site">
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#faq">FAQ</a>
       <a routerLink="/planos" appAnalyticsCta="planos" appAnalyticsCtaLocation="footer">Planos</a>
       @if (isLoggedIn()) {
         <a routerLink="/app" appAnalyticsCta="acessar_painel" appAnalyticsCtaLocation="footer">Acessar painel</a>
@@ -248,15 +237,15 @@
         <a
           routerLink="/cadastro"
           [queryParams]="signupQueryParams"
-          (click)="registrarDesbloquear('footer')"
+          (click)="registrarCriarConta('footer')"
         >
-          Desbloquear gratuitamente
+          Criar conta grátis
         </a>
         <a routerLink="/login" appAnalyticsCta="entrar" appAnalyticsCtaLocation="footer">Entrar</a>
       }
       <a href="mailto:contato&#64;lupainsights.com.br" appAnalyticsCta="contato_email" appAnalyticsCtaLocation="footer">contato&#64;lupainsights.com.br</a>
     </nav>
     <app-legal-footer-links />
-    <p>Consulta CNPJ · Inteligência empresarial · {{ ano }} Lupa Insights</p>
+    <p>Consulta CNPJ · {{ ano }} Lupa Insights</p>
   </footer>
 </div>

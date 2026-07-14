@@ -10,9 +10,9 @@ export const DEFAULT_SEO: RouteSeoConfig = {
 
 export const ROUTE_SEO: Record<string, RouteSeoConfig> = {
   '': {
-    title: 'Lupa Insights — Descubra tudo sobre qualquer empresa brasileira',
+    title: 'Consulte qualquer CNPJ | Lupa Insights',
     description:
-      'Consulte CNPJ gratuitamente e obtenha dados oficiais com insights inteligentes. Mais de 60 milhões de empresas brasileiras pesquisáveis.',
+      'Digite o CNPJ e veja dados oficiais da empresa em segundos. Consulta gratuita — sem cartão para começar.',
     index: true,
     jsonLd: landingJsonLd()
   },

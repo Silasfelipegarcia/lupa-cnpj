@@ -30,8 +30,8 @@ import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive'
           </a>
           <a routerLink="/login" appAnalyticsCta="entrar" appAnalyticsCtaLocation="header">Entrar</a>
           <a routerLink="/cadastro" class="btn-upgrade"
-             appAnalyticsCta="desbloquear_gratis" appAnalyticsCtaLocation="header">
-            Cadastrar
+             appAnalyticsCta="criar_conta_gratis" appAnalyticsCtaLocation="header">
+            Criar conta grátis
           </a>
         }
       </nav>

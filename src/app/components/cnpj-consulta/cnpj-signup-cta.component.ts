@@ -9,7 +9,7 @@ import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive'
   template: `
     <section class="cc-section" aria-labelledby="cc-signup-title">
       <div class="cc-card cc-signup">
-        <h2 id="cc-signup-title" class="cc-signup-title">Desbloqueie gratuitamente a análise completa</h2>
+        <h2 id="cc-signup-title" class="cc-signup-title">Desbloqueie a análise completa</h2>
         <p class="cc-signup-sub">Crie sua conta em menos de 20 segundos.</p>
         <a
           [routerLink]="['/cadastro']"
@@ -17,7 +17,7 @@ import { AnalyticsCtaDirective } from '../../directives/analytics-cta.directive'
           class="btn btn-primary btn-lg"
           (click)="signupClick.emit()"
         >
-          Desbloquear gratuitamente
+          Desbloquear grátis
         </a>
         <ul class="cc-signup-benefits" aria-label="Benefícios da conta">
           @for (benefit of benefits; track benefit) {

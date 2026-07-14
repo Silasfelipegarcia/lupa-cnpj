@@ -37,12 +37,6 @@ export class LandingComponent implements OnInit {
   resultado = signal<CnpjPreviewResult | null>(null);
   quota = signal<CnpjPreviewQuota | null>(null);
 
-  readonly trustBadges = [
-    'Dados oficiais',
-    'Consulta gratuita',
-    'Atualizado diariamente'
-  ];
-
   readonly personas = [
     {
       perfil: 'Vendedores',
@@ -95,8 +89,8 @@ export class LandingComponent implements OnInit {
 
   readonly steps = [
     { num: '1', title: 'Digite o CNPJ', text: 'Informe os 14 dígitos da empresa que deseja consultar.' },
-    { num: '2', title: 'Veja o resultado', text: 'Dados oficiais, insights e análise organizados em cards.' },
-    { num: '3', title: 'Desbloqueie mais', text: 'Crie sua conta gratuita para salvar, comparar e exportar.' }
+    { num: '2', title: 'Veja o resultado', text: 'Dados oficiais da empresa organizados de forma clara.' },
+    { num: '3', title: 'Crie sua conta', text: 'Salve consultas, compare empresas e exporte quando precisar.' }
   ];
 
   readonly faq = LANDING_FAQ;
@@ -172,7 +166,7 @@ export class LandingComponent implements OnInit {
     }
 
     if (this.quota()?.limiteAtingido) {
-      this.erroPreview.set('Você usou sua consulta gratuita. Desbloqueie a análise completa criando uma conta.');
+      this.erroPreview.set('Você usou sua consulta gratuita. Crie uma conta grátis para continuar.');
       this.analytics.trackGuestPreviewError('quota_limit_reached');
       return;
     }
@@ -211,12 +205,32 @@ export class LandingComponent implements OnInit {
     });
   }
 
+  rotuloQuota(q: CnpjPreviewQuota): string {
+    if (q.limiteAtingido || q.consultasRestantes <= 0) {
+      return 'Consulta gratuita já usada neste dispositivo';
+    }
+    if (q.consultasLimite === 1 && q.consultasRestantes === 1) {
+      return '1 consulta grátis neste dispositivo';
+    }
+    return `${q.consultasRestantes} consulta(s) grátis restante(s) neste dispositivo`;
+  }
+
+  /** CTAs frios (topbar, footer, CTA final) — pessoa ainda não viu conteúdo travado. */
+  registrarCriarConta(origem: string): void {
+    this.analytics.trackCtaClick('criar_conta_gratis', origem);
+  }
+
+  /** Pós-resultado / limite — há algo travado. */
   registrarDesbloquear(origem: string): void {
     this.analytics.trackCtaClick('desbloquear_gratis', origem);
   }
 
   irParaCadastro(origem: string): void {
-    this.registrarDesbloquear(origem);
+    if (origem === 'topbar' || origem === 'footer' || origem === 'cta_final') {
+      this.registrarCriarConta(origem);
+    } else {
+      this.registrarDesbloquear(origem);
+    }
     void this.router.navigate(['/cadastro'], { queryParams: this.signupQueryParams });
   }
 }
